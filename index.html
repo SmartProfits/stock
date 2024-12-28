@@ -195,9 +195,9 @@
     </style>
 </head>
 <body>
-    <h1>商品库存展示</h1>
-    <button id="sortButton" onclick="toggleSort()">点击按库存量排序</button>
-    <div id="loading">数据加载中...</div>
+    <h1>KEPAYAN STOCK</h1>
+    <button id="sortButton" onclick="toggleSort()">Sort By Stock</button>
+    <div id="loading">Data update...</div>
     <div id="productList"></div>
 
     <script>
@@ -389,18 +389,18 @@
             switch(currentSortOrder) {
                 case 'none':
                     currentSortOrder = 'desc';
-                    button.textContent = '当前: 库存量从多到少 ↓';
+                    button.textContent = 'High to Low ↓';
                     break;
                 case 'desc':
                     currentSortOrder = 'asc';
-                    button.textContent = '当前: 库存量从少到多 ↑';
+                    button.textContent = 'Low to High ↑';
                     break;
                 case 'asc':
                     currentSortOrder = 'none';
-                    button.textContent = '点击按库存量排序';
+                    button.textContent = 'Sort by Stock';
                     break;
             }
-            loadQuantitiesFromSheet(); // 重新加载并排序数据
+            loadQuantitiesFromSheet();
         }
 
         // 更新库存显示
