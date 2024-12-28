@@ -309,6 +309,7 @@
                 // 创建包含库存信息的产品数组
                 let productsWithStock = products.map(product => ({
                     ...product,
+                    displayStock: stockMap[product.name] === '0' ? '-' : stockMap[product.name] || '-',
                     stock: parseInt(stockMap[product.name] || '0')
                 }));
 
@@ -328,7 +329,7 @@
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${product.name}</td>
-                        <td>${product.stock}</td>
+                        <td>${product.displayStock}</td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -348,5 +349,7 @@
             setInterval(loadQuantitiesFromSheet, 30000);
         });
     </script>
+    <p class="contact-info">If you have any questions or need to add new products, please contact me (Mark).</p>
+	</body>
 </body>
 </html>
