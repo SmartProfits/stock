@@ -5,68 +5,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>商品库存展示</title>
     <style>
+        /* 整体样式优化 */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #FCEEDD;
-            color: #333;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        .category {
-            margin-top: 20px;
-        }
-        .category h2 {
-            color: #333;
-        }
-        
-        #loading {
-            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             padding: 20px;
-            display: none;
-        }
-        
-        .stock-info {
-            color: #666;
-            font-size: 0.9em;
-            margin-left: 10px;
+            background-color: #f5f5f5;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
+        /* 标题样式 */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        /* 排序按钮样式 */
         #sortButton {
-            padding: 10px 20px;
-            margin: 10px 0;
-            background-color: #4CAF50;
+            display: block;
+            margin: 20px auto;
+            padding: 12px 25px;
+            background-color: #3498db;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         #sortButton:hover {
-            background-color: #45a049;
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
-        tbody tr {
-            transition: all 0.3s ease;
+        /* 加载动画样式 */
+        #loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+            display: none;
+        }
+
+        /* 分类容器样式 */
+        .category {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* 分类标题样式 */
+        .category h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        /* 表格样式优化 */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 10px;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        td {
+            color: #444;
+        }
+
+        /* 表格行悬停效果 */
+        tr:hover {
+            background-color: #f8f9fa;
+            transition: background-color 0.3s ease;
+        }
+
+        /* 库存为0的样式 */
+        td:last-child {
+            font-weight: 500;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .category {
+                padding: 15px;
+            }
+
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+
+        /* 添加平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 添加表格内容居中 */
+        td:last-child {
+            text-align: center;
+        }
+
+        th:last-child {
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <h1>商品库存展示</h1>
     <button id="sortButton" onclick="toggleSort()">点击按库存量排序</button>
-    <div id="loading">加载中...</div>
+    <div id="loading">数据加载中...</div>
     <div id="productList"></div>
 
     <script>
@@ -349,7 +429,5 @@
             setInterval(loadQuantitiesFromSheet, 30000);
         });
     </script>
-    <p class="contact-info">If you have any questions or need to add new products, please contact me (Mark).</p>
-	</body>
 </body>
 </html>
