@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>商品库存展示</title>
     <style>
-        /* 整体样式优化 */
+        /* 保持之前的样式 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;  /* 优化字体渲染 */
+            -webkit-font-smoothing: antialiased;  
             -moz-osx-font-smoothing: grayscale;
             margin: 0;
             padding: 20px;
@@ -18,7 +18,6 @@
             margin: 0 auto;
         }
 
-        /* 标题样式 */
         h1 {
             text-align: center;
             color: #2c3e50;
@@ -30,7 +29,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* 排序按钮样式 */
         #sortButton {
             display: block;
             margin: 20px auto;
@@ -53,7 +51,6 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
-        /* 加载动画样式 */
         #loading {
             text-align: center;
             padding: 20px;
@@ -62,7 +59,6 @@
             display: none;
         }
 
-        /* 分类容器样式 */
         .category {
             background: white;
             border-radius: 10px;
@@ -71,7 +67,6 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        /* 分类标题样式 */
         .category h2 {
             color: #2c3e50;
             margin-top: 0;
@@ -83,7 +78,6 @@
             letter-spacing: 0.3px;
         }
 
-        /* 表格样式优化 */
         table {
             border-collapse: separate;
             border-spacing: 0;
@@ -99,27 +93,23 @@
             position: relative;
         }
 
-        /* 添加垂直分隔线 */
         td:first-child, th:first-child {
             border-right: 2px solid #e0e0e0;
             width: 70%;
         }
 
-        /* 库存数量列样式 */
         td:last-child, th:last-child {
             width: 30%;
             text-align: center;
             background-color: #fafafa;
         }
 
-        /* 表头样式加强 */
         th {
             background-color: #f0f0f0;
             color: #2c3e50;
             font-weight: 600;
             border-bottom: 2px solid #3498db;
             font-size: 1.1em;
-            font-weight: 600;
             letter-spacing: 0.2px;
         }
 
@@ -130,7 +120,6 @@
             letter-spacing: 0.1px;
         }
 
-        /* 表格行悬停效果 */
         tr:hover td {
             background-color: #f5f5f5;
         }
@@ -139,7 +128,6 @@
             background-color: #f0f0f0;
         }
 
-        /* 响应式设计 */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -166,12 +154,10 @@
             }
         }
 
-        /* 添加平滑滚动 */
         html {
             scroll-behavior: smooth;
         }
 
-        /* 添加表格内容居中 */
         td:last-child {
             text-align: center;
         }
@@ -180,222 +166,56 @@
             text-align: center;
         }
 
-        /* 商品名称列 */
         td:first-child {
             font-weight: 450;
             color: #2c3e50;
         }
 
-        /* 库存数量列 */
         td:last-child {
             font-size: 1.1em;
             font-weight: 500;
             color: #34495e;
         }
+
         .contact-info {
-    font-size: 1rem; /* 字体大小 */
-    font-style: italic; /* 斜体 */
-    color: #555; /* 浅灰色字体 */
-    text-align: center; /* 居中对齐 */
-    background-color: #f9f9f9; /* 柔和的背景色 */
-    padding: 10px; /* 内边距 */
-    border-radius: 8px; /* 圆角边框 */
-    margin-bottom: 20px; /* 与下方内容的间距 */
-    border: 1px solid #ddd; /* 浅色边框 */
-}
-
-    </style>
-</head>
-<body>
-    <h1>KEPAYAN STOCK</h1>
-    <button id="sortButton" onclick="toggleSort()">Sort By Stock</button>
-    <div id="loading">Data update...</div>
-    <div id="productList"></div>
-
-    <script>
-        // 商品分类数据
-        const categories = {
-						    BanHeang: [
-						        { id: 101, name: "BH Tambun Original" },
-						        { id: 102, name: "BH Tambun Pandan" },
-						        { id: 103, name: "BH Tambun White Lotus" },
-						        { id: 104, name: "BH Tau Sar Pheah" },
-						        { id: 105, name: "BH Heong Pheah" },
-						        { id: 106, name: "BH Beh Teh Saw" },
-						        { id: 107, name: "BH Phong Pheah" },
-						        { id: 108, name: "BH Pepper Biscuit" },
-						        { id: 109, name: "BH Hup Toh Soh" },
-						        { id: 110, name: "BH Omlette Crisp Chocolate" },
-						        { id: 111, name: "BH Omlette Crisp Pandan" },
-						        { id: 112, name: "BH Kai Chai Biscuit" },
-						        { id: 113, name: "BH Almond Slice" },
-						        { id: 114, name: "BH Almond Slice Salted Egg" },
-						        { id: 115, name: "BH Durian Crisp" },
-						        { id: 116, name: "BH Coconut Crisp" },
-						        { id: 117, name: "BH Salted Fish Crisp" },
-						        { id: 118, name: "BH Salted Egg Crisp" },
-						        { id: 119, name: "BH Cheese Crisp" },
-						        { id: 120, name: "BH Chic Kut Teh" },
-						        { id: 121, name: "BH Ginger Slice" },
-						        { id: 122, name: "BH Dried Mango" },
-						        { id: 123, name: "BH Kacang Tumbuk" },
-						        { id: 124, name: "BH Gula Kacang" },
-						        { id: 125, name: "BH Black Sesame Peanut" },
-						        { id: 126, name: "BH Shat Kek Ma" },
-						        { id: 127, name: "BH Shat Kek Ma (Brown Sugar)" },
-						        { id: 128, name: "BH Coconut Biscuits" },
-						        { id: 129, name: "BH FD Durian 50g" },
-						        { id: 130, name: "BH FD Mango 50g" },
-						        { id: 131, name: "BH FD Durian 30g" },
-			                    { id: 160, name: "BH FD Mango 30g" },
-			                    { id: 161, name: "BH FD Cempedak 25g" },
-			                    { id: 162, name: "BH FD Jackfruit 30g" },
-						        { id: 132, name: "BH Butter Cookies" },
-						        { id: 133, name: "BH Chocolate Cookies" },
-						        { id: 134, name: "BH Raisin Cookies" },
-						        { id: 135, name: "BH Almond Cookies" },
-						        { id: 136, name: "BH Pineapple Tart" },
-						        { id: 137, name: "BH Red Bean Mochi" },
-						        { id: 138, name: "BH Peanut Mochi" },
-						        { id: 139, name: "BH Green Tea Mochi" },
-						        { id: 140, name: "BH Durian Mochi" },
-						        { id: 141, name: "BH Yam Mochi" },
-						        { id: 142, name: "BH Mochi Milk Yam Filling" },
-						        { id: 143, name: "BH Mochi Milk Mango Filling" },
-						        { id: 144, name: "BH Mochi Milk Green Tea" },
-						        { id: 145, name: "BH Sotong Cuttlefish" },
-						        { id: 146, name: "BH Gula Cuttlefish" },
-						        { id: 147, name: "BH Satay Fish" },
-						        { id: 148, name: "BH Fillet Cracker With Anchovy" },
-						        { id: 149, name: "BH Fillet Cracker With Seaweed" },
-						        { id: 150, name: "BH Sakura Shrimp" },
-						        { id: 151, name: "BH Frugurt Yogurt Blueberry" },
-						        { id: 152, name: "BH Frugurt Yogurt Peach" },
-						        { id: 153, name: "BH Frugurt Yogurt Mango" },
-						        { id: 154, name: "BH Durian Pudding" },
-						        { id: 155, name: "BH Coconut Pudding" },
-						        { id: 156, name: "BH Dodol Durian" },
-						        { id: 157, name: "BH Dodol Coconut" },
-						        { id: 158, name: "BH Dodol Pandan" },
-						        { id: 159, name: "BH Durian Beh Teh Saw" },
-			                    { id: 163, name: "Fruity Marshmallow" },
-			                    { id: 164, name: "Matcha Marshmallow" },
-			                    { id: 165, name: "Durian Marshmallow" },
-						    ],
-						    HopHup: [
-						        { id: 201, name: "HT Durian Tart" },
-						        { id: 202, name: "HT Mango Tart" },
-						        { id: 203, name: "HT Durian Wafer Roll" },
-						        { id: 204, name: "HT Mango Wafer Roll" },
-						        { id: 205, name: "HT Omelette Durian" },
-						        { id: 206, name: "HT Coconut Ori Cookies" },
-						        { id: 207, name: "HT Coconut Pandan Cookies" },
-						        { id: 208, name: "HT Dodol Original" },
-						        { id: 209, name: "HT Dodol Kopi" },
-						        { id: 210, name: "HT Dodol Durian" },
-						        { id: 211, name: "HT Freeze Dried Mango" },
-						        { id: 212, name: "HT Freeze Dried Durian" },
-						        { id: 213, name: "Salted Egg Fish Skin" },
-						        { id: 214, name: "Salted Egg Fish Skin Spicy" },
-						        { id: 215, name: "Salted Egg Salmon Skin" },
-						        { id: 216, name: "Musang King Durian Candy" },
-						        { id: 217, name: "HT Durian Cookies" },
-						        { id: 218, name: "Fish Chips Classic" },
-						        { id: 219, name: "Salted Egg Fish Chips" },
-						        { id: 220, name: "Salted Egg Fish Chips Mala" }
-						    ],
-						    Chocolate: [
-						        { id: 301, name: "AD Chocolate Durian", unit: 'pc', defaultQuantity: 50 },
-						        { id: 302, name: "AD Chocolate Sabah Tea", unit: 'pc', defaultQuantity: 50 },
-						        { id: 303, name: "AD Chocolate Mango", unit: 'pc', defaultQuantity: 50 },
-						        { id: 304, name: "AD Chocolate Chili", unit: 'pc', defaultQuantity: 50 },
-						        { id: 305, name: "AD Chocolate Dark", unit: 'pc', defaultQuantity: 50 },
-						        { id: 306, name: "AD Chocolate Coffee", unit: 'pc', defaultQuantity: 50 },
-						        { id: 307, name: "AD Chocolate Banana", unit: 'pc', defaultQuantity: 50 },
-						        { id: 308, name: "AD Chocolate Tiramisu", unit: 'pc', defaultQuantity: 50 },
-						        { id: 309, name: "AD Chocolate Mint", unit: 'pc', defaultQuantity: 50 },
-						        { id: 310, name: "AD Chocolate Rambutan", unit: 'pc', defaultQuantity: 50 },
-						        { id: 311, name: "AD Chocolate Soursup", unit: 'pc', defaultQuantity: 50 },
-						        { id: 312, name: "AD Chocolate Coconut", unit: 'pc', defaultQuantity: 50 },
-						        { id: 313, name: "AD Chocolate Mangosteen", unit: 'pc', defaultQuantity: 50 }
-						    ],
-						    Sotong: [
-						        { id: 401, name: "Cuttlefish Red" },
-						        { id: 402, name: "Cuttlefish Lemon" },
-						        { id: 403, name: "Cuttlefish Honey" },
-						        { id: 404, name: "Cuttlefish Floss Original" },
-						        { id: 405, name: "Cuttlefish Massive" },
-						        { id: 406, name: "Cuttlefish Whole" },
-						        { id: 407, name: "Cuttlefish Roasted" },
-						        { id: 408, name: "Cuttlefish Chili" },
-						        { id: 409, name: "Cuttle Fish Slices" },
-						        { id: 410, name: "Cuttle Fish Sugar" },
-						        { id: 411, name: "Five Star Cuttlefish" }
-						    ],
-						    Coffee: [
-						        { id: 501, name: "BH W/Coffee(Mini)" },
-						        { id: 502, name: "BH W/Coffee(Mini)No Sugar" },
-						        { id: 503, name: "BH Durian W/Coffee(Mini)" },
-						        { id: 504, name: "BH Teh Tarik(Mini)" },
-						        { id: 505, name: "BH W/Coffee" },
-						        { id: 506, name: "BH W/Coffee No Sugar" },
-						        { id: 507, name: "BH Kopi O 2in1" },
-						        { id: 508, name: "BH Kopi O No Sugar" },
-						        { id: 509, name: "BH Teh Tarik" },
-						        { id: 510, name: "BH Durian White Coffee" },
-						        { id: 511, name: "Kopi Tenom Silver" },
-						        { id: 512, name: "Kopi Tenom Gold" },
-						        { id: 513, name: "Kopi Tenom Blue" },
-						        { id: 514, name: "Kopi Tenom Green" },
-						        { id: 515, name: "Kopi Tenom Red" }
-						    ],
-						    Amplang: [
-						        { id: 601, name: "Amplang Ikan", unit: 'pkt', defaultQuantity: 60 },
-						        { id: 602, name: "Amplang Udang", unit: 'pkt', defaultQuantity: 60 },
-						        { id: 603, name: "Amplang Sotong" , unit: 'pkt', defaultQuantity: 60 }
-						    ],
-						    Other: [
-						        { id: 701, name: "Fruity Gummy Assorted" },
-						        { id: 702, name: "Fruity Gummy Mango" },
-						        { id: 703, name: "Durian Kuih" },
-						        { id: 704, name: "Anchovy Blue" },
-						        { id: 705, name: "Anchovy Green" },
-						        { id: 706, name: "Anchovy Red" },
-						        { id: 707, name: "Anchovy Yellow" },
-			                    { id: 708, name: "Prawn Cracker 500g", unit: 'pkt', },
-			                    { id: 709, name: "Fish Maw", unit: 'pkt', }
-						    ]
-						};
-
-        // Google Sheets 数据加载函数
-        function loadQuantitiesFromSheet() {
-            const SHEET_ID = '1QUB8R0-gtwNhdiPYU2rwFf_UKrGyyqCQHzIQ7AxKFLI';
-            const SHEET_NAME = 'Sheet1';
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
-            
-            document.getElementById('loading').style.display = 'block';
-
-            fetch(url)
-                .then(response => response.text())
-                .then(data => {
-                    try {
-                        const jsonData = JSON.parse(data.substr(47).slice(0, -2));
-                        const rows = jsonData.table.rows;
-                        updateInventoryDisplay(rows);
-                    } catch (error) {
-                        console.error('解析数据错误:', error);
-                    } finally {
-                        document.getElementById('loading').style.display = 'none';
-                    }
-                })
-                .catch(error => {
-                    console.error('获取数据失败:', error);
-                    document.getElementById('loading').style.display = 'none';
-                });
+            font-size: 1rem;
+            font-style: italic;
+            color: #555;
+            text-align: center;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
         }
+    </style>
+    <!-- Firebase SDK 引入 -->
+    <script type="module">
+        // Import the necessary Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
+        import { getDatabase, ref, get, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWA3rBxpwfVpZ6KLNL8FX-Cd7ECd6-DeA",
+            authDomain: "stock-order-20281.firebaseapp.com",
+            databaseURL: "https://stock-order-20281-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "stock-order-20281",
+            storageBucket: "stock-order-20281.firebasestorage.app",
+            messagingSenderId: "84921229688",
+            appId: "1:84921229688:web:8d934190dcdeddfcfd288d",
+            measurementId: "G-W84WFQXQP1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
 
         let currentSortOrder = 'none'; // 'none', 'desc', 'asc'
 
+        // 排序按钮点击事件
         function toggleSort() {
             const button = document.getElementById('sortButton');
             switch(currentSortOrder) {
@@ -412,24 +232,20 @@
                     button.textContent = 'Sort by Stock';
                     break;
             }
-            loadQuantitiesFromSheet();
+            loadQuantitiesFromFirebase();
         }
 
         // 更新库存显示
-        function updateInventoryDisplay(rows) {
-            const stockMap = {};
-            rows.forEach(row => {
-                if (row.c[0] && row.c[1]) {
-                    const productName = row.c[0].v;
-                    const stockQuantity = row.c[1].v;
-                    stockMap[productName] = stockQuantity;
-                }
-            });
-
+        function updateInventoryDisplay(stockData) {
             const productList = document.getElementById('productList');
             productList.innerHTML = '';
 
-            Object.entries(categories).forEach(([categoryName, products]) => {
+            if (!stockData.categories) {
+                productList.innerHTML = '<p>暂无数据</p>';
+                return;
+            }
+
+            Object.entries(stockData.categories).forEach(([categoryName, products]) => {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category';
                 
@@ -450,10 +266,11 @@
                 const tbody = document.createElement('tbody');
                 
                 // 创建包含库存信息的产品数组
-                let productsWithStock = products.map(product => ({
-                    ...product,
-                    displayStock: stockMap[product.name] === '0' ? '-' : stockMap[product.name] || '-',
-                    stock: parseInt(stockMap[product.name] || '0')
+                let productsWithStock = Object.entries(products).map(([id, product]) => ({
+                    id: id,
+                    name: product.name,
+                    displayStock: (product.stock === 0) ? '-' : product.stock,
+                    stock: parseInt(product.stock || '0')
                 }));
 
                 // 根据当前排序方式排序
@@ -483,16 +300,48 @@
             });
         }
 
+        // 从 Firebase 加载数据
+        function loadQuantitiesFromFirebase() {
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+
+            const dbRef = ref(database, 'inventory');
+
+            get(dbRef)
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const stockData = snapshot.val();
+                        updateInventoryDisplay(stockData);
+                    } else {
+                        console.log("No data available");
+                        document.getElementById('productList').innerHTML = '<p>No data available</p>';
+                    }
+                })
+                .catch((error) => {
+                    console.error('获取数据失败:', error);
+                    document.getElementById('productList').innerHTML = '<p>Error loading data</p>';
+                })
+                .finally(() => {
+                    loading.style.display = 'none';
+                });
+        }
+
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', () => {
             // 加载初始数据
-            loadQuantitiesFromSheet();
+            loadQuantitiesFromFirebase();
 
-            // 设置定时刷新（每30秒）
-            setInterval(loadQuantitiesFromSheet, 90000);
+            // 设置定时刷新（每90秒）
+            setInterval(loadQuantitiesFromFirebase, 90000);
         });
     </script>
-    <p class="contact-info">If you have any questions or need to add new products, please contact me (Mark).</p>
+</head>
+<body>
+    <h1>KEPAYAN STOCK</h1>
+    <button id="sortButton" onclick="toggleSort()">Sort by Stock</button>
+    <div id="loading">Data updating...</div>
+    <div id="productList"></div>
 
+    <p class="contact-info">如有任何问题或需要添加新产品，请联系我（Mark）。</p>
 </body>
 </html>
