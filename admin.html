@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库存管理</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        /* 登录页面样式 */
+        #loginContent {
+            display: block; /* 默认显示 */
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 50px auto;
+            max-width: 400px;
+        }
+
+        #loginContent input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #loginContent button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        #loginContent button:hover {
+            background-color: #2980b9;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* 管理页面样式 */
+        #adminContent {
+            display: none; /* 默认隐藏 */
+        } table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* 编辑按钮样式 */
+        .edit-button, .save-button, .cancel-button, .delete-button {
+            padding: 6px 12px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .edit-button {
+            background-color: #f1c40f;
+        }
+
+        .save-button {
+            background-color: #2ecc71;
+        }
+
+        .cancel-button {
+            background-color: #e74c3c;
+        }
+
+        .delete-button {
+            background-color: #e74c3c;
+        }
+
+        /* 允许输入样式 */
+        .editable {
+            background-color: #fff8dc;
+            width: 80px;
+        }
+
+        /* 添加新产品表单 */
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-container input, .form-container select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 16px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-container button {
+            padding: 12px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .form-container button:hover {
+            background-color: #2980b9;
+        }
+
+        /* 提示信息 */
+        .message {
+            text-align: center;
+            margin-bottom: 20px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录界面 -->
+    <div id="loginContent">
+        <h1>登录</h1>
+        <label for="username">用户名:</label>
+        <input type="text" id="username" placeholder="请输入用户名" required>
+        <label for="password">密码:</label>
+        <input type="password" id="password" placeholder="请输入密码" required>
+        <button id="loginButton">登录</button>
+        <div id="loginError" class="error"></div>
+    </div>
+
+    <!-- 管理内容 -->
+    <div id="adminContent">
+        <h1>库存管理</h1>
+        <!-- 添加产品表单 -->
+        <div class="form-container">
+            <h2>添加新产品</h2>
+            <form id="addProductForm">
+                <label for="name">商品名称:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="stock">库存数量:</label>
+                <input type="number" id="stock" name="stock" min="0" required>
+
+                <label for="category">分类:</label>
+                <select id="category" name="category" required>
+                    <option value="BanHeang">BanHeang</option>
+                    <option value="HopHup">HopHup</option>
+                    <option value="Chocolate">Chocolate</option>
+                    <option value="Sotong">Sotong</option>
+                    <option value="Coffee">Coffee</option>
+                    <option value="Amplang">Amplang</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <button type="submit">添加产品</button>
+            </form>
+        </div>
+
+        <!-- 提示信息 -->
+        <div id="message" class="message"></div>
+
+        <!-- 产品表格 -->
+        <table>
+            <thead>
+                <tr>
+                    <th>商品名称</th>
+                    <th>分类</th>
+                    <th>库存数量</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+                <tr><td colspan="4">加载中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        // 登录验证逻辑
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginContent = document.getElementById('loginContent');
+            const adminContent = document.getElementById('adminContent');
+            const loginButton = document.getElementById('loginButton');
+            const loginError = document.getElementById('loginError');
+
+            const validUsername = 'Admin';
+            const validPassword = '1234';
+
+            loginButton.addEventListener('click', () => {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+
+                if (username === validUsername && password === validPassword) {
+                    loginContent.style.display = 'none';
+                    adminContent.style.display = 'block';
+                } else {
+                    loginError.textContent = '用户名或密码错误，请重试！';
+                }
+            });
+        });
+
+        // Firebase 逻辑（保持不变）
+        // ... 省略了前文的 Firebase 初始化和管理代码 ...
+    </script>
+<script type="module">
+        // Import the necessary Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
+        import { getDatabase, ref, set, push, remove, update, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWA3rBxpwfVpZ6KLNL8FX-Cd7ECd6-DeA",
+            authDomain: "stock-order-20281.firebaseapp.com",
+            databaseURL: "https://stock-order-20281-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "stock-order-20281",
+            storageBucket: "stock-order-20281.firebasestorage.app",
+            messagingSenderId: "84921229688",
+            appId: "1:84921229688:web:8d934190dcdeddfcfd288d",
+            measurementId: "G-W84WFQXQP1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
+
+        // 获取 DOM 元素
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminContent = document.getElementById('adminContent');
+            const productTableBody = document.getElementById('productTableBody');
+            const addProductForm = document.getElementById('addProductForm');
+            const messageDiv = document.getElementById('message');
+
+            let currentEditProductId = null;
+            let currentEditCategory = null;
+
+            // 显示所有产品
+            function displayProducts(stockData) {
+                productTableBody.innerHTML = '';
+
+                if (!stockData.categories) {
+                    productTableBody.innerHTML = '<tr><td colspan="4">暂无数据</td></tr>';
+                    return;
+                }
+
+                Object.entries(stockData.categories).forEach(([categoryName, products]) => {
+                    // 添加分类名称为表头
+                    const categoryRow = document.createElement('tr');
+                    categoryRow.innerHTML = `<th colspan="4">${categoryName}</th>`;
+                    productTableBody.appendChild(categoryRow);
+
+                    Object.entries(products).forEach(([id, product]) => {
+                        const row = document.createElement('tr');
+                        row.dataset.id = id; // 添加 data-id 属性以便后续操作
+                        row.dataset.category = categoryName; // 添加 data-category 属性
+
+                        const nameCell = document.createElement('td');
+                        nameCell.textContent = product.name;
+                        row.appendChild(nameCell);
+
+                        const categoryCell = document.createElement('td');
+                        categoryCell.textContent = categoryName;
+                        row.appendChild(categoryCell);
+
+                        const stockCell = document.createElement('td');
+                        stockCell.textContent = product.stock;
+                        row.appendChild(stockCell);
+
+                        const actionsCell = document.createElement('td');
+
+                        const editButton = document.createElement('button');
+                        editButton.textContent = '编辑';
+                        editButton.className = 'edit-button';
+                        editButton.onclick = () => editProductInline(id, categoryName, stockCell, actionsCell);
+                        actionsCell.appendChild(editButton);
+
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = '删除';
+                        deleteButton.className = 'delete-button';
+                        deleteButton.onclick = () => deleteProduct(id, categoryName);
+                        actionsCell.appendChild(deleteButton);
+
+                        row.appendChild(actionsCell);
+
+                        productTableBody.appendChild(row);
+                    });
+                });
+            }
+
+            // 获取所有产品
+            function fetchProducts() {
+                const dbRef = ref(database, 'inventory');
+
+                onValue(dbRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const stockData = snapshot.val();
+                        displayProducts(stockData);
+                    } else {
+                        productTableBody.innerHTML = '<tr><td colspan="4">暂无数据</td></tr>';
+                    }
+                }, (error) => {
+                    console.error('获取数据失败:', error);
+                    productTableBody.innerHTML = '<tr><td colspan="4">加载数据时出错</td></tr>';
+                });
+            }
+
+            // 添加新产品
+            addProductForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const name = addProductForm['name'].value.trim();
+                const stock = parseInt(addProductForm['stock'].value);
+                const category = addProductForm['category'].value;
+
+                if (name === '' || isNaN(stock)) {
+                    alert('请填写完整的产品名称和有效的库存数量。');
+                    return;
+                }
+
+                const newProductRef = push(ref(database, `inventory/categories/${category}`));
+                set(newProductRef, {
+                    name: name,
+                    stock: stock
+                }).then(() => {
+                    addProductForm.reset();
+                    alert('产品添加成功。');
+                }).catch((error) => {
+                    console.error('添加产品失败:', error);
+                    alert('添加产品失败，请重试。');
+                });
+            });
+
+            // 编辑产品库存（inline）
+            function editProductInline(id, category, stockCell, actionsCell) {
+                // 防止同时编辑多个产品
+                if (currentEditProductId !== null) {
+                    alert('请先保存或取消当前的编辑。');
+                    return;
+                }
+
+                currentEditProductId = id;
+                currentEditCategory = category;
+
+                const originalStock = stockCell.textContent;
+                stockCell.innerHTML = `<input type="number" value="${originalStock}" min="0" class="editable">`;
+
+                // 清空动作单元格并添加 "Update" 和 "Cancel" 按钮
+                actionsCell.innerHTML = '';
+
+                const updateButton = document.createElement('button');
+                updateButton.textContent = 'Update';
+                updateButton.className = 'save-button';
+                updateButton.onclick = () => updateProductStock(id, category, stockCell, actionsCell);
+
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancel';
+                cancelButton.className = 'cancel-button';
+                cancelButton.onclick = () => cancelEdit(stockCell, originalStock, actionsCell);
+
+                actionsCell.appendChild(updateButton);
+                actionsCell.appendChild(cancelButton);
+            }
+
+            // 更新库存数量
+            function updateProductStock(id, category, stockCell, actionsCell) {
+                const input = stockCell.querySelector('input');
+                const newStock = parseInt(input.value);
+
+                if (isNaN(newStock) || newStock < 0) {
+                    alert('请输入有效的库存数量。');
+                    return;
+                }
+
+                const productRef = ref(database, `inventory/categories/${category}/${id}`);
+
+                update(productRef, {
+                    stock: newStock
+                }).then(() => {
+                    stockCell.textContent = newStock; // 更新单元格内容
+                    resetEditState();
+                    alert('库存更新成功。');
+                }).catch((error) => {
+                    console.error('更新库存失败:', error);
+                    alert('更新库存失败，请重试。');
+                    resetEditState();
+                });
+            }
+
+            // 取消编辑
+            function cancelEdit(stockCell, originalStock, actionsCell) {
+                stockCell.textContent = originalStock;
+
+                // 恢复原来的操作按钮
+                actionsCell.innerHTML = '';
+                const editButton = document.createElement('button');
+                editButton.textContent = '编辑';
+                editButton.className = 'edit-button';
+                editButton.onclick = () => editProductInline(currentEditProductId, currentEditCategory, stockCell, actionsCell);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = '删除';
+                deleteButton.className = 'delete-button';
+                deleteButton.onclick = () => deleteProduct(currentEditProductId, currentEditCategory);
+
+                actionsCell.appendChild(editButton);
+                actionsCell.appendChild(deleteButton);
+
+                resetEditState();
+            }
+
+            // 重置编辑状态
+            function resetEditState() {
+                currentEditProductId = null;
+                currentEditCategory = null;
+                fetchProducts(); // 重新获取数据以确保界面一致
+            }
+
+            // 删除产品
+            function deleteProduct(id, category) {
+                if (confirm('确定要删除这个产品吗？')) {
+                    const productRef = ref(database, `inventory/categories/${category}/${id}`);
+                    remove(productRef).then(() => {
+                        alert('产品已删除。');
+                    }).catch((error) => {
+                        console.error('删除产品失败:', error);
+                        alert('删除产品失败，请重试。');
+                    });
+                }
+            }
+
+            // 初始化时加载产品
+            fetchProducts();
+        });
+    </script>
+</body>
+</html>
