@@ -100,14 +100,19 @@
         }
 
         /* Add Vertical Separator */
-        td:first-child, th:first-child {
+        th:first-child, td:first-child {
             border-right: 2px solid #e0e0e0;
-            width: 70%;
+            width: 50%;
         }
 
-        /* Stock Quantity Column Style */
-        td:last-child, th:last-child {
+        th:nth-child(2), td:nth-child(2) {
+            border-right: 2px solid #e0e0e0;
             width: 30%;
+            text-align: center;
+        }
+
+        th:nth-child(3), td:nth-child(3) {
+            width: 20%;
             text-align: center;
             background-color: #fafafa;
         }
@@ -171,11 +176,7 @@
         }
 
         /* Center Table Content */
-        td:last-child {
-            text-align: center;
-        }
-
-        th:last-child {
+        td:last-child, th:last-child {
             text-align: center;
         }
 
@@ -186,7 +187,14 @@
         }
 
         /* Stock Quantity Column */
-        td:last-child {
+        td:nth-child(2) {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        /* Unit Column */
+        td:nth-child(3) {
             font-size: 1.1em;
             font-weight: 500;
             color: #34495e;
@@ -299,18 +307,20 @@
                         <tr>
                             <th>Product Name</th>
                             <th>Stock Quantity</th>
+                            <th>Unit</th>
                         </tr>
                     </thead>
                 `;
 
                 const tbody = document.createElement('tbody');
                 
-                // Create an array of products with stock information
+                // Create an array of products with stock and unit information
                 let productsWithStock = filteredProducts.map(([id, product]) => ({
                     id: id,
                     name: product.name,
                     displayStock: (product.stock === 0) ? '-' : product.stock,
-                    stock: parseInt(product.stock || '0')
+                    stock: parseInt(product.stock || '0'),
+                    unit: product.unit || 'ctn' // Default to 'ctn' if unit is missing
                 }));
 
                 // Sort based on current sort order
@@ -326,6 +336,7 @@
                     row.innerHTML = `
                         <td>${product.name}</td>
                         <td>${product.displayStock}</td>
+                        <td>${product.unit}</td>
                     `;
                     tbody.appendChild(row);
                 });
