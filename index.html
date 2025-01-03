@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Inventory Display</title>
+    <title>Inventory Management</title>
     <style>
-        /* General Style Optimization */
+        /* Base Styles */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;  /* Optimize font rendering */
-            -moz-osx-font-smoothing: grayscale;
-            margin: 0;
+            font-family: Arial, sans-serif;
             padding: 20px;
             background-color: #f5f5f5;
             color: #333;
@@ -18,215 +15,318 @@
             margin: 0 auto;
         }
 
-        /* Title Style */
-        h1 {
+        h1, h2 {
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: 2.8em;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #3498db;
-            font-weight: 600;
-            letter-spacing: 0.5px;
         }
 
-        /* Sort Button Style */
-        #sortButton {
-            display: block;
-            margin: 20px auto;
-            padding: 12px 25px;
+        /* Login Page Styles */
+        #loginContent {
+            display: block; /* Default display */
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 50px auto;
+            max-width: 400px;
+        }
+
+        #loginContent input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #loginContent button {
+            width: 100%;
+            padding: 12px;
             background-color: #3498db;
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1.1em;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            font-size: 1em;
+            transition: background-color 0.3s ease;
         }
 
-        #sortButton:hover {
+        #loginContent button:hover {
             background-color: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
-        /* Loading Animation Style */
-        #loading {
+        .error {
+            color: red;
             text-align: center;
-            padding: 20px;
-            color: #666;
-            font-style: italic;
-            display: none;
+            margin-top: 10px;
         }
 
-        /* Category Container Style */
-        .category {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        /* Admin Content Styles */
+        #adminContent {
+            display: none; /* Default hidden */
         }
 
-        /* Category Title Style */
-        .category h2 {
-            color: #2c3e50;
-            margin-top: 0;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
-            font-size: 1.6em;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-        }
-
-        /* Table Style Optimization */
         table {
-            border-collapse: separate;
-            border-spacing: 0;
             width: 100%;
-            margin-bottom: 10px;
+            border-collapse: collapse;
+            margin-bottom: 30px;
             background: white;
         }
 
         th, td {
             padding: 12px 15px;
+            border: 1px solid #ddd;
             text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-            position: relative;
         }
 
-        /* Add Vertical Separator */
-        td:first-child, th:first-child {
-            border-right: 2px solid #e0e0e0;
-            width: 70%;
-        }
-
-        /* Stock Quantity Column Style */
-        td:last-child, th:last-child {
-            width: 30%;
-            text-align: center;
-            background-color: #fafafa;
-        }
-
-        /* Enhanced Table Header Style */
         th {
-            background-color: #f0f0f0;
-            color: #2c3e50;
-            font-weight: 600;
-            border-bottom: 2px solid #3498db;
-            font-size: 1.1em;
-            letter-spacing: 0.2px;
+            background-color: #3498db;
+            color: white;
         }
 
-        td {
-            color: #444;
-            font-size: 1.05em;
-            line-height: 1.5;
-            letter-spacing: 0.1px;
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
 
-        /* Table Row Hover Effect */
-        tr:hover td {
-            background-color: #f5f5f5;
+        tr:hover {
+            background-color: #f1f1f1;
         }
 
-        tr:hover td:last-child {
-            background-color: #f0f0f0;
+        /* Button Styles */
+        .edit-button, .save-button, .cancel-button, .delete-button {
+            padding: 6px 12px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .edit-button {
+            background-color: #f1c40f;
+        }
+
+        .edit-button:hover {
+            background-color: #d4ac0d;
+        }
+
+        .save-button {
+            background-color: #2ecc71;
+        }
+
+        .save-button:hover {
+            background-color: #27ae60;
+        }
+
+        .cancel-button {
+            background-color: #e74c3c;
+        }
+
+        .cancel-button:hover {
+            background-color: #c0392b;
+        }
+
+        .delete-button {
+            background-color: #e74c3c;
+        }
+
+        .delete-button:hover {
+            background-color: #c0392b;
+        }
+
+        /* Editable Input Styles */
+        .editable {
+            background-color: #fff8dc;
+            width: 80px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Add Product Form Styles */
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-container input, .form-container select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 16px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-container button {
+            padding: 12px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Message Styles */
+        .message {
+            text-align: center;
+            margin-bottom: 20px;
+            color: green;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #3498db;
+            animation: spin 1s ease infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            h1 {
-                font-size: 2.2em;
-            }
-
-            .category {
-                padding: 15px;
-            }
-
+        @media (max-width: 600px) {
             th, td {
                 padding: 8px 10px;
             }
 
-            .category h2 {
-                font-size: 1.4em;
+            .form-container, #loginContent {
+                padding: 15px;
             }
 
-            th, td {
-                font-size: 1em;
+            .form-container button, #loginContent button {
+                padding: 10px;
+                font-size: 0.9em;
             }
-        }
-
-        /* Add Smooth Scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Center Table Content */
-        td:last-child {
-            text-align: center;
-        }
-
-        th:last-child {
-            text-align: center;
-        }
-
-        /* Product Name Column */
-        td:first-child {
-            font-weight: 450;
-            color: #2c3e50;
-        }
-
-        /* Stock Quantity Column */
-        td:last-child {
-            font-size: 1.1em;
-            font-weight: 500;
-            color: #34495e;
-        }
-
-        .contact-info {
-            font-size: 1rem; /* Font size */
-            font-style: italic; /* Italic */
-            color: #555; /* Light gray font */
-            text-align: center; /* Center align */
-            background-color: #f9f9f9; /* Soft background color */
-            padding: 10px; /* Padding */
-            border-radius: 8px; /* Rounded borders */
-            margin-bottom: 20px; /* Margin below */
-            border: 1px solid #ddd; /* Light border */
-        }
-
-        /* Search Bar Style */
-        #searchBar {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 15px;
-            width: 80%;
-            max-width: 400px;
-            border: 1px solid #ccc;
-            border-radius: 25px;
-            font-size: 1em;
-            transition: border-color 0.3s ease;
-        }
-
-        #searchBar:focus {
-            border-color: #3498db;
-            outline: none;
         }
     </style>
-    <!-- Firebase SDK Imports -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-    <script>
-        // Firebase Configuration
+</head>
+<body>
+    <!-- Login Interface -->
+    <div id="loginContent" aria-labelledby="loginTitle">
+        <h1 id="loginTitle">Login</h1>
+        <label for="username">Username:</label>
+        <input type="text" id="username" placeholder="Enter username" required aria-required="true">
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Enter password" required aria-required="true">
+        <button id="loginButton">Login</button>
+        <div id="loginError" class="error" role="alert"></div>
+    </div>
+
+    <!-- Admin Content -->
+    <div id="adminContent" aria-labelledby="adminTitle">
+        <h1 id="adminTitle">Inventory Management</h1>
+        
+        <!-- Add Product Form -->
+        <div class="form-container" aria-labelledby="addProductTitle">
+            <h2 id="addProductTitle">Add New Product</h2>
+            <form id="addProductForm">
+                <label for="name">Product Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter product name" required aria-required="true">
+
+                <label for="stock">Stock Quantity:</label>
+                <input type="number" id="stock" name="stock" min="0" placeholder="Enter stock quantity" required aria-required="true">
+
+                <label for="unit">Unit:</label>
+                <input type="text" id="unit" name="unit" placeholder="Enter unit (e.g., pkt, pc)" required aria-required="true">
+
+                <label for="category">Category:</label>
+                <select id="category" name="category" required aria-required="true">
+                    <option value="" disabled selected>Select category</option>
+                    <option value="BanHeang">BanHeang</option>
+                    <option value="HopHup">HopHup</option>
+                    <option value="Chocolate">Chocolate</option>
+                    <option value="Sotong">Sotong</option>
+                    <option value="Coffee">Coffee</option>
+                    <option value="Amplang">Amplang</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <button type="submit">Add Product</button>
+            </form>
+        </div>
+
+        <!-- Message Display -->
+        <div id="message" class="message" role="status" aria-live="polite"></div>
+
+        <!-- Products Table -->
+        <table aria-labelledby="productsTableTitle">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Stock Quantity</th>
+                    <th>Unit</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+                <tr>
+                    <td colspan="5" style="text-align: center;">
+                        <div class="spinner" role="status" aria-label="Loading"></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        // Login Validation Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginContent = document.getElementById('loginContent');
+            const adminContent = document.getElementById('adminContent');
+            const loginButton = document.getElementById('loginButton');
+            const loginError = document.getElementById('loginError');
+
+            // User credentials
+            const users = {
+                'Admin': '1234',
+                'Rowan': 'Rowan12@'
+            };
+
+            loginButton.addEventListener('click', () => {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+
+                if (users[username] === password) {
+                    loginContent.style.display = 'none';
+                    adminContent.style.display = 'block';
+                    // Optional: Focus on the first input in admin content
+                    document.getElementById('name').focus();
+                } else {
+                    loginError.textContent = 'Incorrect username or password. Please try again!';
+                }
+            });
+
+            // Allow pressing Enter to submit the login form
+            document.getElementById('password').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    loginButton.click();
+                }
+            });
+        });
+
+        // Firebase Logic
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
+        import { getDatabase, ref, set, push, remove, update, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDWA3rBxpwfVpZ6KLNL8FX-Cd7ECd6-DeA",
             authDomain: "stock-order-20281.firebaseapp.com",
@@ -239,157 +339,241 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
 
-        let currentSortOrder = 'none'; // 'none', 'asc', 'desc'
-        let allStockData = {}; // To store all fetched data for searching
-
-        // Sort Button Click Event
-        function toggleSort() {
-            const button = document.getElementById('sortButton');
-            if (currentSortOrder === 'none') {
-                currentSortOrder = 'desc';
-                button.textContent = 'Sort by Stock (High to Low)';
-            } else if (currentSortOrder === 'desc') {
-                currentSortOrder = 'asc';
-                button.textContent = 'Sort by Stock (Low to High)';
-            } else {
-                currentSortOrder = 'none';
-                button.textContent = 'Sort by Stock';
-            }
-            displayInventory(allStockData);
-        }
-
-        // Update Inventory Display
-        function updateInventoryDisplay(stockData) {
-            allStockData = stockData; // Store for searching
-            displayInventory(stockData);
-        }
-
-        // Display Inventory based on current sort and search
-        function displayInventory(stockData) {
-            const productList = document.getElementById('productList');
-            const searchQuery = document.getElementById('searchBar').value.toLowerCase();
-            productList.innerHTML = '';
-
-            if (!stockData || !stockData.categories) {
-                productList.innerHTML = '<p>No data available</p>';
-                return;
-            }
-
-            Object.entries(stockData.categories).forEach(([categoryName, products]) => {
-                // Filter products based on search query
-                const filteredProducts = Object.entries(products).filter(([id, product]) => 
-                    product.name.toLowerCase().includes(searchQuery)
-                );
-
-                if (filteredProducts.length === 0) return; // Skip category if no products match
-
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'category';
-                
-                const categoryTitle = document.createElement('h2');
-                categoryTitle.textContent = categoryName;
-                categoryDiv.appendChild(categoryTitle);
-
-                const table = document.createElement('table');
-                table.innerHTML = `
-                    <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Stock Quantity</th>
-                        </tr>
-                    </thead>
-                `;
-
-                const tbody = document.createElement('tbody');
-                
-                // Create an array of products with stock information
-                let productsWithStock = filteredProducts.map(([id, product]) => ({
-                    id: id,
-                    name: product.name,
-                    displayStock: (product.stock === 0) ? '-' : product.stock,
-                    stock: parseInt(product.stock || '0')
-                }));
-
-                // Sort based on current sort order
-                if (currentSortOrder === 'desc') {
-                    productsWithStock.sort((a, b) => b.stock - a.stock);
-                } else if (currentSortOrder === 'asc') {
-                    productsWithStock.sort((a, b) => a.stock - b.stock);
-                }
-
-                // Display sorted and filtered products
-                productsWithStock.forEach(product => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${product.name}</td>
-                        <td>${product.displayStock}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-
-                table.appendChild(tbody);
-                categoryDiv.appendChild(table);
-                productList.appendChild(categoryDiv);
-            });
-
-            // Show message if no products match the search
-            if (productList.innerHTML.trim() === '') {
-                productList.innerHTML = '<p>No products match your search.</p>';
-            }
-        }
-
-        // Load Data from Firebase in Real-time
-        function loadQuantitiesFromFirebase() {
-            const loading = document.getElementById('loading');
-            loading.style.display = 'block';
-
-            const dbRef = database.ref('inventory');
-
-            // Use 'on' for real-time updates
-            dbRef.on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const stockData = snapshot.val();
-                    updateInventoryDisplay(stockData);
-                } else {
-                    console.log("No data available");
-                    document.getElementById('productList').innerHTML = '<p>No data available</p>';
-                }
-                loading.style.display = 'none';
-            }, (error) => {
-                console.error('Failed to retrieve data:', error);
-                document.getElementById('productList').innerHTML = '<p>Error loading data</p>';
-                loading.style.display = 'none';
-            });
-        }
-
-        // Search Bar Event Listener
-        function setupSearch() {
-            const searchBar = document.getElementById('searchBar');
-            searchBar.addEventListener('input', () => {
-                displayInventory(allStockData);
-            });
-        }
-
-        // Initialize on Page Load
         document.addEventListener('DOMContentLoaded', () => {
-            // Load initial data
-            loadQuantitiesFromFirebase();
+            const productTableBody = document.getElementById('productTableBody');
+            const addProductForm = document.getElementById('addProductForm');
+            const messageDiv = document.getElementById('message');
 
-            // Setup search functionality
-            setupSearch();
+            let currentEditProductId = null;
+            let currentEditCategory = null;
+
+            // Display Products
+            function displayProducts(stockData) {
+                productTableBody.innerHTML = '';
+
+                if (!stockData.categories) {
+                    productTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No data available</td></tr>';
+                    return;
+                }
+
+                Object.entries(stockData.categories).forEach(([categoryName, products]) => {
+                    // Add category name as a table header row
+                    const categoryRow = document.createElement('tr');
+                    const categoryHeader = document.createElement('th');
+                    categoryHeader.colSpan = 5;
+                    categoryHeader.textContent = categoryName;
+                    categoryRow.appendChild(categoryHeader);
+                    productTableBody.appendChild(categoryRow);
+
+                    Object.entries(products).forEach(([id, product]) => {
+                        const row = document.createElement('tr');
+                        row.dataset.id = id; // Add data-id attribute for future reference
+                        row.dataset.category = categoryName; // Add data-category attribute
+
+                        const nameCell = document.createElement('td');
+                        nameCell.textContent = product.name;
+                        row.appendChild(nameCell);
+
+                        const categoryCell = document.createElement('td');
+                        categoryCell.textContent = categoryName;
+                        row.appendChild(categoryCell);
+
+                        const stockCell = document.createElement('td');
+                        stockCell.textContent = product.stock;
+                        row.appendChild(stockCell);
+
+                        const unitCell = document.createElement('td');
+                        unitCell.textContent = product.unit || 'N/A';
+                        row.appendChild(unitCell);
+
+                        const actionsCell = document.createElement('td');
+
+                        const editButton = document.createElement('button');
+                        editButton.textContent = 'Edit';
+                        editButton.className = 'edit-button';
+                        editButton.onclick = () => editProductInline(id, categoryName, stockCell, unitCell, actionsCell);
+                        actionsCell.appendChild(editButton);
+
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete';
+                        deleteButton.className = 'delete-button';
+                        deleteButton.onclick = () => deleteProduct(id, categoryName);
+                        actionsCell.appendChild(deleteButton);
+
+                        row.appendChild(actionsCell);
+
+                        productTableBody.appendChild(row);
+                    });
+                });
+            }
+
+            // Fetch All Products
+            function fetchProducts() {
+                const dbRef = ref(database, 'inventory');
+
+                onValue(dbRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const stockData = snapshot.val();
+                        displayProducts(stockData);
+                        messageDiv.textContent = '';
+                    } else {
+                        productTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No data available</td></tr>';
+                        messageDiv.textContent = '';
+                    }
+                }, (error) => {
+                    console.error('Failed to retrieve data:', error);
+                    productTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Error loading data</td></tr>';
+                    messageDiv.textContent = 'Error loading data. Please try again later.';
+                });
+            }
+
+            // Add New Product
+            addProductForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const name = addProductForm['name'].value.trim();
+                const stock = parseInt(addProductForm['stock'].value);
+                const unit = addProductForm['unit'].value.trim();
+                const category = addProductForm['category'].value;
+
+                if (name === '' || isNaN(stock) || unit === '') {
+                    messageDiv.style.color = 'red';
+                    messageDiv.textContent = 'Please enter a valid product name, stock quantity, and unit.';
+                    return;
+                }
+
+                const newProductRef = push(ref(database, `inventory/categories/${category}`));
+                set(newProductRef, {
+                    name: name,
+                    stock: stock,
+                    unit: unit
+                }).then(() => {
+                    addProductForm.reset();
+                    messageDiv.style.color = 'green';
+                    messageDiv.textContent = 'Product added successfully.';
+                }).catch((error) => {
+                    console.error('Failed to add product:', error);
+                    messageDiv.style.color = 'red';
+                    messageDiv.textContent = 'Failed to add product. Please try again.';
+                });
+            });
+
+            // Edit Product Inline
+            function editProductInline(id, category, stockCell, unitCell, actionsCell) {
+                // Prevent multiple edits
+                if (currentEditProductId !== null) {
+                    alert('Please save or cancel the current edit before editing another product.');
+                    return;
+                }
+
+                currentEditProductId = id;
+                currentEditCategory = category;
+
+                const originalStock = stockCell.textContent;
+                const originalUnit = unitCell.textContent;
+
+                // Create editable fields
+                stockCell.innerHTML = `<input type="number" value="${originalStock}" min="0" class="editable" aria-label="Edit stock quantity">`;
+                unitCell.innerHTML = `<input type="text" value="${originalUnit !== 'N/A' ? originalUnit : ''}" class="editable" aria-label="Edit unit">`;
+
+                // Clear actions and add "Save" and "Cancel" buttons
+                actionsCell.innerHTML = '';
+
+                const saveButton = document.createElement('button');
+                saveButton.textContent = 'Save';
+                saveButton.className = 'save-button';
+                saveButton.onclick = () => updateProduct(id, category, stockCell, unitCell, actionsCell);
+                actionsCell.appendChild(saveButton);
+
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancel';
+                cancelButton.className = 'cancel-button';
+                cancelButton.onclick = () => cancelEdit(stockCell, originalStock, unitCell, originalUnit, actionsCell);
+                actionsCell.appendChild(cancelButton);
+
+                // Focus on the stock input field for better UX
+                stockCell.querySelector('input').focus();
+            }
+
+            // Update Product (Stock and Unit)
+            function updateProduct(id, category, stockCell, unitCell, actionsCell) {
+                const newStock = parseInt(stockCell.querySelector('input').value);
+                const newUnit = unitCell.querySelector('input').value.trim();
+
+                if (isNaN(newStock) || newStock < 0 || newUnit === '') {
+                    alert('Please enter a valid stock quantity and unit.');
+                    return;
+                }
+
+                const productRef = ref(database, `inventory/categories/${category}/${id}`);
+
+                update(productRef, {
+                    stock: newStock,
+                    unit: newUnit
+                }).then(() => {
+                    stockCell.textContent = newStock;
+                    unitCell.textContent = newUnit;
+                    resetEditState();
+                    messageDiv.style.color = 'green';
+                    messageDiv.textContent = 'Product updated successfully.';
+                }).catch((error) => {
+                    console.error('Failed to update product:', error);
+                    alert('Failed to update product. Please try again.');
+                    resetEditState();
+                });
+            }
+
+            // Cancel Edit
+            function cancelEdit(stockCell, originalStock, unitCell, originalUnit, actionsCell) {
+                stockCell.textContent = originalStock;
+                unitCell.textContent = originalUnit;
+
+                // Restore original action buttons
+                actionsCell.innerHTML = '';
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.className = 'edit-button';
+                editButton.onclick = () => editProductInline(currentEditProductId, currentEditCategory, stockCell, unitCell, actionsCell);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'delete-button';
+                deleteButton.onclick = () => deleteProduct(currentEditProductId, currentEditCategory);
+
+                actionsCell.appendChild(editButton);
+                actionsCell.appendChild(deleteButton);
+
+                resetEditState();
+            }
+
+            // Reset Edit State
+            function resetEditState() {
+                currentEditProductId = null;
+                currentEditCategory = null;
+                fetchProducts(); // Refresh data to ensure consistency
+            }
+
+            // Delete Product
+            function deleteProduct(id, category) {
+                if (confirm('Are you sure you want to delete this product?')) {
+                    const productRef = ref(database, `inventory/categories/${category}/${id}`);
+                    remove(productRef).then(() => {
+                        messageDiv.style.color = 'green';
+                        messageDiv.textContent = 'Product deleted successfully.';
+                    }).catch((error) => {
+                        console.error('Failed to delete product:', error);
+                        alert('Failed to delete product. Please try again.');
+                    });
+                }
+            }
+
+            // Initialize by fetching products
+            fetchProducts();
         });
     </script>
-</head>
-<body>
-    <h1>KEPAYAN STOCK</h1>
-    <button id="sortButton" onclick="toggleSort()">Sort by Stock</button>
-    <input type="text" id="searchBar" placeholder="Search products..." aria-label="Search Products">
-    <div id="loading">Data updating...</div>
-    <div id="productList"></div>
-
-    <p class="contact-info">If you have any questions or need to add new products, please contact me (Mark).</p>
 </body>
 </html>
