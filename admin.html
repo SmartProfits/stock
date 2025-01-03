@@ -242,6 +242,9 @@
                 <label for="stock">Stock Quantity:</label>
                 <input type="number" id="stock" name="stock" min="0" placeholder="Enter stock quantity" required aria-required="true">
 
+                <label for="unit">Unit:</label>
+                <input type="text" id="unit" name="unit" placeholder="Enter unit (e.g., pkt, pc)" required aria-required="true">
+
                 <label for="category">Category:</label>
                 <select id="category" name="category" required aria-required="true">
                     <option value="" disabled selected>Select category</option>
@@ -268,12 +271,13 @@
                     <th>Product Name</th>
                     <th>Category</th>
                     <th>Stock Quantity</th>
+                    <th>Unit</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="productTableBody">
                 <tr>
-                    <td colspan="4" style="text-align: center;">
+                    <td colspan="5" style="text-align: center;">
                         <div class="spinner" role="status" aria-label="Loading"></div>
                     </td>
                 </tr>
@@ -352,7 +356,7 @@
                 productTableBody.innerHTML = '';
 
                 if (!stockData.categories) {
-                    productTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No data available</td></tr>';
+                    productTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No data available</td></tr>';
                     return;
                 }
 
@@ -360,7 +364,7 @@
                     // Add category name as a table header row
                     const categoryRow = document.createElement('tr');
                     const categoryHeader = document.createElement('th');
-                    categoryHeader.colSpan = 4;
+                    categoryHeader.colSpan = 5;
                     categoryHeader.textContent = categoryName;
                     categoryRow.appendChild(categoryHeader);
                     productTableBody.appendChild(categoryRow);
@@ -382,12 +386,16 @@
                         stockCell.textContent = product.stock;
                         row.appendChild(stockCell);
 
+                        const unitCell = document.createElement('td');
+                        unitCell.textContent = product.unit || 'N/A';
+                        row.appendChild(unitCell);
+
                         const actionsCell = document.createElement('td');
 
                         const editButton = document.createElement('button');
                         editButton.textContent = 'Edit';
                         editButton.className = 'edit-button';
-                        editButton.onclick = () => editProductInline(id, categoryName, stockCell, actionsCell);
+                        editButton.onclick = () => editProductInline(id, categoryName, stockCell, unitCell, actionsCell);
                         actionsCell.appendChild(editButton);
 
                         const deleteButton = document.createElement('button');
@@ -413,12 +421,12 @@
                         displayProducts(stockData);
                         messageDiv.textContent = '';
                     } else {
-                        productTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No data available</td></tr>';
+                        productTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No data available</td></tr>';
                         messageDiv.textContent = '';
                     }
                 }, (error) => {
                     console.error('Failed to retrieve data:', error);
-                    productTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Error loading data</td></tr>';
+                    productTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Error loading data</td></tr>';
                     messageDiv.textContent = 'Error loading data. Please try again later.';
                 });
             }
@@ -429,18 +437,20 @@
 
                 const name = addProductForm['name'].value.trim();
                 const stock = parseInt(addProductForm['stock'].value);
+                const unit = addProductForm['unit'].value.trim();
                 const category = addProductForm['category'].value;
 
-                if (name === '' || isNaN(stock)) {
+                if (name === '' || isNaN(stock) || unit === '') {
                     messageDiv.style.color = 'red';
-                    messageDiv.textContent = 'Please enter a valid product name and stock quantity.';
+                    messageDiv.textContent = 'Please enter a valid product name, stock quantity, and unit.';
                     return;
                 }
 
                 const newProductRef = push(ref(database, `inventory/categories/${category}`));
                 set(newProductRef, {
                     name: name,
-                    stock: stock
+                    stock: stock,
+                    unit: unit
                 }).then(() => {
                     addProductForm.reset();
                     messageDiv.style.color = 'green';
@@ -453,7 +463,7 @@
             });
 
             // Edit Product Inline
-            function editProductInline(id, category, stockCell, actionsCell) {
+            function editProductInline(id, category, stockCell, unitCell, actionsCell) {
                 // Prevent multiple edits
                 if (currentEditProductId !== null) {
                     alert('Please save or cancel the current edit before editing another product.');
@@ -464,7 +474,11 @@
                 currentEditCategory = category;
 
                 const originalStock = stockCell.textContent;
+                const originalUnit = unitCell.textContent;
+
+                // Create editable fields
                 stockCell.innerHTML = `<input type="number" value="${originalStock}" min="0" class="editable" aria-label="Edit stock quantity">`;
+                unitCell.innerHTML = `<input type="text" value="${originalUnit !== 'N/A' ? originalUnit : ''}" class="editable" aria-label="Edit unit">`;
 
                 // Clear actions and add "Save" and "Cancel" buttons
                 actionsCell.innerHTML = '';
@@ -472,55 +486,58 @@
                 const saveButton = document.createElement('button');
                 saveButton.textContent = 'Save';
                 saveButton.className = 'save-button';
-                saveButton.onclick = () => updateProductStock(id, category, stockCell, actionsCell);
+                saveButton.onclick = () => updateProduct(id, category, stockCell, unitCell, actionsCell);
                 actionsCell.appendChild(saveButton);
 
                 const cancelButton = document.createElement('button');
                 cancelButton.textContent = 'Cancel';
                 cancelButton.className = 'cancel-button';
-                cancelButton.onclick = () => cancelEdit(stockCell, originalStock, actionsCell);
+                cancelButton.onclick = () => cancelEdit(stockCell, originalStock, unitCell, originalUnit, actionsCell);
                 actionsCell.appendChild(cancelButton);
 
-                // Focus on the input field for better UX
+                // Focus on the stock input field for better UX
                 stockCell.querySelector('input').focus();
             }
 
-            // Update Stock Quantity
-            function updateProductStock(id, category, stockCell, actionsCell) {
-                const input = stockCell.querySelector('input');
-                const newStock = parseInt(input.value);
+            // Update Product (Stock and Unit)
+            function updateProduct(id, category, stockCell, unitCell, actionsCell) {
+                const newStock = parseInt(stockCell.querySelector('input').value);
+                const newUnit = unitCell.querySelector('input').value.trim();
 
-                if (isNaN(newStock) || newStock < 0) {
-                    alert('Please enter a valid stock quantity.');
+                if (isNaN(newStock) || newStock < 0 || newUnit === '') {
+                    alert('Please enter a valid stock quantity and unit.');
                     return;
                 }
 
                 const productRef = ref(database, `inventory/categories/${category}/${id}`);
 
                 update(productRef, {
-                    stock: newStock
+                    stock: newStock,
+                    unit: newUnit
                 }).then(() => {
-                    stockCell.textContent = newStock; // Update cell content
+                    stockCell.textContent = newStock;
+                    unitCell.textContent = newUnit;
                     resetEditState();
                     messageDiv.style.color = 'green';
-                    messageDiv.textContent = 'Stock updated successfully.';
+                    messageDiv.textContent = 'Product updated successfully.';
                 }).catch((error) => {
-                    console.error('Failed to update stock:', error);
-                    alert('Failed to update stock. Please try again.');
+                    console.error('Failed to update product:', error);
+                    alert('Failed to update product. Please try again.');
                     resetEditState();
                 });
             }
 
             // Cancel Edit
-            function cancelEdit(stockCell, originalStock, actionsCell) {
+            function cancelEdit(stockCell, originalStock, unitCell, originalUnit, actionsCell) {
                 stockCell.textContent = originalStock;
+                unitCell.textContent = originalUnit;
 
                 // Restore original action buttons
                 actionsCell.innerHTML = '';
                 const editButton = document.createElement('button');
                 editButton.textContent = 'Edit';
                 editButton.className = 'edit-button';
-                editButton.onclick = () => editProductInline(currentEditProductId, currentEditCategory, stockCell, actionsCell);
+                editButton.onclick = () => editProductInline(currentEditProductId, currentEditCategory, stockCell, unitCell, actionsCell);
 
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
