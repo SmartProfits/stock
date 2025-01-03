@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>商品库存展示</title>
     <style>
-        /* 保持之前的样式 */
+        /* 整体样式优化 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;  
+            -webkit-font-smoothing: antialiased;  /* 优化字体渲染 */
             -moz-osx-font-smoothing: grayscale;
             margin: 0;
             padding: 20px;
@@ -18,6 +18,7 @@
             margin: 0 auto;
         }
 
+        /* 标题样式 */
         h1 {
             text-align: center;
             color: #2c3e50;
@@ -29,6 +30,7 @@
             letter-spacing: 0.5px;
         }
 
+        /* 排序按钮样式 */
         #sortButton {
             display: block;
             margin: 20px auto;
@@ -51,6 +53,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
+        /* 加载动画样式 */
         #loading {
             text-align: center;
             padding: 20px;
@@ -59,6 +62,7 @@
             display: none;
         }
 
+        /* 分类容器样式 */
         .category {
             background: white;
             border-radius: 10px;
@@ -67,6 +71,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
+        /* 分类标题样式 */
         .category h2 {
             color: #2c3e50;
             margin-top: 0;
@@ -78,6 +83,7 @@
             letter-spacing: 0.3px;
         }
 
+        /* 表格样式优化 */
         table {
             border-collapse: separate;
             border-spacing: 0;
@@ -93,17 +99,20 @@
             position: relative;
         }
 
+        /* 添加垂直分隔线 */
         td:first-child, th:first-child {
             border-right: 2px solid #e0e0e0;
             width: 70%;
         }
 
+        /* 库存数量列样式 */
         td:last-child, th:last-child {
             width: 30%;
             text-align: center;
             background-color: #fafafa;
         }
 
+        /* 表头样式加强 */
         th {
             background-color: #f0f0f0;
             color: #2c3e50;
@@ -120,6 +129,7 @@
             letter-spacing: 0.1px;
         }
 
+        /* 表格行悬停效果 */
         tr:hover td {
             background-color: #f5f5f5;
         }
@@ -128,6 +138,7 @@
             background-color: #f0f0f0;
         }
 
+        /* 响应式设计 */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -154,10 +165,12 @@
             }
         }
 
+        /* 添加平滑滚动 */
         html {
             scroll-behavior: smooth;
         }
 
+        /* 添加表格内容居中 */
         td:last-child {
             text-align: center;
         }
@@ -166,11 +179,13 @@
             text-align: center;
         }
 
+        /* 商品名称列 */
         td:first-child {
             font-weight: 450;
             color: #2c3e50;
         }
 
+        /* 库存数量列 */
         td:last-child {
             font-size: 1.1em;
             font-weight: 500;
@@ -178,25 +193,22 @@
         }
 
         .contact-info {
-            font-size: 1rem;
-            font-style: italic;
-            color: #555;
-            text-align: center;
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
+            font-size: 1rem; /* 字体大小 */
+            font-style: italic; /* 斜体 */
+            color: #555; /* 浅灰色字体 */
+            text-align: center; /* 居中对齐 */
+            background-color: #f9f9f9; /* 柔和的背景色 */
+            padding: 10px; /* 内边距 */
+            border-radius: 8px; /* 圆角边框 */
+            margin-bottom: 20px; /* 与下方内容的间距 */
+            border: 1px solid #ddd; /* 浅色边框 */
         }
     </style>
     <!-- Firebase SDK 引入 -->
-    <script type="module">
-        // Import the necessary Firebase functions
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
-        import { getDatabase, ref, get, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
-
-        // Your Firebase configuration
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script>
+        // Firebase 配置
         const firebaseConfig = {
             apiKey: "AIzaSyDWA3rBxpwfVpZ6KLNL8FX-Cd7ECd6-DeA",
             authDomain: "stock-order-20281.firebaseapp.com",
@@ -208,29 +220,21 @@
             measurementId: "G-W84WFQXQP1"
         };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const database = getDatabase(app);
+        // 初始化 Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-        let currentSortOrder = 'none'; // 'none', 'desc', 'asc'
+        let currentSortOrder = 'none'; // 'none', 'desc'
 
         // 排序按钮点击事件
         function toggleSort() {
             const button = document.getElementById('sortButton');
-            switch(currentSortOrder) {
-                case 'none':
-                    currentSortOrder = 'desc';
-                    button.textContent = 'High to Low ↓';
-                    break;
-                case 'desc':
-                    currentSortOrder = 'asc';
-                    button.textContent = 'Low to High ↑';
-                    break;
-                case 'asc':
-                    currentSortOrder = 'none';
-                    button.textContent = 'Sort by Stock';
-                    break;
+            if (currentSortOrder === 'none') {
+                currentSortOrder = 'desc';
+                button.textContent = 'Sort by Stock (High to Low)';
+            } else {
+                currentSortOrder = 'none';
+                button.textContent = 'Sort by Stock';
             }
             loadQuantitiesFromFirebase();
         }
@@ -240,7 +244,7 @@
             const productList = document.getElementById('productList');
             productList.innerHTML = '';
 
-            if (!stockData.categories) {
+            if (!stockData || !stockData.categories) {
                 productList.innerHTML = '<p>暂无数据</p>';
                 return;
             }
@@ -273,15 +277,9 @@
                     stock: parseInt(product.stock || '0')
                 }));
 
-                // 根据当前排序方式排序
-                if (currentSortOrder !== 'none') {
-                    productsWithStock.sort((a, b) => {
-                        if (currentSortOrder === 'desc') {
-                            return b.stock - a.stock;
-                        } else {
-                            return a.stock - b.stock;
-                        }
-                    });
+                // 根据当前排序方式排序（仅降序）
+                if (currentSortOrder === 'desc') {
+                    productsWithStock.sort((a, b) => b.stock - a.stock);
                 }
 
                 // 显示排序后的产品
@@ -305,9 +303,9 @@
             const loading = document.getElementById('loading');
             loading.style.display = 'block';
 
-            const dbRef = ref(database, 'inventory');
+            const dbRef = database.ref('inventory');
 
-            get(dbRef)
+            dbRef.once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
                         const stockData = snapshot.val();
@@ -342,6 +340,6 @@
     <div id="loading">Data updating...</div>
     <div id="productList"></div>
 
-    <p class="contact-info">如有任何问题或需要添加新产品，请联系我（Mark）。</p>
+    <p class="contact-info">如果您有任何问题或需要添加新产品，请联系我（Mark）。</p>
 </body>
 </html>
