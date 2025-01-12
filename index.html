@@ -979,6 +979,24 @@
         return `${day}-${month}-${year} (${formattedTime})`;
     }
 
+    /**
+     * Formats a date string to DD-MM-YYYY format
+     * @param {string} dateString - The date string to format
+     * @returns {string} - The formatted date string
+     */
+    function formatDate(dateString) {
+      if (!dateString || dateString === 'N/A') return 'N/A';
+      
+      const date = new Date(dateString);
+      if (isNaN(date)) return 'N/A';
+      
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${day}-${month}-${year}`;
+    }
+
     // Get Inventory Paths Based on User Role
     function getInventoryPaths() {
       let paths = [];
@@ -1545,7 +1563,7 @@
             <td class="hide-on-mobile">${item.category ? item.category : 'N/A'}</td>
             <td>${item.quantity}</td>
             <td class="hide-on-mobile">${item.unit}</td>
-            <td class="hide-on-mobile">${item.expiredDate ? item.expiredDate : 'N/A'}</td>
+            <td class="hide-on-mobile">${item.expiredDate ? formatDate(item.expiredDate) : 'N/A'}</td>
             <td class="hide-on-mobile">${item.location}</td>
             <td class="hide-on-mobile">${formatDateTime(item.modifiedTime)}</td>
             <td class="hide-on-mobile">${item.modifiedBy}</td>
@@ -1564,7 +1582,7 @@
         card.innerHTML = `
           <p><strong>Product Name:</strong> ${item.name}</p>
           <p><strong>Quantity:</strong> ${item.quantity}</p>
-          <p><strong>Expiry Date:</strong> ${item.expiredDate ? item.expiredDate : 'N/A'}</p>
+          <p><strong>Expiry Date:</strong> ${item.expiredDate ? formatDate(item.expiredDate) : 'N/A'}</p>
           <button class="edit-button" data-item-id="${item.id}">
             <i class="fas fa-edit"></i> Edit
           </button>
@@ -1598,7 +1616,7 @@
         <td class="hide-on-mobile">${item.category ? item.category : 'N/A'}</td>
         <td>${item.quantity}</td>
         <td class="hide-on-mobile">${item.unit}</td>
-        <td class="hide-on-mobile">${item.expiredDate ? item.expiredDate : 'N/A'}</td>
+        <td class="hide-on-mobile">${item.expiredDate ? formatDate(item.expiredDate) : 'N/A'}</td>
         <td class="hide-on-mobile">${item.location}</td>
         <td class="hide-on-mobile">${formatDateTime(item.modifiedTime)}</td>
         <td class="hide-on-mobile">${item.modifiedBy}</td>
@@ -1641,7 +1659,7 @@
         ${item.expiredDate ? `
         <p class="expiry">
           <strong>Expiry Date</strong>
-          <span>${item.expiredDate}</span>
+          <span>${formatDate(item.expiredDate)}</span>
         </p>
         ` : ''}
         
@@ -1668,9 +1686,9 @@
       document.getElementById('edit-item-category').value = category || '';
       const quantityInput = document.getElementById('edit-item-quantity');
       quantityInput.value = quantity;
-      quantityInput.setAttribute('data-original-quantity', quantity); // Store original quantity
+      quantityInput.setAttribute('data-original-quantity', quantity);
       document.getElementById('edit-item-unit').value = unit;
-      document.getElementById('edit-item-expired-date').value = expiredDate || '';
+      document.getElementById('edit-item-expired-date').value = expiredDate ? convertDateForInput(expiredDate) : '';
       document.getElementById('edit-item-location').value = location;
       
       currentEditItemId = itemId;
@@ -1741,7 +1759,7 @@
         category,
         quantity: Number(quantity),
         unit,
-        expiredDate: expiredDate || null,
+        expiredDate: expiredDate ? convertDateForStorage(expiredDate) : null,
         location,
         modifiedTime: new Date().toISOString(),
         modifiedBy: user.displayName || 'Unknown'
@@ -2620,6 +2638,133 @@
       // Clear and re-append sorted cards
       inventoryCardsContainer.innerHTML = '';
       cards.forEach(card => inventoryCardsContainer.appendChild(card));
+    }
+
+    // Add this function to convert YYYY-MM-DD to DD-MM-YYYY for input display
+    function convertDateForInput(dateString) {
+      if (!dateString) return '';
+      
+      const parts = dateString.split('-');
+      if (parts.length !== 3) return dateString;
+      
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+
+    // Add this function to convert DD-MM-YYYY back to YYYY-MM-DD for database storage
+    function convertDateForStorage(dateString) {
+      if (!dateString) return '';
+      
+      const parts = dateString.split('-');
+      if (parts.length !== 3) return dateString;
+      
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+
+    // Update the date input fields to use the DD-MM-YYYY format
+    document.addEventListener('DOMContentLoaded', function() {
+      const dateInputs = [
+        'stock-in-office-expired-date',
+        'stock-in-kepayan-seafood-expired-date',
+        'stock-in-kepayan-packaged-expired-date',
+        'edit-item-expired-date'
+      ];
+
+      dateInputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) {
+          // Change input type from 'date' to 'text'
+          input.type = 'text';
+          input.placeholder = 'DD-MM-YYYY';
+          
+          // Add event listener for input validation
+          input.addEventListener('input', function(e) {
+            let value = e.target.value;
+            
+            // Remove any non-numeric or non-hyphen characters
+            value = value.replace(/[^\d-]/g, '');
+            
+            // Auto-add hyphens
+            if (value.length >= 2 && value.charAt(2) !== '-') {
+              value = value.slice(0, 2) + '-' + value.slice(2);
+            }
+            if (value.length >= 5 && value.charAt(5) !== '-') {
+              value = value.slice(0, 5) + '-' + value.slice(5);
+            }
+            
+            // Limit to 10 characters (DD-MM-YYYY)
+            value = value.slice(0, 10);
+            
+            e.target.value = value;
+          });
+
+          // Add event listener for date validation
+          input.addEventListener('blur', function(e) {
+            const value = e.target.value;
+            if (value) {
+              const parts = value.split('-');
+              if (parts.length === 3) {
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]);
+                const year = parseInt(parts[2]);
+                
+                // Basic date validation
+                if (day < 1 || day > 31 || month < 1 || month > 12 || year < 2000 || year > 2100) {
+                  alert('Please enter a valid date in DD-MM-YYYY format');
+                  e.target.value = '';
+                }
+              } else {
+                if (value !== '') {
+                  alert('Please enter a valid date in DD-MM-YYYY format');
+                  e.target.value = '';
+                }
+              }
+            }
+          });
+        }
+      });
+    });
+
+    // Update the save functions to convert the date format before saving
+    saveEditButton.addEventListener('click', () => {
+      // ... existing validation code ...
+
+      const expiredDate = document.getElementById('edit-item-expired-date').value;
+      const convertedExpiredDate = expiredDate ? convertDateForStorage(expiredDate) : null;
+
+      // Update the itemRef.update call
+      itemRef.update({
+        name,
+        category,
+        quantity: Number(quantity),
+        unit,
+        expiredDate: convertedExpiredDate,
+        location,
+        modifiedTime: new Date().toISOString(),
+        modifiedBy: user.displayName || 'Unknown'
+      })
+      // ... rest of the existing code ...
+    });
+
+    // Update the stock in functions to convert the date format
+    function handleStockIn(section) {
+      // ... existing validation code ...
+
+      const expiredDateInput = document.getElementById(`stock-in-${section}-expired-date`);
+      const expiredDate = expiredDateInput.value;
+      const convertedExpiredDate = expiredDate ? convertDateForStorage(expiredDate) : null;
+
+      // Update the data object
+      const data = {
+        name,
+        category,
+        quantity: Number(quantity),
+        unit,
+        expiredDate: convertedExpiredDate,
+        location,
+        modifiedTime: new Date().toISOString(),
+        modifiedBy: user.displayName || 'Unknown'
+      };
+      // ... rest of the existing code ...
     }
   </script>
 </body>
