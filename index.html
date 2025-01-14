@@ -1719,20 +1719,16 @@
       // Show loading
       showLoading();
 
-      // Get the correct inventory path based on location and category
+      // Get the correct inventory path based on location
       let inventoryPath;
       if (location === 'office') {
         inventoryPath = 'inventory/office';
       } else if (location === 'kepayan') {
-        if (category === 'Seafood') {
-          inventoryPath = 'inventory/kepayan/seafood';
-        } else if (category === 'Packaged Food') {
-          inventoryPath = 'inventory/kepayan/packagedFood';
-        }
+        inventoryPath = 'inventory/kepayan';
       }
 
       if (!inventoryPath) {
-        document.getElementById('edit-item-error').textContent = 'Invalid location or category combination.';
+        document.getElementById('edit-item-error').textContent = 'Invalid location.';
         hideLoading();
         return;
       }
@@ -1773,9 +1769,6 @@
         document.getElementById('edit-modal').style.display = 'none';
         document.getElementById('edit-item-error').textContent = '';
         hideLoading();
-        
-        // Refresh the inventory list
-        loadInventoryList();
       })
       .catch((error) => {
         document.getElementById('edit-item-error').textContent = 'Failed to update item: ' + error.message;
@@ -2544,13 +2537,28 @@
       const rows = Array.from(inventoryTableBody.querySelectorAll('tr'));
       
       rows.sort((a, b) => {
-        const expiryA = a.children[4].textContent || '9999-12-31'; // Default to far future for items without expiry
-        const expiryB = b.children[4].textContent || '9999-12-31';
+        let expiryA = a.children[4].textContent;
+        let expiryB = b.children[4].textContent;
+        
+        // 将日-月-年格式转换为日期对象进行比较
+        if (expiryA !== 'N/A') {
+          const [dayA, monthA, yearA] = expiryA.split('-');
+          expiryA = new Date(yearA, monthA - 1, dayA);
+        } else {
+          expiryA = new Date('9999-12-31');
+        }
+        
+        if (expiryB !== 'N/A') {
+          const [dayB, monthB, yearB] = expiryB.split('-');
+          expiryB = new Date(yearB, monthB - 1, dayB);
+        } else {
+          expiryB = new Date('9999-12-31');
+        }
         
         if (direction === 'asc') {
-          return new Date(expiryA) - new Date(expiryB);
+          return expiryA - expiryB;
         } else {
-          return new Date(expiryB) - new Date(expiryA);
+          return expiryB - expiryA;
         }
       });
 
@@ -2567,13 +2575,28 @@
       const cards = Array.from(inventoryCardsContainer.querySelectorAll('.inventory-card'));
       
       cards.sort((a, b) => {
-        const expiryA = a.querySelector('.expiry span')?.textContent || '9999-12-31';
-        const expiryB = b.querySelector('.expiry span')?.textContent || '9999-12-31';
+        let expiryA = a.querySelector('.expiry span')?.textContent || 'N/A';
+        let expiryB = b.querySelector('.expiry span')?.textContent || 'N/A';
+        
+        // 将日-月-年格式转换为日期对象进行比较
+        if (expiryA !== 'N/A') {
+          const [dayA, monthA, yearA] = expiryA.split('-');
+          expiryA = new Date(yearA, monthA - 1, dayA);
+        } else {
+          expiryA = new Date('9999-12-31');
+        }
+        
+        if (expiryB !== 'N/A') {
+          const [dayB, monthB, yearB] = expiryB.split('-');
+          expiryB = new Date(yearB, monthB - 1, dayB);
+        } else {
+          expiryB = new Date('9999-12-31');
+        }
         
         if (direction === 'asc') {
-          return new Date(expiryA) - new Date(expiryB);
+          return expiryA - expiryB;
         } else {
-          return new Date(expiryB) - new Date(expiryA);
+          return expiryB - expiryA;
         }
       });
 
