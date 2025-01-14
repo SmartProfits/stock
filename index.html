@@ -401,6 +401,21 @@
         font-size: 14px;
       }
     }
+
+    .delete-button {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .delete-button:hover {
+      background-color: #c82333;
+    }
   </style>
 </head>
 <body>
@@ -1605,6 +1620,9 @@
           <button class="edit-button" data-item-id="${item.id}">
             <i class="fas fa-edit"></i> Edit
           </button>
+          <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}">
+            <i class="fas fa-trash"></i> Delete
+          </button>
         </td>
       `;
       return tr;
@@ -1654,9 +1672,14 @@
           <span>${item.modifiedBy}</span>
         </p>
         
-        <button class="edit-button" data-item-id="${item.id}">
-          <i class="fas fa-edit"></i> Edit
-        </button>
+        <div class="card-actions">
+          <button class="edit-button" data-item-id="${item.id}">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </div>
       `;
       return card;
     }
@@ -2540,21 +2563,22 @@
         let expiryA = a.children[4].textContent;
         let expiryB = b.children[4].textContent;
         
-        // 将日-月-年格式转换为日期对象进行比较
-        if (expiryA !== 'N/A') {
-          const [dayA, monthA, yearA] = expiryA.split('-');
-          expiryA = new Date(yearA, monthA - 1, dayA);
+        // Convert expiry dates to Date objects for comparison
+        if (expiryA === 'N/A') {
+          expiryA = direction === 'asc' ? new Date('9999-12-31') : new Date('1900-01-01');
         } else {
-          expiryA = new Date('9999-12-31');
+          // Parse the date in YYYY-MM-DD format
+          expiryA = new Date(expiryA);
         }
         
-        if (expiryB !== 'N/A') {
-          const [dayB, monthB, yearB] = expiryB.split('-');
-          expiryB = new Date(yearB, monthB - 1, dayB);
+        if (expiryB === 'N/A') {
+          expiryB = direction === 'asc' ? new Date('9999-12-31') : new Date('1900-01-01');
         } else {
-          expiryB = new Date('9999-12-31');
+          // Parse the date in YYYY-MM-DD format
+          expiryB = new Date(expiryB);
         }
         
+        // Compare dates
         if (direction === 'asc') {
           return expiryA - expiryB;
         } else {
@@ -2578,21 +2602,22 @@
         let expiryA = a.querySelector('.expiry span')?.textContent || 'N/A';
         let expiryB = b.querySelector('.expiry span')?.textContent || 'N/A';
         
-        // 将日-月-年格式转换为日期对象进行比较
-        if (expiryA !== 'N/A') {
-          const [dayA, monthA, yearA] = expiryA.split('-');
-          expiryA = new Date(yearA, monthA - 1, dayA);
+        // Convert expiry dates to Date objects for comparison
+        if (expiryA === 'N/A') {
+          expiryA = direction === 'asc' ? new Date('9999-12-31') : new Date('1900-01-01');
         } else {
-          expiryA = new Date('9999-12-31');
+          // Parse the date in YYYY-MM-DD format
+          expiryA = new Date(expiryA);
         }
         
-        if (expiryB !== 'N/A') {
-          const [dayB, monthB, yearB] = expiryB.split('-');
-          expiryB = new Date(yearB, monthB - 1, dayB);
+        if (expiryB === 'N/A') {
+          expiryB = direction === 'asc' ? new Date('9999-12-31') : new Date('1900-01-01');
         } else {
-          expiryB = new Date('9999-12-31');
+          // Parse the date in YYYY-MM-DD format
+          expiryB = new Date(expiryB);
         }
         
+        // Compare dates
         if (direction === 'asc') {
           return expiryA - expiryB;
         } else {
@@ -2647,6 +2672,74 @@
       inventoryCardsContainer.innerHTML = '';
       cards.forEach(card => inventoryCardsContainer.appendChild(card));
     }
+
+    // Add this after your existing event listeners
+
+    // Handle delete button clicks
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.delete-button')) {
+        const button = e.target.closest('.delete-button');
+        const itemId = button.getAttribute('data-item-id');
+        const itemName = button.getAttribute('data-item-name');
+        
+        // Show confirmation dialog
+        if (confirm(`Are you sure you want to delete "${itemName}"? This action cannot be undone.`)) {
+          const user = auth.currentUser;
+          
+          if (user) {
+            showLoading();
+            
+            // Check both inventory paths
+            const inventoryPaths = ['inventory/office', 'inventory/kepayan'];
+            let deletePromises = inventoryPaths.map(path => {
+              return db.ref(`${path}/${itemId}`).once('value')
+                .then(snapshot => {
+                  if (snapshot.exists()) {
+                    // Record the deletion in transactions
+                    return db.ref('transactions').push({
+                      type: 'delete',
+                      productName: itemName,
+                      category: snapshot.val().category || 'N/A',
+                      quantity: snapshot.val().quantity,
+                      unit: snapshot.val().unit,
+                      location: snapshot.val().location,
+                      time: new Date().toISOString(),
+                      user: user.displayName || 'Unknown',
+                      comment: 'Item deleted'
+                    }).then(() => {
+                      // Then delete the item
+                      return db.ref(`${path}/${itemId}`).remove();
+                    });
+                  }
+                  return Promise.resolve();
+                });
+            });
+
+            Promise.all(deletePromises)
+              .then(() => {
+                // Remove item from DOM
+                const row = button.closest('tr');
+                if (row) {
+                  row.remove();
+                }
+                
+                // Also remove from cards view if exists
+                const card = document.querySelector(`.inventory-card[data-item-id="${itemId}"]`);
+                if (card) {
+                  card.remove();
+                }
+              })
+              .catch(error => {
+                console.error('Delete Error:', error);
+                alert('Failed to delete item: ' + error.message);
+              })
+              .finally(() => {
+                hideLoading();
+              });
+          }
+        }
+      }
+    });
   </script>
 </body>
 </html>
