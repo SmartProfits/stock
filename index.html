@@ -563,9 +563,9 @@
         
         <!-- Responsive Table -->
         <div class="table-responsive">
-          <table id="inventory-table">
+          <table id="inventory-table" style="border-collapse: collapse;">
             <thead>
-              <tr>
+              <tr style="height: 40px;">
                 <th>Product Name</th>
                 <th class="hide-on-mobile sortable" data-sort="category">Category ↕</th>
                 <th>Quantity</th>
@@ -1606,20 +1606,21 @@
     // Create Table Row for Inventory Item
     function createTableRow(item) {
       const tr = document.createElement('tr');
+      tr.style.height = '32px'; // Reduced row height
       tr.innerHTML = `
-        <td>${item.name}</td>
-        <td class="hide-on-mobile">${item.category ? item.category : 'N/A'}</td>
-        <td>${item.quantity}</td>
-        <td class="hide-on-mobile">${item.unit}</td>
-        <td class="hide-on-mobile">${item.expiredDate ? item.expiredDate : 'N/A'}</td>
-        <td class="hide-on-mobile">${item.location}</td>
-        <td class="hide-on-mobile">${formatDateTime(item.modifiedTime)}</td>
-        <td class="hide-on-mobile">${item.modifiedBy}</td>
-        <td>
-          <button class="edit-button" data-item-id="${item.id}">
+        <td style="padding: 4px 8px;">${item.name}</td>
+        <td class="hide-on-mobile" style="padding: 4px 8px;">${item.category ? item.category : 'N/A'}</td>
+        <td style="padding: 4px 8px;">${item.quantity}</td>
+        <td class="hide-on-mobile" style="padding: 4px 8px;">${item.unit}</td>
+        <td class="hide-on-mobile" style="padding: 4px 8px;">${item.expiredDate ? item.expiredDate : 'N/A'}</td>
+        <td class="hide-on-mobile" style="padding: 4px 8px;">${item.location}</td>
+        <td class="hide-on-mobile" style="padding: 4px 8px;">${formatDateTime(item.modifiedTime)}</td>
+        <td class="hide-on-mobile" style="padding: 4px 8px;">${item.modifiedBy}</td>
+        <td style="padding: 4px 8px;">
+          <button class="edit-button" data-item-id="${item.id}" style="padding: 2px 8px; margin: 0 2px;">
             <i class="fas fa-edit"></i> Edit
           </button>
-          <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}">
+          <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}" style="padding: 2px 8px; margin: 0 2px;">
             <i class="fas fa-trash"></i> Delete
           </button>
         </td>
