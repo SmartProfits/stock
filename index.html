@@ -1567,9 +1567,14 @@
             <td class="hide-on-mobile">${formatDateTime(item.modifiedTime)}</td>
             <td class="hide-on-mobile">${item.modifiedBy}</td>
             <td>
-              <button class="edit-button" data-item-id="${item.id}">
-                <i class="fas fa-edit"></i> Edit
-              </button>
+              <div style="display: flex; gap: 4px; justify-content: flex-start;">
+                <button class="edit-button" data-item-id="${item.id}" style="padding: 2px 8px; margin: 0;">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}" style="padding: 2px 8px; margin: 0;">
+                  <i class="fas fa-trash"></i> Delete
+                </button>
+              </div>
             </td>
           `;
         }
@@ -1582,9 +1587,14 @@
           <p><strong>Product Name:</strong> ${item.name}</p>
           <p><strong>Quantity:</strong> ${item.quantity}</p>
           <p><strong>Expiry Date:</strong> ${item.expiredDate ? item.expiredDate : 'N/A'}</p>
-          <button class="edit-button" data-item-id="${item.id}">
-            <i class="fas fa-edit"></i> Edit
-          </button>
+          <div style="display: flex; gap: 4px; justify-content: flex-start;">
+            <button class="edit-button" data-item-id="${item.id}" style="padding: 2px 8px; margin: 0;">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}" style="padding: 2px 8px; margin: 0;">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
         `;
       }
     }
@@ -1621,12 +1631,14 @@
         <td class="hide-on-mobile" style="padding: 4px 8px;">${formatDateTime(item.modifiedTime)}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${item.modifiedBy}</td>
         <td style="padding: 4px 8px;">
-          <button class="edit-button" data-item-id="${item.id}" style="padding: 2px 8px; margin: 0 2px;">
-            <i class="fas fa-edit"></i> Edit
-          </button>
-          <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}" style="padding: 2px 8px; margin: 0 2px;">
-            <i class="fas fa-trash"></i> Delete
-          </button>
+          <div style="display: flex; gap: 4px; justify-content: flex-start;">
+            <button class="edit-button" data-item-id="${item.id}" style="padding: 2px 8px; margin: 0;">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}" style="padding: 2px 8px; margin: 0;">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
         </td>
       `;
       return tr;
@@ -1677,12 +1689,14 @@
         </p>
         
         <div class="card-actions">
-          <button class="edit-button" data-item-id="${item.id}">
-            <i class="fas fa-edit"></i> Edit
-          </button>
-          <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}">
-            <i class="fas fa-trash"></i> Delete
-          </button>
+          <div style="display: flex; gap: 4px; justify-content: flex-start;">
+            <button class="edit-button" data-item-id="${item.id}" style="padding: 2px 8px; margin: 0;">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}" style="padding: 2px 8px; margin: 0;">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
         </div>
       `;
       return card;
