@@ -1621,12 +1621,16 @@
     function createTableRow(item) {
       const tr = document.createElement('tr');
       tr.style.height = '32px'; // Reduced row height
+      
+      // Format the expiry date if it exists
+      const formattedExpiryDate = item.expiredDate ? formatDateToDDMMYYYY(item.expiredDate) : 'N/A';
+      
       tr.innerHTML = `
         <td style="padding: 4px 8px;">${item.name}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${item.category ? item.category : 'N/A'}</td>
         <td style="padding: 4px 8px;">${item.quantity}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${item.unit}</td>
-        <td class="hide-on-mobile" style="padding: 4px 8px;">${item.expiredDate ? item.expiredDate : 'N/A'}</td>
+        <td class="hide-on-mobile" style="padding: 4px 8px;">${formattedExpiryDate}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${item.location}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${formatDateTime(item.modifiedTime)}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${item.modifiedBy}</td>
@@ -1642,6 +1646,18 @@
         </td>
       `;
       return tr;
+    }
+
+    // Add this new helper function to format dates
+    function formatDateToDDMMYYYY(dateString) {
+      const date = new Date(dateString);
+      if (isNaN(date)) return 'Invalid Date';
+      
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${day}-${month}-${year}`;
     }
 
     // Create Card for Inventory Item (Mobile)
@@ -1708,9 +1724,18 @@
       document.getElementById('edit-item-category').value = category || '';
       const quantityInput = document.getElementById('edit-item-quantity');
       quantityInput.value = quantity;
-      quantityInput.setAttribute('data-original-quantity', quantity); // Store original quantity
+      quantityInput.setAttribute('data-original-quantity', quantity);
       document.getElementById('edit-item-unit').value = unit;
-      document.getElementById('edit-item-expired-date').value = expiredDate || '';
+      
+      // Convert expiry date format for the input field (needs to be YYYY-MM-DD)
+      if (expiredDate) {
+        const [day, month, year] = expiredDate.split('-');
+        const formattedDate = `${year}-${month}-${day}`;
+        document.getElementById('edit-item-expired-date').value = formattedDate;
+      } else {
+        document.getElementById('edit-item-expired-date').value = '';
+      }
+      
       document.getElementById('edit-item-location').value = location;
       
       currentEditItemId = itemId;
@@ -1776,12 +1801,20 @@
 
       // Update item in database using the correct path
       const itemRef = db.ref(`${inventoryPath}/${currentEditItemId}`);
+      
+      // Convert the expiry date to DD-MM-YYYY format before saving
+      let formattedExpiredDate = null;
+      if (expiredDate) {
+        const [year, month, day] = expiredDate.split('-');
+        formattedExpiredDate = `${day}-${month}-${year}`;
+      }
+
       itemRef.update({
         name,
         category,
         quantity: Number(quantity),
         unit,
-        expiredDate: expiredDate || null,
+        expiredDate: formattedExpiredDate, // Use the formatted date
         location,
         modifiedTime: new Date().toISOString(),
         modifiedBy: user.displayName || 'Unknown'
@@ -2580,19 +2613,21 @@
         let expiryA = a.children[4].textContent;
         let expiryB = b.children[4].textContent;
         
-        // Convert expiry dates to Date objects for comparison
+        // Convert DD-MM-YYYY to Date objects for comparison
         if (expiryA === 'N/A') {
           expiryA = direction === 'asc' ? new Date('9999-12-31') : new Date('1900-01-01');
         } else {
-          // Parse the date in YYYY-MM-DD format
-          expiryA = new Date(expiryA);
+          // Parse the date from DD-MM-YYYY format
+          const [dayA, monthA, yearA] = expiryA.split('-');
+          expiryA = new Date(yearA, monthA - 1, dayA);
         }
         
         if (expiryB === 'N/A') {
           expiryB = direction === 'asc' ? new Date('9999-12-31') : new Date('1900-01-01');
         } else {
-          // Parse the date in YYYY-MM-DD format
-          expiryB = new Date(expiryB);
+          // Parse the date from DD-MM-YYYY format
+          const [dayB, monthB, yearB] = expiryB.split('-');
+          expiryB = new Date(yearB, monthB - 1, dayB);
         }
         
         // Compare dates
