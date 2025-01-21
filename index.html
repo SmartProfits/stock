@@ -596,7 +596,6 @@
         <label for="stock-in-office-name">Product Name</label>
         <input type="text" id="stock-in-office-name" placeholder="Product Name" required>
         
-        <!-- Add hidden category input -->
         <input type="hidden" id="stock-in-office-category" value="Office">
         
         <label for="stock-in-office-quantity">Quantity</label>
@@ -606,11 +605,11 @@
         <input type="text" id="stock-in-office-unit" placeholder="Unit (e.g., pieces, boxes, kg)" required>
         
         <label for="stock-in-office-expired-date">Expiry Date (Optional)</label>
-        <input type="date" id="stock-in-office-expired-date" placeholder="Expiry Date (Optional)">
+        <input type="text" id="stock-in-office-expired-date" placeholder="DD-MM-YYYY" pattern="\d{2}-\d{2}-\d{4}">
         
         <label for="stock-in-office-location">Location</label>
         <select id="stock-in-office-location" required>
-          <option value="office">Office</option>
+            <option value="office">Office</option>
         </select>
         
         <button id="stock-in-office-button"><i class="fas fa-download"></i> Add Stock In - Office</button>
@@ -625,8 +624,8 @@
         
         <label for="stock-in-kepayan-seafood-category">Category</label>
         <select id="stock-in-kepayan-seafood-category" required>
-          <option value="">Select Category</option>
-          <option value="Seafood">Seafood</option>
+            <option value="">Select Category</option>
+            <option value="Seafood">Seafood</option>
         </select>
         
         <label for="stock-in-kepayan-seafood-quantity">Quantity</label>
@@ -636,11 +635,11 @@
         <input type="text" id="stock-in-kepayan-seafood-unit" placeholder="Unit (e.g., pieces, boxes, kg)" required>
         
         <label for="stock-in-kepayan-seafood-expired-date">Expiry Date (Optional)</label>
-        <input type="date" id="stock-in-kepayan-seafood-expired-date" placeholder="Expiry Date (Optional)">
+        <input type="text" id="stock-in-kepayan-seafood-expired-date" placeholder="DD-MM-YYYY" pattern="\d{2}-\d{2}-\d{4}">
         
         <label for="stock-in-kepayan-seafood-location">Location</label>
         <select id="stock-in-kepayan-seafood-location" required>
-          <option value="kepayan">Kepayan</option>
+            <option value="kepayan">Kepayan</option>
         </select>
         
         <button id="stock-in-kepayan-seafood-button"><i class="fas fa-download"></i> Add Stock In - Kepayan - Seafood</button>
@@ -655,13 +654,13 @@
         
         <label for="stock-in-kepayan-packaged-category">Category</label>
         <select id="stock-in-kepayan-packaged-category" required>
-          <option value="">Select Category</option>
-          <option value="Ban Heang">Ban Heang</option>
-          <option value="Hop Hup">Hop Hup</option>
-          <option value="Tenom Kopi">Tenom Kopi</option>
-          <option value="Amplang">Amplang</option>
-          <option value="Chocolate">Chocolate</option>
-          <option value="Other">Other</option>
+            <option value="">Select Category</option>
+            <option value="Ban Heang">Ban Heang</option>
+            <option value="Hop Hup">Hop Hup</option>
+            <option value="Tenom Kopi">Tenom Kopi</option>
+            <option value="Amplang">Amplang</option>
+            <option value="Chocolate">Chocolate</option>
+            <option value="Other">Other</option>
         </select>
         
         <label for="stock-in-kepayan-packaged-quantity">Quantity</label>
@@ -671,11 +670,11 @@
         <input type="text" id="stock-in-kepayan-packaged-unit" placeholder="Unit (e.g., pieces, boxes, kg)" required>
         
         <label for="stock-in-kepayan-packaged-expired-date">Expiry Date (Optional)</label>
-        <input type="date" id="stock-in-kepayan-packaged-expired-date" placeholder="Expiry Date (Optional)">
+        <input type="text" id="stock-in-kepayan-packaged-expired-date" placeholder="DD-MM-YYYY" pattern="\d{2}-\d{2}-\d{4}">
         
         <label for="stock-in-kepayan-packaged-location">Location</label>
         <select id="stock-in-kepayan-packaged-location" required>
-          <option value="kepayan">Kepayan</option>
+            <option value="kepayan">Kepayan</option>
         </select>
         
         <button id="stock-in-kepayan-packaged-button"><i class="fas fa-download"></i> Add Stock In - Kepayan - Packaged Food</button>
@@ -803,42 +802,42 @@
   <!-- Edit Inventory Item Modal -->
   <div id="edit-modal" class="modal">
     <div class="modal-content">
-      <span class="close">&times;</span>
-      <h3>Edit Inventory Item</h3>
-      
-      <label for="edit-item-name">Product Name</label>
-      <input type="text" id="edit-item-name" placeholder="Product Name" required>
-      
-      <label for="edit-item-category">Category</label>
-      <select id="edit-item-category" required>
-        <option value="">Select Category</option>
-        <option value="Seafood">Seafood</option>
-        <option value="Ban Heang">Ban Heang</option>
-        <option value="Hop Hup">Hop Hup</option>
-        <option value="Tenom Kopi">Tenom Kopi</option>
-        <option value="Amplang">Amplang</option>
-        <option value="Chocolate">Chocolate</option>
-        <option value="Other">Other</option>
-      </select>
-      
-      <label for="edit-item-quantity">Quantity</label>
-      <input type="number" id="edit-item-quantity" placeholder="Quantity" required>
-      
-      <label for="edit-item-unit">Unit</label>
-      <input type="text" id="edit-item-unit" placeholder="Unit (e.g., pieces, boxes, kg)" required>
-      
-      <label for="edit-item-expired-date">Expiry Date (Optional)</label>
-      <input type="date" id="edit-item-expired-date">
-      
-      <label for="edit-item-location">Location</label>
-      <select id="edit-item-location" required>
-        <option value="">Select Location</option>
-        <option value="office">Office</option>
-        <option value="kepayan">Kepayan</option>
-      </select>
-      
-      <button id="save-edit-button">Save Changes</button>
-      <p id="edit-item-error" class="error-message"></p>
+        <span class="close">&times;</span>
+        <h3>Edit Inventory Item</h3>
+        
+        <label for="edit-item-name">Product Name</label>
+        <input type="text" id="edit-item-name" placeholder="Product Name" required>
+        
+        <label for="edit-item-category">Category</label>
+        <select id="edit-item-category" required>
+            <option value="">Select Category</option>
+            <option value="Seafood">Seafood</option>
+            <option value="Ban Heang">Ban Heang</option>
+            <option value="Hop Hup">Hop Hup</option>
+            <option value="Tenom Kopi">Tenom Kopi</option>
+            <option value="Amplang">Amplang</option>
+            <option value="Chocolate">Chocolate</option>
+            <option value="Other">Other</option>
+        </select>
+        
+        <label for="edit-item-quantity">Quantity</label>
+        <input type="number" id="edit-item-quantity" placeholder="Quantity" required>
+        
+        <label for="edit-item-unit">Unit</label>
+        <input type="text" id="edit-item-unit" placeholder="Unit (e.g., pieces, boxes, kg)" required>
+        
+        <label for="edit-item-expired-date">Expiry Date (Optional)</label>
+        <input type="text" id="edit-item-expired-date" placeholder="DD-MM-YYYY" pattern="\d{2}-\d{2}-\d{4}">
+        
+        <label for="edit-item-location">Location</label>
+        <select id="edit-item-location" required>
+            <option value="">Select Location</option>
+            <option value="office">Office</option>
+            <option value="kepayan">Kepayan</option>
+        </select>
+        
+        <button id="save-edit-button">Save Changes</button>
+        <p id="edit-item-error" class="error-message"></p>
     </div>
   </div>
 
@@ -1007,6 +1006,26 @@
         const formattedTime = `${String(hours).padStart(2, '0')}.${minutes}${ampm}`;
 
         return `${day}-${month}-${year} (${formattedTime})`;
+    }
+
+    // Add new helper function to convert ISO to DD-MM-YYYY
+    function isoToFormattedDate(isoString) {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        if (isNaN(date)) return '';
+        
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        
+        return `${day}-${month}-${year}`;
+    }
+
+    // Add new helper function to convert DD-MM-YYYY to ISO
+    function formattedDateToIso(dateString) {
+        if (!dateString) return '';
+        const [day, month, year] = dateString.split('-');
+        return `${year}-${month}-${day}`;
     }
 
     // Get Inventory Paths Based on User Role
@@ -1635,7 +1654,7 @@
       tr.style.height = '32px'; // Reduced row height
       
       // Format the expiry date if it exists
-      const formattedExpiryDate = item.expiredDate ? formatDateToDDMMYYYY(item.expiredDate) : 'N/A';
+      const formattedExpiryDate = item.expiredDate || 'N/A';
       
       tr.innerHTML = `
         <td style="padding: 4px 8px;">${item.name}</td>
@@ -1732,26 +1751,19 @@
 
     // Open Edit Modal
     function openEditModal(itemId, type, name, category, quantity, unit, expiredDate, location) {
-      document.getElementById('edit-item-name').value = name;
-      document.getElementById('edit-item-category').value = category || '';
-      const quantityInput = document.getElementById('edit-item-quantity');
-      quantityInput.value = quantity;
-      quantityInput.setAttribute('data-original-quantity', quantity);
-      document.getElementById('edit-item-unit').value = unit;
-      
-      // Convert expiry date format for the input field (needs to be YYYY-MM-DD)
-      if (expiredDate) {
-        const [day, month, year] = expiredDate.split('-');
-        const formattedDate = `${year}-${month}-${day}`;
-        document.getElementById('edit-item-expired-date').value = formattedDate;
-      } else {
-        document.getElementById('edit-item-expired-date').value = '';
-      }
-      
-      document.getElementById('edit-item-location').value = location;
-      
-      currentEditItemId = itemId;
-      document.getElementById('edit-modal').style.display = 'block';
+        document.getElementById('edit-item-name').value = name;
+        document.getElementById('edit-item-category').value = category || '';
+        const quantityInput = document.getElementById('edit-item-quantity');
+        quantityInput.value = quantity;
+        quantityInput.setAttribute('data-original-quantity', quantity);
+        document.getElementById('edit-item-unit').value = unit;
+        
+        // Display expiry date in DD-MM-YYYY format
+        document.getElementById('edit-item-expired-date').value = expiredDate || '';
+        
+        document.getElementById('edit-item-location').value = location;
+        currentEditItemId = itemId;
+        document.getElementById('edit-modal').style.display = 'block';
     }
 
     // Close Edit Modal
@@ -1775,91 +1787,112 @@
 
     // Save Edited Inventory Item
     saveEditButton.addEventListener('click', () => {
-      const name = document.getElementById('edit-item-name').value.trim();
-      const category = document.getElementById('edit-item-category').value;
-      const quantity = document.getElementById('edit-item-quantity').value.trim();
-      const unit = document.getElementById('edit-item-unit').value.trim();
-      const expiredDate = document.getElementById('edit-item-expired-date').value;
-      const location = document.getElementById('edit-item-location').value;
-      const user = auth.currentUser;
-
-      // Basic validation
-      if (!name || !quantity || !unit || !location) {
-        document.getElementById('edit-item-error').textContent = 'Please fill in all required fields.';
-        return;
-      }
-
-      if (!user) {
-        document.getElementById('edit-item-error').textContent = 'User not authenticated.';
-        return;
-      }
-
-      // Show loading
-      showLoading();
-
-      // Get the correct inventory path based on location
-      let inventoryPath;
-      if (location === 'office') {
-        inventoryPath = 'inventory/office';
-      } else if (location === 'kepayan') {
-        inventoryPath = 'inventory/kepayan';
-      }
-
-      if (!inventoryPath) {
-        document.getElementById('edit-item-error').textContent = 'Invalid location.';
-        hideLoading();
-        return;
-      }
-
-      // Update item in database using the correct path
-      const itemRef = db.ref(`${inventoryPath}/${currentEditItemId}`);
-      
-      // Convert the expiry date to DD-MM-YYYY format before saving
-      let formattedExpiredDate = null;
-      if (expiredDate) {
-        const [year, month, day] = expiredDate.split('-');
-        formattedExpiredDate = `${day}-${month}-${year}`;
-      }
-
-      itemRef.update({
-        name,
-        category,
-        quantity: Number(quantity),
-        unit,
-        expiredDate: formattedExpiredDate, // Use the formatted date
-        location,
-        modifiedTime: new Date().toISOString(),
-        modifiedBy: user.displayName || 'Unknown'
-      })
-      .then(() => {
-        // Add transaction record for quantity change
-        const originalQuantity = parseFloat(document.getElementById('edit-item-quantity').getAttribute('data-original-quantity') || '0');
-        const newQuantity = parseFloat(quantity);
+        const name = document.getElementById('edit-item-name').value.trim();
+        const category = document.getElementById('edit-item-category').value;
+        const quantity = document.getElementById('edit-item-quantity').value;
+        const unit = document.getElementById('edit-item-unit').value.trim();
+        const expiredDate = document.getElementById('edit-item-expired-date').value.trim();
+        const location = document.getElementById('edit-item-location').value;
         
-        if (originalQuantity !== newQuantity) {
-          return db.ref('transactions').push({
-            type: 'edit',
-            productName: name,
-            category: category || 'N/A',
-            quantity: newQuantity - originalQuantity, // Positive for increase, negative for decrease
-            unit: unit,
-            location: location,
-            time: new Date().toISOString(),
-            user: user.displayName || 'Unknown',
-            comment: 'Quantity edited'
-          });
+        // Validate expiry date format if provided
+        if (expiredDate && !/^\d{2}-\d{2}-\d{4}$/.test(expiredDate)) {
+            document.getElementById('edit-item-error').textContent = 'Invalid date format. Please use DD-MM-YYYY';
+            return;
         }
-      })
-      .then(() => {
-        // Hide modal and loading
-        document.getElementById('edit-modal').style.display = 'none';
-        document.getElementById('edit-item-error').textContent = '';
-        hideLoading();
-      })
-      .catch((error) => {
-        document.getElementById('edit-item-error').textContent = 'Failed to update item: ' + error.message;
-        hideLoading();
-      });
+        
+        // Basic validation
+        if (!name || !quantity || !unit || !location) {
+            document.getElementById('edit-item-error').textContent = 'Please fill in all required fields.';
+            return;
+        }
+        
+        const user = auth.currentUser;
+        if (!user) {
+            document.getElementById('edit-item-error').textContent = 'User not authenticated.';
+            return;
+        }
+        
+        // Show loading
+        showLoading();
+        
+        // Get the correct inventory path based on location
+        let inventoryPath;
+        if (location === 'office') {
+            inventoryPath = 'inventory/office';
+        } else if (location === 'kepayan') {
+            inventoryPath = 'inventory/kepayan';
+        }
+        
+        if (!inventoryPath) {
+            document.getElementById('edit-item-error').textContent = 'Invalid location.';
+            hideLoading();
+            return;
+        }
+        
+        // Update item in database
+        const itemRef = db.ref(`${inventoryPath}/${currentEditItemId}`);
+        
+        itemRef.update({
+            name,
+            category,
+            quantity: Number(quantity),
+            unit,
+            expiredDate: expiredDate || null, // Store as DD-MM-YYYY
+            location,
+            modifiedTime: new Date().toISOString(),
+            modifiedBy: user.displayName || 'Unknown'
+        })
+        .then(() => {
+            // Add transaction record for quantity change
+            const originalQuantity = parseFloat(document.getElementById('edit-item-quantity').getAttribute('data-original-quantity') || '0');
+            const newQuantity = parseFloat(quantity);
+            
+            if (originalQuantity !== newQuantity) {
+                return db.ref('transactions').push({
+                    type: 'edit',
+                    productName: name,
+                    category: category || 'N/A',
+                    quantity: newQuantity - originalQuantity,
+                    unit: unit,
+                    location: location,
+                    time: new Date().toISOString(),
+                    user: user.displayName || 'Unknown',
+                    comment: 'Quantity edited'
+                });
+            }
+        })
+        .then(() => {
+            // Hide modal and loading
+            document.getElementById('edit-modal').style.display = 'none';
+            document.getElementById('edit-item-error').textContent = '';
+            hideLoading();
+        })
+        .catch((error) => {
+            document.getElementById('edit-item-error').textContent = 'Failed to update item: ' + error.message;
+            hideLoading();
+        });
+    });
+
+    // Add date input validation
+    document.getElementById('edit-item-expired-date').addEventListener('input', function(e) {
+        let value = e.target.value;
+        
+        // Remove any non-digit characters
+        value = value.replace(/\D/g, '');
+        
+        // Add hyphens automatically
+        if (value.length > 4) {
+            value = value.slice(0,2) + '-' + value.slice(2,4) + '-' + value.slice(4);
+        } else if (value.length > 2) {
+            value = value.slice(0,2) + '-' + value.slice(2);
+        }
+        
+        // Limit the total length
+        if (value.length > 10) {
+            value = value.slice(0, 10);
+        }
+        
+        e.target.value = value;
     });
 
     // Event Delegation: Click on "Stock Out" Button to Open Stock Out Modal
@@ -2631,30 +2664,26 @@
         let expiryA = a.children[4].textContent;
         let expiryB = b.children[4].textContent;
         
-        // Convert DD-MM-YYYY to Date objects for comparison
         if (expiryA === 'N/A') {
-          expiryA = direction === 'asc' ? new Date('9999-12-31') : new Date('1900-01-01');
+            expiryA = direction === 'asc' ? new Date('9999-12-31') : new Date('1900-01-01');
         } else {
-          // Parse the date from DD-MM-YYYY format
-          const [dayA, monthA, yearA] = expiryA.split('-');
-          expiryA = new Date(yearA, monthA - 1, dayA);
+            const [dayA, monthA, yearA] = expiryA.split('-');
+            expiryA = new Date(yearA, monthA - 1, dayA);
         }
         
         if (expiryB === 'N/A') {
-          expiryB = direction === 'asc' ? new Date('9999-12-31') : new Date('1900-01-01');
+            expiryB = direction === 'asc' ? new Date('9999-12-31') : new Date('1900-01-01');
         } else {
-          // Parse the date from DD-MM-YYYY format
-          const [dayB, monthB, yearB] = expiryB.split('-');
-          expiryB = new Date(yearB, monthB - 1, dayB);
+            const [dayB, monthB, yearB] = expiryB.split('-');
+            expiryB = new Date(yearB, monthB - 1, dayB);
         }
         
-        // Compare dates
         if (direction === 'asc') {
-          return expiryA - expiryB;
+            return expiryA - expiryB;
         } else {
-          return expiryB - expiryA;
+            return expiryB - expiryA;
         }
-      });
+    });
 
       // Clear and re-append sorted rows
       inventoryTableBody.innerHTML = '';
@@ -2810,6 +2839,128 @@
         }
       }
     });
+
+    // Add date input validation for all stock in expiry date fields
+    const dateInputs = [
+        'stock-in-office-expired-date',
+        'stock-in-kepayan-seafood-expired-date',
+        'stock-in-kepayan-packaged-expired-date'
+    ];
+
+    dateInputs.forEach(inputId => {
+        document.getElementById(inputId).addEventListener('input', function(e) {
+            let value = e.target.value;
+            
+            // Remove any non-digit characters
+            value = value.replace(/\D/g, '');
+            
+            // Add hyphens automatically
+            if (value.length > 4) {
+                value = value.slice(0,2) + '-' + value.slice(2,4) + '-' + value.slice(4);
+            } else if (value.length > 2) {
+                value = value.slice(0,2) + '-' + value.slice(2);
+            }
+            
+            // Limit the total length
+            if (value.length > 10) {
+                value = value.slice(0, 10);
+            }
+            
+            e.target.value = value;
+        });
+    });
+
+    // Update stock in button event listeners
+    stockInOfficeButton.addEventListener('click', () => {
+        const name = document.getElementById('stock-in-office-name').value.trim();
+        const category = document.getElementById('stock-in-office-category').value;
+        const quantity = document.getElementById('stock-in-office-quantity').value;
+        const unit = document.getElementById('stock-in-office-unit').value.trim();
+        const expiredDate = document.getElementById('stock-in-office-expired-date').value.trim();
+        const location = document.getElementById('stock-in-office-location').value;
+        
+        // Validate expiry date format if provided
+        if (expiredDate && !/^\d{2}-\d{2}-\d{4}$/.test(expiredDate)) {
+            document.getElementById('stock-in-office-error').textContent = 'Invalid date format. Please use DD-MM-YYYY';
+            return;
+        }
+        
+        // Rest of the stock in logic...
+        handleStockIn('office', name, category, quantity, unit, expiredDate, location);
+    });
+
+    stockInKepayanSeafoodButton.addEventListener('click', () => {
+        const name = document.getElementById('stock-in-kepayan-seafood-name').value.trim();
+        const category = document.getElementById('stock-in-kepayan-seafood-category').value;
+        const quantity = document.getElementById('stock-in-kepayan-seafood-quantity').value;
+        const unit = document.getElementById('stock-in-kepayan-seafood-unit').value.trim();
+        const expiredDate = document.getElementById('stock-in-kepayan-seafood-expired-date').value.trim();
+        const location = document.getElementById('stock-in-kepayan-seafood-location').value;
+        
+        // Validate expiry date format if provided
+        if (expiredDate && !/^\d{2}-\d{2}-\d{4}$/.test(expiredDate)) {
+            document.getElementById('stock-in-kepayan-seafood-error').textContent = 'Invalid date format. Please use DD-MM-YYYY';
+            return;
+        }
+        
+        // Rest of the stock in logic...
+        handleStockIn('kepayan-seafood', name, category, quantity, unit, expiredDate, location);
+    });
+
+    stockInKepayanPackagedButton.addEventListener('click', () => {
+        const name = document.getElementById('stock-in-kepayan-packaged-name').value.trim();
+        const category = document.getElementById('stock-in-kepayan-packaged-category').value;
+        const quantity = document.getElementById('stock-in-kepayan-packaged-quantity').value;
+        const unit = document.getElementById('stock-in-kepayan-packaged-unit').value.trim();
+        const expiredDate = document.getElementById('stock-in-kepayan-packaged-expired-date').value.trim();
+        const location = document.getElementById('stock-in-kepayan-packaged-location').value;
+        
+        // Validate expiry date format if provided
+        if (expiredDate && !/^\d{2}-\d{2}-\d{4}$/.test(expiredDate)) {
+            document.getElementById('stock-in-kepayan-packaged-error').textContent = 'Invalid date format. Please use DD-MM-YYYY';
+            return;
+        }
+        
+        // Rest of the stock in logic...
+        handleStockIn('kepayan-packaged', name, category, quantity, unit, expiredDate, location);
+    });
+
+    // Update handleStockIn function
+    function handleStockIn(type, name, category, quantity, unit, expiredDate, location) {
+        // Basic validation
+        if (!name || !category || !quantity || !unit || !location) {
+            const errorElement = document.getElementById(`stock-in-${type}-error`);
+            errorElement.textContent = 'Please fill in all required fields.';
+            return;
+        }
+
+        const user = auth.currentUser;
+        if (!user) {
+            const errorElement = document.getElementById(`stock-in-${type}-error`);
+            errorElement.textContent = 'User not authenticated.';
+            return;
+        }
+
+        showLoading();
+
+        // Get inventory reference based on location
+        const inventoryRef = db.ref(`inventory/${location}`);
+        
+        // Create new item data
+        const itemData = {
+            name,
+            category,
+            quantity: Number(quantity),
+            unit,
+            expiredDate: expiredDate || null, // Store as DD-MM-YYYY
+            location,
+            type: 'stock-in',
+            modifiedTime: new Date().toISOString(),
+            modifiedBy: user.displayName || 'Unknown'
+        };
+
+        // Rest of the handleStockIn logic...
+    }
   </script>
 </body>
 </html>
