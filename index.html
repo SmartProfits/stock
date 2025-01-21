@@ -739,6 +739,18 @@
             <option value="office">Office</option>
             <option value="kepayan">Kepayan</option>
           </select>
+          <!-- Add category filter -->
+          <select id="stock-out-category-filter">
+            <option value="all">All Categories</option>
+            <option value="Office">Office</option>
+            <option value="Seafood">Seafood</option>
+            <option value="Ban Heang">Ban Heang</option>
+            <option value="Hop Hup">Hop Hup</option>
+            <option value="Tenom Kopi">Tenom Kopi</option>
+            <option value="Amplang">Amplang</option>
+            <option value="Chocolate">Chocolate</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
         
         <!-- Table for selecting items -->
@@ -2437,18 +2449,24 @@
     // Search and filter functionality
     stockOutSearch.addEventListener('input', filterStockOutItems);
     stockOutLocationFilter.addEventListener('change', filterStockOutItems);
+    document.getElementById('stock-out-category-filter').addEventListener('change', filterStockOutItems);
 
     function filterStockOutItems() {
       const searchTerm = stockOutSearch.value.toLowerCase();
       const locationFilter = stockOutLocationFilter.value;
+      const categoryFilter = document.getElementById('stock-out-category-filter').value;
       
       const rows = stockOutTable.querySelectorAll('tbody tr');
       rows.forEach(row => {
         const productName = row.cells[1].textContent.toLowerCase();
+        const category = row.cells[2].textContent;
         const location = row.cells[5].textContent;
+        
         const matchesSearch = productName.includes(searchTerm);
         const matchesLocation = locationFilter === 'all' || location === locationFilter;
-        row.style.display = matchesSearch && matchesLocation ? '' : 'none';
+        const matchesCategory = categoryFilter === 'all' || category === categoryFilter;
+        
+        row.style.display = matchesSearch && matchesLocation && matchesCategory ? '' : 'none';
       });
     }
 
