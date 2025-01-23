@@ -416,6 +416,72 @@
     .delete-button:hover {
       background-color: #c82333;
     }
+
+    #inventory-search-container {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    #inventory-search-container .input-group {
+      flex: 1;
+      position: relative;
+    }
+
+    #inventory-search-container input,
+    #inventory-search-container select {
+      width: 100%;
+      padding: 10px 15px;
+      padding-left: 40px;
+      border: 1px solid #cccccc;
+      border-radius: 25px;
+      outline: none;
+      transition: all 0.3s ease;
+      font-size: 1em;
+      background-color: white;
+    }
+
+    #inventory-search-container i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #333333;
+    }
+
+    #inventory-search-container input:focus,
+    #inventory-search-container select:focus {
+      border-color: #003974;
+      box-shadow: 0 0 5px rgba(0, 57, 116, 0.5);
+    }
+
+    /* 确保下拉框样式与输入框一致 */
+    #inventory-category-filter {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      cursor: pointer;
+    }
+
+    /* 添加下拉箭头 */
+    .input-group:has(select)::after {
+      content: '\f107';
+      font-family: 'Font Awesome 5 Free';
+      font-weight: 900;
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #333333;
+    }
+
+    @media (max-width: 600px) {
+      #inventory-search-container {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -557,8 +623,25 @@
         <h3>Inventory List</h3>
         
         <!-- Search Bar -->
-        <div id="search-container">
-          <input type="text" id="search-input" placeholder="Search by Product Name">
+        <div id="inventory-search-container">
+          <div class="input-group">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Search Products">
+          </div>
+          <div class="input-group">
+            <i class="fas fa-filter"></i>
+            <select id="inventory-category-filter">
+              <option value="all">All Categories</option>
+              <option value="Office">Office</option>
+              <option value="Seafood">Seafood</option>
+              <option value="Ban Heang">Ban Heang</option>
+              <option value="Hop Hup">Hop Hup</option>
+              <option value="Tenom Kopi">Tenom Kopi</option>
+              <option value="Amplang">Amplang</option>
+              <option value="Chocolate">Chocolate</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
         </div>
         
         <!-- Responsive Table -->
@@ -2098,18 +2181,31 @@
 
     // Search Functionality for Inventory List
     const searchInput = document.getElementById('search-input');
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
-      filterInventory(query);
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.toLowerCase();
+      const category = document.getElementById('inventory-category-filter').value;
+      filterInventory(query, category);
     });
 
-    // Filter Inventory Based on Search Query
-    function filterInventory(query) {
+    // Add category filter event listener
+    document.getElementById('inventory-category-filter').addEventListener('change', () => {
+      const query = searchInput.value.toLowerCase();
+      const category = document.getElementById('inventory-category-filter').value;
+      filterInventory(query, category);
+    });
+
+    // Update filterInventory function to handle both search and category filtering
+    function filterInventory(query, category) {
       // Filter Table Rows
       const rows = inventoryTableBody.querySelectorAll('tr');
       rows.forEach(row => {
         const productName = row.querySelector('td').textContent.toLowerCase();
-        if (productName.includes(query)) {
+        const itemCategory = row.querySelector('td:nth-child(2)').textContent;
+        
+        const matchesSearch = productName.includes(query);
+        const matchesCategory = category === 'all' || itemCategory === category;
+        
+        if (matchesSearch && matchesCategory) {
           row.style.display = '';
         } else {
           row.style.display = 'none';
@@ -2119,8 +2215,13 @@
       // Filter Inventory Cards
       const cards = inventoryCardsContainer.querySelectorAll('.inventory-card');
       cards.forEach(card => {
-        const productName = card.querySelector('p strong').nextSibling.textContent.toLowerCase();
-        if (productName.includes(query)) {
+        const productName = card.querySelector('.product-name span').textContent.toLowerCase();
+        const itemCategory = card.querySelector('.category span').textContent;
+        
+        const matchesSearch = productName.includes(query);
+        const matchesCategory = category === 'all' || itemCategory === category;
+        
+        if (matchesSearch && matchesCategory) {
           card.style.display = '';
         } else {
           card.style.display = 'none';
