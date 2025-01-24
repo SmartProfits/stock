@@ -1278,10 +1278,11 @@
           // Admin: Access to all functionalities, no need to hide anything
           break;
         case 'adminv':
-          // Adminv: Can only view inventory, hide stock in functionalities
+          // Adminv: Can only view inventory, hide stock in and stock out functionalities
           document.querySelectorAll('.nav-menu .dropdown').forEach(dropdown => {
             dropdown.style.display = 'none';
           });
+          document.getElementById('nav-stock-out').style.display = 'none'; // Hide stock out nav item
           break;
         case 'admino':
           // Admino: Can only manage office inventory
