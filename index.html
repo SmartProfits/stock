@@ -3305,6 +3305,185 @@
         }
       }
     });
+
+    // 1. 添加 Firebase Presence System
+    function initializePresenceSystem() {
+      // Get a reference to the user's status node
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const userStatusRef = db.ref(`onlineRecords/${user.uid}`);
+      
+      // Create a reference to the special '.info/connected' path in Firebase
+      const connectionRef = db.ref('.info/connected');
+      
+      connectionRef.on('value', (snapshot) => {
+        // If we're not currently connected, don't do anything.
+        if (!snapshot.val()) return;
+
+        // If we are currently connected, then use the onDisconnect()
+        // method to add a handler that will cancel our online status
+        // when we disconnect.
+        userStatusRef.onDisconnect().update({
+          isOnline: false,
+          lastActive: new Date().toISOString()
+        }).then(() => {
+          // Set the status to online now
+          userStatusRef.update({
+            isOnline: true,
+            lastActive: new Date().toISOString()
+          });
+        });
+      });
+
+      // Add activity tracking
+      let activityTimeout;
+      const INACTIVE_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+
+      function updateUserActivity() {
+        clearTimeout(activityTimeout);
+        
+        // Update last active time
+        userStatusRef.update({
+          lastActive: new Date().toISOString()
+        });
+
+        // Set timeout for inactivity
+        activityTimeout = setTimeout(() => {
+          userStatusRef.update({
+            isOnline: false
+          });
+        }, INACTIVE_TIMEOUT);
+      }
+
+      // Track user activity
+      ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(
+        eventName => document.addEventListener(eventName, updateUserActivity, true)
+      );
+
+      // Initial activity state
+      updateUserActivity();
+    }
+
+    // 2. 更新 auth.onAuthStateChanged 处理程序
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is logged in
+        authContainer.style.display = 'none';
+        appContainer.style.display = 'block';
+        document.body.classList.add('logged-in');
+        getUserRole(user.uid);
+
+        // Initialize presence system
+        initializePresenceSystem();
+
+        // Display welcome message
+        const displayName = user.displayName || 'User';
+        welcomeMessage.textContent = `Welcome, ${displayName} (${userRole ? userRole : 'Loading...'})`;
+      } else {
+        // User is not logged in
+        authContainer.style.display = 'block';
+        appContainer.style.display = 'none';
+        document.body.classList.remove('logged-in');
+        inventoryTableBody.innerHTML = '';
+        inventoryCardsContainer.innerHTML = '';
+        inventoryMessage.textContent = '';
+        transactionRecordsTableBody.innerHTML = '';
+        transactionRecordsMessage.textContent = '';
+        welcomeMessage.textContent = '';
+      }
+    });
+
+    // 3. 更新 loadOnlineRecords 函数以实时更新
+    function loadOnlineRecords() {
+      showLoading();
+      
+      const user = auth.currentUser;
+      if (!user) {
+        hideLoading();
+        return;
+      }
+
+      db.ref(`users/${user.uid}/role`).once('value')
+        .then(snapshot => {
+          const role = snapshot.val();
+          if (role !== 'sadmin') {
+            console.error('Unauthorized access to online records');
+            hideLoading();
+            return;
+          }
+
+          // Use .on() instead of .once() for real-time updates
+          db.ref('onlineRecords').on('value', snapshot => {
+            const data = snapshot.val();
+            const onlineRecordsTableBody = document.getElementById('online-records-table-body');
+            onlineRecordsTableBody.innerHTML = '';
+
+            if (data) {
+              // Add auto-cleanup for old records (older than 24 hours)
+              const cutoff = new Date();
+              cutoff.setHours(cutoff.getHours() - 24);
+
+              Object.entries(data).forEach(([userId, record]) => {
+                const lastActive = new Date(record.lastActive);
+                
+                // Skip or remove old records
+                if (lastActive < cutoff) {
+                  db.ref(`onlineRecords/${userId}`).remove();
+                  return;
+                }
+
+                const tr = document.createElement('tr');
+                const onlineStatus = record.isOnline ? 
+                  '<span style="color: green;">Online</span>' : 
+                  '<span style="color: red;">Offline</span>';
+
+                // Calculate time since last active
+                const timeSinceLastActive = formatTimeSince(lastActive);
+
+                tr.innerHTML = `
+                  <td>${record.userName || 'Unknown'}</td>
+                  <td>${record.email || 'N/A'}</td>
+                  <td>${formatDateTime(record.loginTime)}</td>
+                  <td>${formatDateTime(record.lastActive)} (${timeSinceLastActive})</td>
+                  <td>${onlineStatus}</td>
+                `;
+                onlineRecordsTableBody.appendChild(tr);
+              });
+            } else {
+              onlineRecordsTableBody.innerHTML = '<tr><td colspan="5">No online records found.</td></tr>';
+            }
+          });
+        })
+        .catch(error => {
+          console.error('Failed to load online records:', error);
+        })
+        .finally(() => {
+          hideLoading();
+        });
+    }
+
+    // 4. 添加辅助函数来格式化时间差
+    function formatTimeSince(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+
+      let interval = seconds / 31536000;
+      if (interval > 1) return Math.floor(interval) + ' years ago';
+      
+      interval = seconds / 2592000;
+      if (interval > 1) return Math.floor(interval) + ' months ago';
+      
+      interval = seconds / 86400;
+      if (interval > 1) return Math.floor(interval) + ' days ago';
+      
+      interval = seconds / 3600;
+      if (interval > 1) return Math.floor(interval) + ' hours ago';
+      
+      interval = seconds / 60;
+      if (interval > 1) return Math.floor(interval) + ' minutes ago';
+      
+      return Math.floor(seconds) + ' seconds ago';
+    }
   </script>
 </body>
 </html>
