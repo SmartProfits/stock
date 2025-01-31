@@ -1671,6 +1671,12 @@
       inventoryCardsContainer.innerHTML = '';
       inventoryMessage.textContent = '';
       
+      // First, remove any existing listeners
+      inventoryPaths.forEach(path => {
+        const inventoryRef = db.ref(path);
+        inventoryRef.off(); // Remove all existing listeners before adding new ones
+      });
+      
       // Initialize sortable headers
       updateInventoryTableHeader();
 
@@ -1687,9 +1693,12 @@
         // Listen for child added
         inventoryRef.on('child_added', (snapshot) => {
           const item = { id: snapshot.key, ...snapshot.val() };
-          allItems[item.id] = item;
-          addItemToDOM(item);
-          sortInventory();
+          // Check if item already exists before adding
+          if (!allItems[item.id]) {
+            allItems[item.id] = item;
+            addItemToDOM(item);
+            sortInventory();
+          }
         });
 
         // Listen for child changed
