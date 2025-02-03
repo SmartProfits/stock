@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Warehouse Management System</title>
+  <title>SmartProfits Stock Management System</title>
   
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -529,7 +529,7 @@
       <!-- Login Form -->
       <div class="input-group" style="margin-bottom: 25px;">
         <i class="fas fa-envelope" style="color: #003974;"></i>
-        <input type="email" id="login-email" placeholder="Enter Email" style="background: #f8f9fa; border: 2px solid #e9ecef;" required>
+        <input type="email" id="login-email" placeholder="Enter username or email" style="background: #f8f9fa; border: 2px solid #e9ecef;" required>
       </div>
 
       <div class="input-group" style="margin-bottom: 25px;">
@@ -1190,34 +1190,47 @@
     // Register Functionality
     registerButton.addEventListener('click', (e) => {
       e.preventDefault();
-      const name = document.getElementById('register-name').value.trim();
+      const username = document.getElementById('register-name').value.trim();
       const email = document.getElementById('register-email').value.trim();
       const password = document.getElementById('register-password').value.trim();
 
-      if (name === '' || email === '' || password === '') {
+      if (username === '' || email === '' || password === '') {
         registerError.textContent = 'Please fill in all fields.';
         return;
       }
 
       showLoading();
 
-      auth.createUserWithEmailAndPassword(email, password)
+      // 首先检查用户名是否已存在
+      db.ref('usernames').child(username).once('value')
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            throw new Error('Username already exists');
+          }
+          
+          // 如果用户名不存在，继续注册流程
+          return auth.createUserWithEmailAndPassword(email, password);
+        })
         .then((userCredential) => {
-          // Registration successful, set display name
-          return userCredential.user.updateProfile({
-            displayName: name
-          });
+          const user = userCredential.user;
+          
+          // 创建用户名到 email 的映射
+          const updates = {};
+          updates[`usernames/${username}`] = {
+            email: email,
+            uid: user.uid
+          };
+          
+          // 保存用户信息
+          updates[`users/${user.uid}`] = {
+            name: username,
+            email: email,
+            role: 'user'
+          };
+          
+          return db.ref().update(updates);
         })
         .then(() => {
-          // Save user info to database with default role "user"
-          const user = auth.currentUser;
-          if (user) {
-            db.ref('users/' + user.uid).set({
-              name: user.displayName,
-              email: user.email,
-              role: 'user' // Default role is "user"
-            });
-          }
           registerError.textContent = '';
           registerForm.reset();
         })
@@ -1232,32 +1245,56 @@
 
     // Login Functionality (Including "Remember Me")
     loginButton.addEventListener('click', () => {
-      const email = document.getElementById('login-email').value;
+      const usernameOrEmail = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
       const rememberMe = document.getElementById('remember-me').checked;
+      const loginError = document.getElementById('login-error');
 
       showLoading();
-      auth.signInWithEmailAndPassword(email, password)
+
+      // 判断输入是邮箱还是用户名
+      const isEmail = usernameOrEmail.includes('@');
+      
+      let emailToUse = usernameOrEmail;
+
+      // 如果不是邮箱，通过用户名查找对应的邮箱
+      const loginProcess = isEmail 
+        ? Promise.resolve({ email: usernameOrEmail })
+        : db.ref('usernames').child(usernameOrEmail).once('value')
+            .then((snapshot) => {
+              if (!snapshot.exists()) {
+                throw new Error('Username not found');
+              }
+              return snapshot.val();
+            });
+
+      loginProcess
+        .then((userData) => {
+          return auth.signInWithEmailAndPassword(userData.email, password);
+        })
         .then((userCredential) => {
           const user = userCredential.user;
           
           // 记录用户登录信息到 onlineRecords
-          db.ref(`onlineRecords/${user.uid}`).set({
+          return db.ref(`onlineRecords/${user.uid}`).set({
             userName: user.displayName || 'Unknown',
             email: user.email,
             loginTime: new Date().toISOString(),
             isOnline: true,
             lastActive: new Date().toISOString()
           });
-
+        })
+        .then(() => {
           if (rememberMe) {
-            localStorage.setItem('rememberedEmail', email);
+            localStorage.setItem('rememberedUser', usernameOrEmail);
           } else {
-            localStorage.removeItem('rememberedEmail');
+            localStorage.removeItem('rememberedUser');
           }
+          loginError.textContent = '';
         })
         .catch((error) => {
-          document.getElementById('login-error').textContent = error.message;
+          console.error('Login Error:', error);
+          loginError.textContent = error.message;
         })
         .finally(() => {
           hideLoading();
