@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory System</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f7;
+            min-height: 100vh;
+            color: #1d1d1f;
+        }
+
+        /* Login Form Styles */
+        .login-container {
+            max-width: 90%;
+            width: 380px;
+            margin: 60px auto;
+            padding: 32px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .contact-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            color: darkblue;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 32px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header h1 {
+            color: #1d1d1f;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: #86868b;
+            font-size: 15px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #86868b;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            background-color: #ffffff;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #0071e3;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #0077ED;
+        }
+
+        /* Inventory List Styles */
+        .inventory-container {
+            display: none;
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .search-bar {
+            flex: 1;
+            min-width: 240px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 12px 12px 38px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            font-size: 15px;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #86868b;
+        }
+
+        .category-filter select {
+            padding: 12px 32px 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            outline: none;
+            font-size: 15px;
+            min-width: 180px;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h10L5 6z' fill='%23666'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            width: auto;
+            background: rgba(0, 113, 227, 0.9);
+            backdrop-filter: blur(20px);
+        }
+
+        /* Table Styles */
+        .inventory-table {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .inventory-table th,
+        .inventory-table td {
+            padding: 16px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .inventory-table th {
+            background: rgba(245, 245, 247, 0.8);
+            font-weight: 600;
+            color: #1d1d1f;
+            cursor: pointer;
+        }
+
+        .inventory-table tr:not(:last-child) {
+            border-bottom: 1px solid #d2d2d7;
+        }
+
+        .quantity-zero {
+            color: #ff3b30;
+            font-weight: 600;
+            background-color: rgba(255, 59, 48, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        /* Mobile Card View */
+        .inventory-cards {
+            display: none;
+        }
+
+        .inventory-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .inventory-card p {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .inventory-card strong {
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        .inventory-card .quantity-zero {
+            color: #ff3b30;
+            background-color: rgba(255, 59, 48, 0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        /* Error Message */
+        .error-message {
+            color: #ff3b30;
+            text-align: center;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+
+        .loading i {
+            font-size: 32px;
+            color: #0071e3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .inventory-table {
+                display: none;
+            }
+
+            .inventory-cards {
+                display: block;
+            }
+
+            .top-bar {
+                flex-direction: column;
+            }
+
+            .search-bar,
+            .category-filter {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .category-filter select {
+                width: 100%;
+            }
+
+            .logout-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-container" id="login-container">
+        <div class="login-header">
+            <h1><i class="fas fa-box"></i> Inventory System</h1>
+            <p>Mobile Version</p>
+        </div>
+        <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="login-email" placeholder="Email">
+        </div>
+        <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="login-password" placeholder="Password">
+        </div>
+        <button id="login-btn">Login</button>
+        <p class="error-message" id="login-error"></p>
+    </div>
+
+    <!-- Inventory List -->
+    <div class="inventory-container" id="inventory-container">
+        <div class="top-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Search inventory...">
+            </div>
+            <div class="category-filter">
+                <select id="category-select">
+                    <option value="all">All Categories</option>
+                    <option value="Office">Office</option>
+                    <option value="Seafood">Seafood</option>
+                    <option value="Ban Heang">Ban Heang</option>
+                    <option value="Hop Hup">Hop Hup</option>
+                    <option value="Tenom Kopi">Tenom Kopi</option>
+                    <option value="Amplang">Amplang</option>
+                    <option value="Chocolate">Chocolate</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <button class="logout-btn" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+        
+ <p class="contact-info">🌟If you have any questions or suggestion please contact me (Mark).</p>
+        <!-- Table View (Desktop) -->
+        <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Expiry Date</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-table-body">
+                <!-- Data will be inserted here -->
+            </tbody>
+        </table>
+
+        <!-- Card View (Mobile) -->
+        <div class="inventory-cards" id="inventory-cards">
+            <!-- Cards will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAK5KVv9oln2qS5EfNzox1snM19wa83-o",
+            authDomain: "smart-profits-stock.firebaseapp.com",
+            databaseURL: "https://smart-profits-stock-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "smart-profits-stock",
+            storageBucket: "smart-profits-stock.firebasestorage.app",
+            messagingSenderId: "1029424292465",
+            appId: "1:1029424292465:web:6de46925db8818d462b1d0",
+            measurementId: "G-R0K4Q7JTGE"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // DOM Elements
+        const loginContainer = document.getElementById('login-container');
+        const inventoryContainer = document.getElementById('inventory-container');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const loginError = document.getElementById('login-error');
+        const searchInput = document.getElementById('search-input');
+        const categorySelect = document.getElementById('category-select');
+        const inventoryTableBody = document.getElementById('inventory-table-body');
+        const inventoryCards = document.getElementById('inventory-cards');
+        const loading = document.querySelector('.loading');
+
+        // Login Function
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            showLoading();
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(error => {
+                    loginError.textContent = error.message;
+                })
+                .finally(() => hideLoading());
+        });
+
+        // Logout Function
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+
+        // Auth State Change Listener
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                loginContainer.style.display = 'none';
+                inventoryContainer.style.display = 'block';
+                loadInventory();
+            } else {
+                loginContainer.style.display = 'block';
+                inventoryContainer.style.display = 'none';
+                inventoryTableBody.innerHTML = '';
+                inventoryCards.innerHTML = '';
+            }
+        });
+
+        // Load Inventory Data
+        function loadInventory() {
+            showLoading();
+            
+            ['office', 'kepayan'].forEach(location => {
+                db.ref(`inventory/${location}`).on('value', snapshot => {
+                    const data = snapshot.val();
+                    updateInventoryDisplay(data, location);
+                    hideLoading();
+                }, error => {
+                    console.error('Error loading inventory:', error);
+                    hideLoading();
+                });
+            });
+        }
+
+        // Update Inventory Display
+        function updateInventoryDisplay(data, location) {
+            if (!data) return;
+
+            // Clear existing data for this location
+            const existingRows = document.querySelectorAll(`tr[data-location="${location}"]`);
+            const existingCards = document.querySelectorAll(`div[data-location="${location}"]`);
+            existingRows.forEach(row => row.remove());
+            existingCards.forEach(card => card.remove());
+
+            // Add new data
+            Object.entries(data).forEach(([key, item]) => {
+                const quantityClass = parseInt(item.quantity) === 0 ? 'quantity-zero' : '';
+                const quantityDisplay = parseInt(item.quantity) === 0 ? 'Out of Stock' : item.quantity;
+
+                // Create table row
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-location', location);
+                tr.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.category || 'N/A'}</td>
+                    <td><span class="${quantityClass}">${quantityDisplay}</span></td>
+                    <td>${item.unit}</td>
+                    <td>${item.expiredDate || 'N/A'}</td>
+                    <td>${location}</td>
+                `;
+                inventoryTableBody.appendChild(tr);
+
+                // Create card for mobile view
+                const card = document.createElement('div');
+                card.className = 'inventory-card';
+                card.setAttribute('data-location', location);
+                card.innerHTML = `
+                    <p><strong>Product:</strong> <span>${item.name}</span></p>
+                    <p data-category="${item.category || 'N/A'}">
+                        <strong>Category:</strong> <span>${item.category || 'N/A'}</span>
+                    </p>
+                    <p><strong>Quantity:</strong> <span class="${quantityClass}">${quantityDisplay} ${parseInt(item.quantity) === 0 ? '' : item.unit}</span></p>
+                    <p><strong>Location:</strong> <span>${location}</span></p>
+                    <p><strong>Expiry Date:</strong> <span>${item.expiredDate || 'N/A'}</span></p>
+                `;
+                inventoryCards.appendChild(card);
+            });
+
+            // Apply current filters
+            filterInventory();
+        }
+
+        // Filter Function
+        function filterInventory() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCategory = categorySelect.value;
+            
+            // Filter table rows
+            document.querySelectorAll('.inventory-table tbody tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const category = row.children[1].textContent;
+                
+                const matchesSearch = text.includes(searchTerm);
+                const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
+                
+                row.style.display = matchesSearch && matchesCategory ? '' : 'none';
+            });
+
+            // Filter cards
+            document.querySelectorAll('.inventory-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                const category = card.querySelector('[data-category]').getAttribute('data-category');
+                
+                const matchesSearch = text.includes(searchTerm);
+                const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
+                
+                card.style.display = matchesSearch && matchesCategory ? '' : 'none';
+            });
+        }
+
+        // Add event listeners for filtering
+        searchInput.addEventListener('input', filterInventory);
+        categorySelect.addEventListener('change', filterInventory);
+
+        // Loading Functions
+        function showLoading() {
+            loading.style.display = 'block';
+        }
+
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
