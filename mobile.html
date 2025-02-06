@@ -308,7 +308,7 @@
     <!-- Login Form -->
     <div class="login-container" id="login-container">
         <div class="login-header">
-            <h1><i class="fas fa-box"></i> Inventory System</h1>
+            <h1><i class="fas fa-box"></i> SmartProfits Stock System</h1>
             <p>Mobile Version</p>
         </div>
         <div class="input-group">
@@ -402,7 +402,91 @@
         const inventoryCards = document.getElementById('inventory-cards');
         const loading = document.querySelector('.loading');
 
-        // Login Function
+        // Add new function for handling user activity
+        function initializePresenceSystem(user) {
+            const userStatusRef = db.ref(`onlineRecords/${user.uid}`);
+            const connectionRef = db.ref('.info/connected');
+            
+            // Set up presence system
+            connectionRef.on('value', (snapshot) => {
+                if (!snapshot.val()) return;
+
+                userStatusRef.onDisconnect().update({
+                    isOnline: false,
+                    lastActive: new Date().toISOString()
+                }).then(() => {
+                    userStatusRef.update({
+                        userName: user.displayName || 'Unknown',
+                        email: user.email,
+                        loginTime: new Date().toISOString(),
+                        isOnline: true,
+                        lastActive: new Date().toISOString()
+                    });
+                });
+            });
+
+            // Set up activity tracking
+            let activityTimeout;
+            const INACTIVE_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+
+            function updateUserActivity() {
+                clearTimeout(activityTimeout);
+                
+                userStatusRef.update({
+                    lastActive: new Date().toISOString(),
+                    isOnline: true
+                });
+
+                activityTimeout = setTimeout(() => {
+                    userStatusRef.update({
+                        isOnline: false
+                    });
+                }, INACTIVE_TIMEOUT);
+            }
+
+            // Track user activity
+            ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(
+                eventName => document.addEventListener(eventName, updateUserActivity, true)
+            );
+
+            // Initial activity update
+            updateUserActivity();
+
+            // Return cleanup function
+            return () => {
+                ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(
+                    eventName => document.removeEventListener(eventName, updateUserActivity, true)
+                );
+                clearTimeout(activityTimeout);
+            };
+        }
+
+        // Modify auth state change listener
+        let presenceCleanup = null;
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                loginContainer.style.display = 'none';
+                inventoryContainer.style.display = 'block';
+                
+                // Initialize presence system
+                presenceCleanup = initializePresenceSystem(user);
+                
+                loadInventory();
+            } else {
+                loginContainer.style.display = 'block';
+                inventoryContainer.style.display = 'none';
+                inventoryTableBody.innerHTML = '';
+                inventoryCards.innerHTML = '';
+
+                // Clean up presence system
+                if (presenceCleanup) {
+                    presenceCleanup();
+                    presenceCleanup = null;
+                }
+            }
+        });
+
+        // Modify login function
         loginBtn.addEventListener('click', () => {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
@@ -415,22 +499,19 @@
                 .finally(() => hideLoading());
         });
 
-        // Logout Function
+        // Modify logout function
         logoutBtn.addEventListener('click', () => {
-            auth.signOut();
-        });
-
-        // Auth State Change Listener
-        auth.onAuthStateChanged(user => {
+            const user = auth.currentUser;
             if (user) {
-                loginContainer.style.display = 'none';
-                inventoryContainer.style.display = 'block';
-                loadInventory();
+                // Update online status before signing out
+                db.ref(`onlineRecords/${user.uid}`).update({
+                    isOnline: false,
+                    lastActive: new Date().toISOString()
+                }).then(() => {
+                    auth.signOut();
+                });
             } else {
-                loginContainer.style.display = 'block';
-                inventoryContainer.style.display = 'none';
-                inventoryTableBody.innerHTML = '';
-                inventoryCards.innerHTML = '';
+                auth.signOut();
             }
         });
 
