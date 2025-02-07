@@ -506,7 +506,144 @@
     #online-records-table tr:hover {
       background-color: #f9f9f9;
     }
+
+    /* 在现有的 CSS 中添加以下样式 */
+
+    /* Transaction Records Table Styles */
+    #transaction-records-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-bottom: 20px;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+
+    #transaction-records-table th {
+      background: #f8f9fa;
+      padding: 12px 15px;
+      font-weight: 600;
+      text-align: left;
+      border-bottom: 2px solid #dee2e6;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    #transaction-records-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #dee2e6;
+      vertical-align: middle;
+    }
+
+    /* 交替行颜色 */
+    #transaction-records-table tbody tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    #transaction-records-table tbody tr:hover {
+      background-color: #f2f4f6;
+    }
+
+    /* 数量样式 */
+    .quantity-in {
+      color: #28a745;
+      font-weight: 500;
+    }
+
+    .quantity-out {
+      color: #dc3545;
+      font-weight: 500;
+    }
+
+    /* 类型标签样式 */
+    .transaction-type {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: 500;
+      margin-right: 8px;
+    }
+
+    .type-in {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .type-out {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    /* 统计信息面板 */
+    .transaction-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .stat-card {
+      padding: 15px;
+      border-radius: 6px;
+      background: #f8f9fa;
+    }
+
+    .stat-title {
+      font-size: 1.1em;
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #dee2e6;
+      font-weight: 600;
+    }
+
+    .stat-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .comment-stat {
+      padding: 8px;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .comment-name {
+      font-weight: 500;
+      color: #495057;
+      margin-bottom: 4px;
+    }
+
+    .comment-quantity {
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .no-data {
+      color: #6c757d;
+      font-style: italic;
+      text-align: center;
+      padding: 10px;
+    }
   </style>
+
+  <!-- 在 <head> 标签内添加这些 meta 标签 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 </head>
 <body>
   <!-- Loading Indicator -->
@@ -795,17 +932,21 @@
         <h3>Transaction Records</h3>
         
         <!-- Add Date Filter -->
-        <div style="margin-bottom: 20px;">
-          <select id="transaction-date-filter" style="width: auto; margin-right: 10px;">
+        <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+          <select id="transaction-date-filter" style="width: auto;">
             <option value="today">Today</option>
             <option value="yesterday">Yesterday</option>
             <option value="last7days">Last 7 Days</option>
             <option value="last30days">Last 30 Days</option>
+            <option value="custom">Custom Date</option>
             <option value="all">All Records</option>
           </select>
           
-          <!-- Optional: Custom Date Range -->
-          <input type="date" id="transaction-custom-date" style="width: auto; display: none;">
+          <input 
+            type="date" 
+            id="transaction-custom-date" 
+            style="width: auto; display: none;"
+          >
         </div>
         
         <!-- Rest of the existing transaction records table -->
@@ -2350,19 +2491,16 @@
       const dateFilter = document.getElementById('transaction-date-filter').value;
       const customDate = document.getElementById('transaction-custom-date').value;
       
-      // 获取当前用户角色
-      const isSadmin = userRole === 'sadmin';
-      
       // Calculate date ranges
       const now = new Date();
-      now.setHours(23, 59, 59, 999); // End of today
+      now.setHours(23, 59, 59, 999); // End of day
       
       let startDate = new Date();
-      startDate.setHours(0, 0, 0, 0); // Start of today
+      startDate.setHours(0, 0, 0, 0); // Start of day
       
       switch(dateFilter) {
         case 'today':
-          // Already set
+          // Already set correctly
           break;
         case 'yesterday':
           startDate.setDate(startDate.getDate() - 1);
@@ -2378,7 +2516,7 @@
           if (customDate) {
             startDate = new Date(customDate);
             startDate.setHours(0, 0, 0, 0);
-            now = new Date(customDate);
+            now.setTime(startDate.getTime());
             now.setHours(23, 59, 59, 999);
           }
           break;
@@ -2387,6 +2525,25 @@
           break;
       }
 
+      // 添加日期显示
+      const dateDisplay = document.createElement('div');
+      dateDisplay.style.marginBottom = '15px';
+      dateDisplay.style.fontWeight = 'bold';
+      dateDisplay.textContent = `Showing records for: ${formatDateDisplay(startDate, now, dateFilter)}`;
+      
+      // 清除旧的日期显示（如果存在）
+      const oldDateDisplay = document.querySelector('.date-display');
+      if (oldDateDisplay) {
+        oldDateDisplay.remove();
+      }
+      
+      // 在表格前插入日期显示
+      document.querySelector('#transaction-records-section h3').insertAdjacentElement('afterend', dateDisplay);
+      dateDisplay.classList.add('date-display');
+
+      // 获取当前用户角色
+      const isSadmin = userRole === 'sadmin';
+      
       db.ref('transactions')
         .orderByChild('time')
         .startAt(startDate.toISOString())
@@ -2394,40 +2551,184 @@
         .once('value')
         .then((snapshot) => {
           const data = snapshot.val();
-          transactionRecordsTableBody.innerHTML = '';
-          document.getElementById('transaction-records-cards').innerHTML = '';
+          
+          // 清空表格内容
+          const transactionTable = document.getElementById('transaction-records-table');
+          transactionTable.innerHTML = `
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Transaction Time</th>
+                <th>Modified By</th>
+                <th>Comment</th>
+                ${userRole === 'sadmin' ? '<th>Action</th>' : ''}
+              </tr>
+            </thead>
+            <tbody></tbody>
+          `;
+          
+          const tbody = transactionTable.querySelector('tbody');
+          
+          // 清除之前的统计信息面板
+          const existingStats = document.querySelector('.transaction-stats');
+          if (existingStats) {
+            existingStats.remove();
+          }
 
           if (data) {
-            const records = Object.entries(data).sort(([,a], [,b]) => new Date(b.time) - new Date(a.time));
+            // 过滤掉 edited 和 deleted 类型的记录，只保留 stock-in 和 stock-out
+            const records = Object.entries(data)
+              .filter(([, record]) => record.type === 'stock-in' || record.type === 'stock-out')
+              .sort(([,a], [,b]) => new Date(b.time) - new Date(a.time));
+            
+            // 修改统计对象的结构
+            const stockInStats = {
+              byCategory: {}, // 按 category 统计
+              byComment: {}   // 按 comment 统计
+            };
+            const stockOutStats = {}; // stock out 保持原样
+            
+            records.forEach(([, record]) => {
+              if (record.type === 'stock-in') {
+                // 统计 category
+                const category = record.category || 'Uncategorized';
+                if (!stockInStats.byCategory[category]) {
+                  stockInStats.byCategory[category] = {
+                    ctn: 0,
+                    pkt: 0,
+                    pieces: 0
+                  };
+                }
+                const unit = record.unit.toLowerCase();
+                if (unit === 'ctn' || unit === 'pkt' || unit === 'pieces') {
+                  stockInStats.byCategory[category][unit] += record.quantity;
+                }
+              } else if (record.type === 'stock-out') {
+                // Stock Out 统计保持不变
+                const comment = record.comment || 'None';
+                if (!stockOutStats[comment]) {
+                  stockOutStats[comment] = {
+                    ctn: 0,
+                    pkt: 0,
+                    pieces: 0
+                  };
+                }
+                const unit = record.unit.toLowerCase();
+                if (unit === 'ctn' || unit === 'pkt' || unit === 'pieces') {
+                  stockOutStats[comment][unit] += record.quantity;
+                }
+              }
+            });
+
+            // 创建 Stock In 的 category 统计 HTML
+            function createCategoryStats(categoryStats) {
+              return Object.entries(categoryStats)
+                .map(([category, quantities]) => {
+                  const quantityStrings = [];
+                  if (quantities.ctn > 0) quantityStrings.push(`${quantities.ctn} ctn`);
+                  if (quantities.pkt > 0) quantityStrings.push(`${quantities.pkt} pkt`);
+                  if (quantities.pieces > 0) quantityStrings.push(`${quantities.pieces} pieces`);
+                  
+                  if (quantityStrings.length > 0) {
+                    return `
+                      <div class="comment-stat">
+                        <div class="comment-name">${category}</div>
+                        <div class="comment-quantity">${quantityStrings.join(', ')}</div>
+                      </div>
+                    `;
+                  }
+                  return '';
+                })
+                .filter(html => html !== '')
+                .join('');
+            }
+
+            // Stock Out 的统计 HTML 保持不变
+            function createCommentStats(stats) {
+              return Object.entries(stats)
+                .map(([comment, quantities]) => {
+                  const quantityStrings = [];
+                  if (quantities.ctn > 0) quantityStrings.push(`${quantities.ctn} ctn`);
+                  if (quantities.pkt > 0) quantityStrings.push(`${quantities.pkt} pkt`);
+                  if (quantities.pieces > 0) quantityStrings.push(`${quantities.pieces} pieces`);
+                  
+                  if (quantityStrings.length > 0) {
+                    return `
+                      <div class="comment-stat">
+                        <div class="comment-name">${comment}</div>
+                        <div class="comment-quantity">${quantityStrings.join(', ')}</div>
+                      </div>
+                    `;
+                  }
+                  return '';
+                })
+                .filter(html => html !== '')
+                .join('');
+            }
+
+            const statsHtml = `
+              <div class="transaction-stats">
+                <div class="stat-card">
+                  <div class="stat-title">Stock In by Category</div>
+                  <div class="stat-content">
+                    ${createCategoryStats(stockInStats.byCategory) || '<div class="no-data">No stock in today</div>'}
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-title">Stock Out</div>
+                  <div class="stat-content">
+                    ${createCommentStats(stockOutStats) || '<div class="no-data">No stock out today</div>'}
+                  </div>
+                </div>
+              </div>
+            `;
+
+            // 插入新的统计信息面板
+            document.querySelector('#transaction-records-section h3').insertAdjacentHTML('afterend', statsHtml);
             
             records.forEach(([recordId, record]) => {
-              // Add to table
               const tr = document.createElement('tr');
+              
+              // 确定交易类型的样式和图标
+              const typeClass = record.type === 'stock-in' ? 'type-in' : 'type-out';
+              const typeIcon = record.type === 'stock-in' ? 'fa-arrow-circle-up' : 'fa-arrow-circle-down';
+              
+              // 格式化数量显示
+              const quantityClass = record.type === 'stock-in' ? 'quantity-in' : 'quantity-out';
+              const quantitySign = record.type === 'stock-in' ? '+' : '-';
+              
               tr.innerHTML = `
-                <td>${record.productName}</td>
-                <td class="hide-on-mobile">${record.category || 'N/A'}</td>
-                <td>${record.quantity}</td>
-                <td class="hide-on-mobile">${record.unit}</td>
+                <td>
+                  <span class="transaction-type ${typeClass}">
+                    <i class="fas ${typeIcon} mr-1"></i>
+                    ${record.type === 'stock-in' ? 'IN' : 'OUT'}
+                  </span>
+                  ${record.productName}
+                </td>
+                <td>${record.category || 'N/A'}</td>
+                <td class="${quantityClass}">${quantitySign}${Math.abs(record.quantity)} ${record.unit}</td>
                 <td>${formatDateTime(record.time)}</td>
                 <td>${record.user}</td>
-                <td>${record.comment || 'None'}</td>
-                ${isSadmin ? `
+                <td>
+                  <span class="badge ${record.comment === 'None' ? 'bg-secondary' : 'bg-primary'}" style="padding: 5px 10px;">
+                    ${record.comment}
+                  </span>
+                </td>
+                ${userRole === 'sadmin' ? `
                 <td>
                   <button class="delete-transaction-button" data-id="${recordId}">
-                    <i class="fas fa-trash"></i> Delete
+                    <i class="fas fa-trash"></i>
                   </button>
                 </td>
                 ` : ''}
               `;
-              transactionRecordsTableBody.appendChild(tr);
-
-              // Add to mobile cards
-              const card = createTransactionCard(record, recordId, isSadmin);
-              document.getElementById('transaction-records-cards').appendChild(card);
+              
+              tbody.appendChild(tr);
             });
-            transactionRecordsMessage.textContent = '';
           } else {
-            transactionRecordsMessage.textContent = 'No transaction records found for the selected period.';
+            tbody.innerHTML = '<tr><td colspan="7">No transaction records found for the selected period.</td></tr>';
           }
         })
         .catch((error) => {
@@ -2438,6 +2739,54 @@
           hideLoading();
         });
     }
+
+    // 添加一个辅助函数来格式化日期显示
+    function formatDateDisplay(startDate, endDate, filterType) {
+      const formatDate = (date) => {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+      };
+
+      switch(filterType) {
+        case 'today':
+          return `Today (${formatDate(startDate)})`;
+        case 'yesterday':
+          return `Yesterday (${formatDate(startDate)})`;
+        case 'last7days':
+          return `Last 7 Days (${formatDate(startDate)} to ${formatDate(endDate)})`;
+        case 'last30days':
+          return `Last 30 Days (${formatDate(startDate)} to ${formatDate(endDate)})`;
+        case 'custom':
+          return `${formatDate(startDate)}`;
+        case 'all':
+          return 'All Records';
+        default:
+          return '';
+      }
+    }
+
+    // 添加事件监听器
+    document.getElementById('transaction-date-filter').addEventListener('change', (e) => {
+      const customDateInput = document.getElementById('transaction-custom-date');
+      if (e.target.value === 'custom') {
+        customDateInput.style.display = 'inline-block';
+        // 设置日期选择器的默认值为今天
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        customDateInput.value = `${year}-${month}-${day}`;
+      } else {
+        customDateInput.style.display = 'none';
+        loadTransactionRecords();
+      }
+    });
+
+    document.getElementById('transaction-custom-date').addEventListener('change', () => {
+      loadTransactionRecords();
+    });
 
     // Sort Inventory List by Modified Time Descending
     function sortInventory() {
