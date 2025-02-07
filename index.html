@@ -3846,27 +3846,47 @@
     // 初始化 Firebase
     const versionRef = firebase.database().ref('version');
 
-    // 检查更新函数
+    // 添加防抖动函数
+    let updateTimeout = null;
+    function debounceUpdate(fn, delay) {
+        if (updateTimeout) {
+            clearTimeout(updateTimeout);
+        }
+        updateTimeout = setTimeout(fn, delay);
+    }
+
     function checkForUpdates() {
-        // 监听版本变化
-        versionRef.on('value', (snapshot) => {
-            const newVersion = snapshot.val();
-            const currentVersion = localStorage.getItem('appVersion');
-            
-            // 添加时间戳到版本号
-            const versionWithTime = `${newVersion}_${Date.now()}`;
-            
-            if (currentVersion !== versionWithTime) {
-                // 发现新版本
-                localStorage.setItem('appVersion', versionWithTime);
-                alert('发现新版本，页面将自动刷新！');
-                window.location.reload();
-            }
-        });
+        // 使用防抖动包装更新操作
+        debounceUpdate(() => {
+            versionRef.once('value').then((snapshot) => {
+                const newVersion = snapshot.val();
+                const currentVersion = localStorage.getItem('appVersion');
+                
+                console.log('新版本:', newVersion); // 调试日志
+                console.log('当前版本:', currentVersion); // 调试日志
+                
+                // 只有当版本不同且不是首次加载时才更新
+                if (currentVersion && currentVersion !== newVersion) {
+                    console.log('检测到新版本，准备更新...'); // 调试日志
+                    localStorage.setItem('appVersion', newVersion);
+                    alert('发现新版本，页面将自动刷新！');
+                    window.location.reload();
+                } else if (!currentVersion) {
+                    // 首次加载，只存储版本号
+                    localStorage.setItem('appVersion', newVersion);
+                    console.log('首次加载，存储当前版本'); // 调试日志
+                } else {
+                    console.log('已经是最新版本'); // 调试日志
+                }
+            });
+        }, 1000); // 1秒内的多次调用会被合并
     }
 
     // 启动检查
     checkForUpdates();
+
+    // 定期检查更新（每5分钟检查一次）
+    setInterval(checkForUpdates, 1000 * 60 * 5);
   </script>
 </body>
 </html>
