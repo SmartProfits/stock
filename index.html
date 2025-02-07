@@ -752,7 +752,7 @@
   <!-- Main Application Container -->
   <div id="app-container" style="display: none;">
     <header>
-      <h1 style="color: ghostwhite;">SmartProfits Stock Systemsssssssss</h1>
+      <h1 style="color: ghostwhite;">SmartProfits Stock System</h1>
       <div id="user-info">
         <span id="welcome-message"></span>
         <button id="logout-button"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -3848,13 +3848,17 @@
 
     // 检查更新函数
     function checkForUpdates() {
+        // 监听版本变化
         versionRef.on('value', (snapshot) => {
             const newVersion = snapshot.val();
             const currentVersion = localStorage.getItem('appVersion');
             
-            if (currentVersion !== newVersion) {
+            // 添加时间戳到版本号
+            const versionWithTime = `${newVersion}_${Date.now()}`;
+            
+            if (currentVersion !== versionWithTime) {
                 // 发现新版本
-                localStorage.setItem('appVersion', newVersion);
+                localStorage.setItem('appVersion', versionWithTime);
                 alert('发现新版本，页面将自动刷新！');
                 window.location.reload();
             }
