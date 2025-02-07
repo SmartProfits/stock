@@ -3856,30 +3856,20 @@
     }
 
     function checkForUpdates() {
-        // 使用防抖动包装更新操作
-        debounceUpdate(() => {
-            versionRef.once('value').then((snapshot) => {
-                const newVersion = snapshot.val();
-                const currentVersion = localStorage.getItem('appVersion');
-                
-                console.log('新版本:', newVersion); // 调试日志
-                console.log('当前版本:', currentVersion); // 调试日志
-                
-                // 只有当版本不同且不是首次加载时才更新
-                if (currentVersion && currentVersion !== newVersion) {
-                    console.log('检测到新版本，准备更新...'); // 调试日志
-                    localStorage.setItem('appVersion', newVersion);
-                    alert('发现新版本，页面将自动刷新！');
+        versionRef.once('value').then((snapshot) => {
+            const newVersion = snapshot.val();
+            const currentVersion = localStorage.getItem('appVersion');
+            
+            if (currentVersion && currentVersion !== newVersion) {
+                localStorage.setItem('appVersion', newVersion);
+                // 自定义提示消息
+                if (confirm('系统已更新到新版本 ' + newVersion + '\n点击确定更新页面')) {
                     window.location.reload();
-                } else if (!currentVersion) {
-                    // 首次加载，只存储版本号
-                    localStorage.setItem('appVersion', newVersion);
-                    console.log('首次加载，存储当前版本'); // 调试日志
-                } else {
-                    console.log('已经是最新版本'); // 调试日志
                 }
-            });
-        }, 1000); // 1秒内的多次调用会被合并
+            } else if (!currentVersion) {
+                localStorage.setItem('appVersion', newVersion);
+            }
+        });
     }
 
     // 启动检查
