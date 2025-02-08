@@ -3863,7 +3863,7 @@
             if (currentVersion && currentVersion !== newVersion) {
                 localStorage.setItem('appVersion', newVersion);
                 // 自定义提示消息
-                if (confirm('System have update ' + newVersion + '\nclick OK to update')) {
+                if (confirm('系统已更新到新版本 ' + newVersion + '\n点击确定更新页面')) {
                     window.location.reload();
                 }
             } else if (!currentVersion) {
@@ -3875,8 +3875,8 @@
     // 启动检查
     checkForUpdates();
 
-    // 定期检查更新（每5分钟检查一次）
-    setInterval(checkForUpdates, 1000 * 60 * 5);
+    // 更频繁地检查更新（每30秒检查一次）
+    setInterval(checkForUpdates, 1000 * 30); // 改为30秒
   </script>
 </body>
 </html>
