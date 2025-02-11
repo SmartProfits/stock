@@ -1476,11 +1476,16 @@
             lastActive: new Date().toISOString()
           });
 
-          if (rememberMe) {
-            localStorage.setItem('rememberedEmail', email);
-          } else {
-            localStorage.removeItem('rememberedEmail');
-          }
+          // 设置会话持久性为 SESSION，这样浏览器关闭后就会清除登录状态
+          auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+            .then(() => {
+              if (rememberMe) {
+                // 只记住邮箱，不记住登录状态
+                localStorage.setItem('rememberedEmail', email);
+              } else {
+                localStorage.removeItem('rememberedEmail');
+              }
+            });
         })
         .catch((error) => {
           document.getElementById('login-error').textContent = error.message;
@@ -1493,37 +1498,22 @@
     // Listen for Authentication State Changes
     auth.onAuthStateChanged((user) => {
       if (user) {
-        // 检查用户最后活动时间
-        db.ref(`onlineRecords/${user.uid}/lastActive`).once('value')
-          .then((snapshot) => {
-            const lastActive = snapshot.val();
-            if (lastActive) {
-              const lastActiveTime = new Date(lastActive);
-              const currentTime = new Date();
-              const hoursDiff = (currentTime - lastActiveTime) / (1000 * 60 * 60);
+        // User is logged in, get user role
+        authContainer.style.display = 'none';
+        appContainer.style.display = 'block';
+        document.body.classList.add('logged-in'); // Add class to change background
+        getUserRole(user.uid);
 
-              // 如果超过12小时没有活动，强制登出
-              if (hoursDiff > 12) {
-                auth.signOut().then(() => {
-                  alert('Your session has expired. Please login again.');
-                });
-                return;
-              }
-            }
+        // Display welcome message
+        const displayName = user.displayName || 'User';
+        welcomeMessage.textContent = `Welcome, ${displayName} (${userRole ? userRole : 'Loading...'})`;
 
-            // 用户在线且活动时间有效，继续正常流程
-            authContainer.style.display = 'none';
-            appContainer.style.display = 'block';
-            document.body.classList.add('logged-in');
-            getUserRole(user.uid);
-
-            // Initialize presence system
-            initializePresenceSystem();
-
-            // Display welcome message
-            const displayName = user.displayName || 'User';
-            welcomeMessage.textContent = `Welcome, ${displayName} (${userRole ? userRole : 'Loading...'})`;
-          });
+        console.log('User logged in:', user.email);
+        db.ref(`users/${user.uid}/role`).once('value')
+            .then((snapshot) => {
+                const role = snapshot.val();
+                console.log('Current user role:', role);
+            });
       } else {
         // User is not logged in, show login/register
         authContainer.style.display = 'block';
@@ -3792,19 +3782,27 @@
 
     // 1. 添加 Firebase Presence System
     function initializePresenceSystem() {
+      // Get a reference to the user's status node
       const user = auth.currentUser;
       if (!user) return;
 
       const userStatusRef = db.ref(`onlineRecords/${user.uid}`);
+      
+      // Create a reference to the special '.info/connected' path in Firebase
       const connectionRef = db.ref('.info/connected');
       
       connectionRef.on('value', (snapshot) => {
+        // If we're not currently connected, don't do anything.
         if (!snapshot.val()) return;
 
+        // If we are currently connected, then use the onDisconnect()
+        // method to add a handler that will cancel our online status
+        // when we disconnect.
         userStatusRef.onDisconnect().update({
           isOnline: false,
           lastActive: new Date().toISOString()
         }).then(() => {
+          // Set the status to online now
           userStatusRef.update({
             isOnline: true,
             lastActive: new Date().toISOString()
@@ -3812,83 +3810,50 @@
         });
       });
 
-      // 修改活动跟踪逻辑
+      // Add activity tracking
       let activityTimeout;
       const INACTIVE_TIMEOUT = 15 * 60 * 1000; // 15 minutes
-      const FORCE_LOGOUT_TIMEOUT = 12 * 60 * 60 * 1000; // 12 hours
 
       function updateUserActivity() {
         clearTimeout(activityTimeout);
         
-        const currentTime = new Date();
-        
-        // 更新最后活动时间
+        // Update last active time
         userStatusRef.update({
-          lastActive: currentTime.toISOString()
+          lastActive: new Date().toISOString()
         });
 
-        // 设置不活动超时
+        // Set timeout for inactivity
         activityTimeout = setTimeout(() => {
           userStatusRef.update({
             isOnline: false
           });
         }, INACTIVE_TIMEOUT);
-
-        // 检查是否超过12小时
-        db.ref(`onlineRecords/${user.uid}/lastActive`).once('value')
-          .then((snapshot) => {
-            const lastActive = new Date(snapshot.val());
-            if ((currentTime - lastActive) > FORCE_LOGOUT_TIMEOUT) {
-              auth.signOut().then(() => {
-                alert('Your session has expired. Please login again.');
-              });
-            }
-          });
       }
 
-      // 跟踪用户活动
+      // Track user activity
       ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(
         eventName => document.addEventListener(eventName, updateUserActivity, true)
       );
 
-      // 初始化活动状态
+      // Initial activity state
       updateUserActivity();
     }
 
     // 2. 更新 auth.onAuthStateChanged 处理程序
     auth.onAuthStateChanged((user) => {
       if (user) {
-        // 检查用户最后活动时间
-        db.ref(`onlineRecords/${user.uid}/lastActive`).once('value')
-          .then((snapshot) => {
-            const lastActive = snapshot.val();
-            if (lastActive) {
-              const lastActiveTime = new Date(lastActive);
-              const currentTime = new Date();
-              const hoursDiff = (currentTime - lastActiveTime) / (1000 * 60 * 60);
+        // User is logged in
+        authContainer.style.display = 'none';
+        appContainer.style.display = 'block';
+        document.body.classList.add('logged-in');
+        getUserRole(user.uid);
 
-              // 如果超过12小时没有活动，强制登出
-              if (hoursDiff > 12) {
-                auth.signOut().then(() => {
-                  alert('Your session has expired. Please login again.');
-                });
-                return;
-              }
-            }
+        // Initialize presence system
+        initializePresenceSystem();
 
-            // 用户在线且活动时间有效，继续正常流程
-            authContainer.style.display = 'none';
-            appContainer.style.display = 'block';
-            document.body.classList.add('logged-in');
-            getUserRole(user.uid);
-
-            // Initialize presence system
-            initializePresenceSystem();
-
-            // Display welcome message
-            const displayName = user.displayName || 'User';
-            welcomeMessage.textContent = `Welcome, ${displayName} (${userRole ? userRole : 'Loading...'})`;
-          });
+        // Display welcome message
+        const displayName = user.displayName || 'User';
+        welcomeMessage.textContent = `Welcome, ${displayName} (${userRole ? userRole : 'Loading...'})`;
       } else {
         // User is not logged in
         authContainer.style.display = 'block';
