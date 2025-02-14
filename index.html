@@ -878,7 +878,6 @@
                 <th style="width: 100px;">Image</th>
                 <th class="hide-on-mobile sortable" data-sort="category">Category ↕</th>
                 <th>Quantity</th>
-                <th class="hide-on-mobile">Unit</th>
                 <th class="hide-on-mobile sortable" data-sort="expiry">Expiry Date ↕</th>
                 <th class="hide-on-mobile">Location</th>
                 <th class="hide-on-mobile">Last Modified Time</th>
@@ -1018,12 +1017,12 @@
             <thead>
               <tr>
                 <th>Product Name</th>
-                <th class="hide-on-mobile">Category</th>
+                <th>Category</th>
                 <th>Quantity</th>
-                <th class="hide-on-mobile">Unit</th>
-                <th>Transaction Time</th> <!-- Added Stock Out Time -->
+                <th>Transaction Time</th>
                 <th>Modified By</th>
                 <th>Comment</th>
+                ${userRole === 'sadmin' ? '<th>Action</th>' : ''}
               </tr>
             </thead>
             <tbody>
@@ -1074,7 +1073,6 @@
                 <th>Product Name</th>
                 <th>Category</th>
                 <th>Available Quantity</th>
-                <th>Unit</th>
                 <th>Location</th>
                 <th>Stock Out Quantity</th>
               </tr>
@@ -2006,7 +2004,6 @@
               </td>
               <td class="hide-on-mobile" style="padding: 4px 8px;">${item.category || 'N/A'}</td>
               <td style="padding: 4px 8px;">${item.quantity}</td>
-              <td class="hide-on-mobile" style="padding: 4px 8px;">${item.unit}</td>
               <td class="hide-on-mobile" style="padding: 4px 8px;">${formattedExpiryDate}</td>
               <td class="hide-on-mobile" style="padding: 4px 8px;">${item.location}</td>
               <td class="hide-on-mobile" style="padding: 4px 8px;">${formatDateTime(item.modifiedTime)}</td>
@@ -2058,6 +2055,11 @@
       // Format the expiry date if it exists
       const formattedExpiryDate = item.expiredDate || 'N/A';
       
+      // Format quantity display
+      const quantityDisplay = item.quantity === 0 ? 
+          '<span style="color: #dc3545; background-color: #ffe6e6; padding: 3px 8px; border-radius: 4px; font-size: 0.9em;">Out of Stock</span>' : 
+          `${item.quantity} ${item.unit}`;
+      
       tr.innerHTML = `
         <td style="padding: 4px 8px;">${item.name}</td>
         <td style="padding: 4px 8px; text-align: center;">
@@ -2066,8 +2068,7 @@
             ` : ''}
         </td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${item.category || 'N/A'}</td>
-        <td style="padding: 4px 8px;">${item.quantity}</td>
-        <td class="hide-on-mobile" style="padding: 4px 8px;">${item.unit}</td>
+        <td style="padding: 4px 8px;">${quantityDisplay}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${formattedExpiryDate}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${item.location}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${formatDateTime(item.modifiedTime)}</td>
@@ -2104,56 +2105,61 @@
       card.classList.add('inventory-card');
       card.setAttribute('data-item-id', item.id);
       
+      // Format quantity display for card
+      const quantityDisplay = item.quantity === 0 ? 
+          '<span style="color: #dc3545; background-color: #ffe6e6; padding: 3px 8px; border-radius: 4px; font-size: 0.9em;">Out of Stock</span>' : 
+          `${item.quantity} ${item.unit}`;
+      
       card.innerHTML = `
         <p class="product-name">
-          <strong>Product Name</strong>
-          <span>${item.name}</span>
+            <strong>Product Name</strong>
+            <span>${item.name}</span>
         </p>
         
         <p class="category">
-          <strong>Category</strong>
-          <span>${item.category || 'N/A'}</span>
+            <strong>Category</strong>
+            <span>${item.category || 'N/A'}</span>
         </p>
         
         <p class="quantity">
-          <strong>Quantity</strong>
-          <span>${item.quantity} ${item.unit}</span>
+            <strong>Quantity</strong>
+            <span>${quantityDisplay}</span>
         </p>
         
         <p class="location">
-          <strong>Location</strong>
-          <span>${item.location}</span>
+            <strong>Location</strong>
+            <span>${item.location}</span>
         </p>
         
         ${item.expiredDate ? `
         <p class="expiry">
-          <strong>Expiry Date</strong>
-          <span>${item.expiredDate}</span>
+            <strong>Expiry Date</strong>
+            <span>${item.expiredDate}</span>
         </p>
         ` : ''}
         
         <p class="modified">
-          <strong>Last Modified</strong>
-          <span>${formatDateTime(item.modifiedTime)}</span>
+            <strong>Last Modified</strong>
+            <span>${formatDateTime(item.modifiedTime)}</span>
         </p>
         
         <p class="modified-by">
-          <strong>Modified By</strong>
-          <span>${item.modifiedBy}</span>
+            <strong>Modified By</strong>
+            <span>${item.modifiedBy}</span>
         </p>
         
         <div class="card-actions">
-          <div style="display: flex; gap: 4px; justify-content: flex-start;">
-            <button class="edit-button" data-item-id="${item.id}" style="padding: 2px 8px; margin: 0;">
-              <i class="fas fa-edit"></i> Edit
-            </button>
-            <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}" style="padding: 2px 8px; margin: 0;">
-              <i class="fas fa-trash"></i> Delete
-            </button>
-          </div>
+            <div style="display: flex; gap: 4px; justify-content: flex-start;">
+                <button class="edit-button" data-item-id="${item.id}" style="padding: 2px 8px; margin: 0;">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}" style="padding: 2px 8px; margin: 0;">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
         </div>
-      `;
-      return card;
+    `;
+    return card;
     }
 
     // Open Edit Modal
@@ -3296,7 +3302,6 @@
         <th style="width: 100px;">Image</th>
         <th class="hide-on-mobile sortable" data-sort="category">Category ↕</th>
         <th>Quantity</th>
-        <th class="hide-on-mobile">Unit</th>
         <th class="hide-on-mobile sortable" data-sort="expiry">Expiry Date ↕</th>
         <th class="hide-on-mobile">Location</th>
         <th class="hide-on-mobile">Last Modified Time</th>
@@ -4224,6 +4229,11 @@
         // Format the expiry date if it exists
         const formattedExpiryDate = item.expiredDate || 'N/A';
         
+        // Format quantity display
+        const quantityDisplay = item.quantity === 0 ? 
+            '<span style="color: #dc3545; background-color: #ffe6e6; padding: 3px 8px; border-radius: 4px; font-size: 0.9em;">Out of Stock</span>' : 
+            `${item.quantity} ${item.unit}`;
+        
         tr.innerHTML = `
             <td style="padding: 4px 8px;">${item.name}</td>
             <td style="padding: 4px 8px; text-align: center;">
@@ -4232,8 +4242,7 @@
                 ` : ''}
             </td>
             <td class="hide-on-mobile" style="padding: 4px 8px;">${item.category || 'N/A'}</td>
-            <td style="padding: 4px 8px;">${item.quantity}</td>
-            <td class="hide-on-mobile" style="padding: 4px 8px;">${item.unit}</td>
+            <td style="padding: 4px 8px;">${quantityDisplay}</td>
             <td class="hide-on-mobile" style="padding: 4px 8px;">${formattedExpiryDate}</td>
             <td class="hide-on-mobile" style="padding: 4px 8px;">${item.location}</td>
             <td class="hide-on-mobile" style="padding: 4px 8px;">${formatDateTime(item.modifiedTime)}</td>
