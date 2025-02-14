@@ -700,6 +700,48 @@
         left: 50%;
         transform: translate(-50%, -50%);
     }
+
+    /* Quantity Display Styles */
+    .quantity-display {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .out-of-stock-badge {
+        display: inline-block;
+        background-color: #dc3545;
+        color: white;
+        padding: 2px 6px;  /* 减小内边距 */
+        border-radius: 3px;  /* 减小圆角 */
+        font-size: 0.75em;  /* 减小字体大小 */
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;  /* 减小字母间距 */
+        box-shadow: 0 1px 2px rgba(220, 53, 69, 0.2);  /* 减小阴影 */
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.03);  /* 减小缩放幅度 */
+            opacity: 0.9;  /* 增加最小透明度 */
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* 悬停效果 */
+    .out-of-stock-badge:hover {
+        background-color: #c82333;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+    }
   </style>
 
   <!-- 在 <head> 标签内添加这些 meta 标签 -->
@@ -878,7 +920,6 @@
                 <th style="width: 100px;">Image</th>
                 <th class="hide-on-mobile sortable" data-sort="category">Category ↕</th>
                 <th>Quantity</th>
-                <th class="hide-on-mobile">Unit</th>
                 <th class="hide-on-mobile sortable" data-sort="expiry">Expiry Date ↕</th>
                 <th class="hide-on-mobile">Location</th>
                 <th class="hide-on-mobile">Last Modified Time</th>
@@ -2006,7 +2047,6 @@
               </td>
               <td class="hide-on-mobile" style="padding: 4px 8px;">${item.category || 'N/A'}</td>
               <td style="padding: 4px 8px;">${item.quantity}</td>
-              <td class="hide-on-mobile" style="padding: 4px 8px;">${item.unit}</td>
               <td class="hide-on-mobile" style="padding: 4px 8px;">${formattedExpiryDate}</td>
               <td class="hide-on-mobile" style="padding: 4px 8px;">${item.location}</td>
               <td class="hide-on-mobile" style="padding: 4px 8px;">${formatDateTime(item.modifiedTime)}</td>
@@ -2058,6 +2098,11 @@
       // Format the expiry date if it exists
       const formattedExpiryDate = item.expiredDate || 'N/A';
       
+      // Create quantity display with conditional styling
+      const quantityDisplay = item.quantity === 0 
+          ? `<span class="out-of-stock-badge">OUT OF STOCK</span>`
+          : `<span class="quantity-display">${item.quantity} ${item.unit}</span>`;
+      
       tr.innerHTML = `
         <td style="padding: 4px 8px;">${item.name}</td>
         <td style="padding: 4px 8px; text-align: center;">
@@ -2066,8 +2111,7 @@
             ` : ''}
         </td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${item.category || 'N/A'}</td>
-        <td style="padding: 4px 8px;">${item.quantity}</td>
-        <td class="hide-on-mobile" style="padding: 4px 8px;">${item.unit}</td>
+        <td style="padding: 4px 8px;">${quantityDisplay}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${formattedExpiryDate}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${item.location}</td>
         <td class="hide-on-mobile" style="padding: 4px 8px;">${formatDateTime(item.modifiedTime)}</td>
@@ -3296,7 +3340,6 @@
         <th style="width: 100px;">Image</th>
         <th class="hide-on-mobile sortable" data-sort="category">Category ↕</th>
         <th>Quantity</th>
-        <th class="hide-on-mobile">Unit</th>
         <th class="hide-on-mobile sortable" data-sort="expiry">Expiry Date ↕</th>
         <th class="hide-on-mobile">Location</th>
         <th class="hide-on-mobile">Last Modified Time</th>
@@ -4224,6 +4267,11 @@
         // Format the expiry date if it exists
         const formattedExpiryDate = item.expiredDate || 'N/A';
         
+        // Create quantity display with conditional styling
+        const quantityDisplay = item.quantity === 0 
+            ? `<span class="out-of-stock-badge">OUT OF STOCK</span>`
+            : `<span class="quantity-display">${item.quantity} ${item.unit}</span>`;
+        
         tr.innerHTML = `
             <td style="padding: 4px 8px;">${item.name}</td>
             <td style="padding: 4px 8px; text-align: center;">
@@ -4232,8 +4280,7 @@
                 ` : ''}
             </td>
             <td class="hide-on-mobile" style="padding: 4px 8px;">${item.category || 'N/A'}</td>
-            <td style="padding: 4px 8px;">${item.quantity}</td>
-            <td class="hide-on-mobile" style="padding: 4px 8px;">${item.unit}</td>
+            <td style="padding: 4px 8px;">${quantityDisplay}</td>
             <td class="hide-on-mobile" style="padding: 4px 8px;">${formattedExpiryDate}</td>
             <td class="hide-on-mobile" style="padding: 4px 8px;">${item.location}</td>
             <td class="hide-on-mobile" style="padding: 4px 8px;">${formatDateTime(item.modifiedTime)}</td>
