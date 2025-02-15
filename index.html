@@ -742,6 +742,82 @@
         transform: translateY(-1px);
         box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
     }
+
+    .upload-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .image-gallery {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-top: 10px;
+    }
+    
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+    }
+    
+    .image-card {
+        position: relative;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .gallery-image {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+    }
+    
+    .image-card-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    
+    .image-card:hover .image-card-overlay {
+        opacity: 1;
+    }
+    
+    .select-image-btn {
+        background: #fff;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .select-image-btn:hover {
+        background: #f0f0f0;
+    }
+
+    .no-images-message {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-style: italic;
+    }
+    
+    .error-message {
+        text-align: center;
+        padding: 20px;
+        color: #dc3545;
+    }
   </style>
 
   <!-- 在 <head> 标签内添加这些 meta 标签 -->
@@ -1212,7 +1288,12 @@
         </select>
         
         <label for="edit-item-quantity">Quantity</label>
-        <input type="number" id="edit-item-quantity" placeholder="Quantity" required>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="number" id="edit-item-quantity" placeholder="Quantity" required style="flex: 1;">
+            <button id="add-new-stock-button" style="width: auto; padding: 8px 15px; background-color: #003974; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                <i class="fas fa-plus"></i> New Stock
+            </button>
+        </div>
         
         <label for="edit-item-unit">Unit</label>
         <input type="text" id="edit-item-unit" placeholder="Unit (e.g., pieces, boxes, kg)" required>
@@ -2229,12 +2310,38 @@
         // 根据用户角色显示/隐藏图片上传部分
         const imageUploadSection = document.getElementById('image-upload-section');
         if (userRole === 'sadmin') {
-            console.log('Showing image upload section for sadmin'); // 添加调试日志
-            imageUploadSection.style.display = 'block';
-        } else {
-            console.log('Hiding image upload section for non-sadmin'); // 添加调试日志
-            imageUploadSection.style.display = 'none';
+            imageUploadSection.innerHTML = `
+                <div class="upload-buttons">
+                    <button type="button" id="upload-new-image" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Upload New
+                    </button>
+                    <button type="button" id="select-existing-image" class="btn btn-secondary">
+                        <i class="fas fa-images"></i> Select Existing
+                    </button>
+                </div>
+                <div id="new-image-upload" style="display: none;">
+                    <input type="file" id="edit-item-image" accept="image/*">
+                    <button id="upload-image-button" class="btn btn-primary">Upload</button>
+                    <div id="image-upload-error" class="error-message"></div>
+                </div>
+                <div id="existing-images-gallery" style="display: none;" class="image-gallery">
+                    <div class="gallery-grid"></div>
+                </div>
+            `;
+            
+            // 添加按钮事件监听器
+            document.getElementById('upload-new-image').addEventListener('click', () => {
+                document.getElementById('new-image-upload').style.display = 'block';
+                document.getElementById('existing-images-gallery').style.display = 'none';
+            });
+            
+            document.getElementById('select-existing-image').addEventListener('click', () => {
+                document.getElementById('new-image-upload').style.display = 'none';
+                document.getElementById('existing-images-gallery').style.display = 'block';
+                loadExistingImages();
+            });
         }
+        imageUploadSection.style.display = userRole === 'sadmin' ? 'block' : 'none';
         
         currentEditItemId = itemId;
         document.getElementById('edit-modal').style.display = 'block';
@@ -4351,6 +4458,138 @@
             const query = searchInput.value.toLowerCase();
             const category = categoryFilter.value;
             filterInventory(query, category);
+        });
+    });
+
+    // 修改 loadExistingImages 函数来从 Firebase 获取所有已使用的图片
+    function loadExistingImages() {
+        showLoading();
+        const galleryGrid = document.querySelector('.gallery-grid');
+        galleryGrid.innerHTML = ''; // 清空现有内容
+        
+        // 从 Firebase 获取所有库存项目的图片 URL
+        const locations = ['office', 'kepayan'];
+        const imageUrls = new Set();
+        
+        Promise.all(
+            locations.map(location => 
+                db.ref(`inventory/${location}`).once('value')
+            )
+        ).then(snapshots => {
+            snapshots.forEach(locationSnapshot => {
+                locationSnapshot.forEach(item => {
+                    const imageUrl = item.val().imageUrl;
+                    if (imageUrl) {
+                        imageUrls.add(imageUrl);
+                    }
+                });
+            });
+            
+            if (imageUrls.size === 0) {
+                galleryGrid.innerHTML = '<div class="no-images-message">No images found</div>';
+                return;
+            }
+            
+            // 创建图片网格
+            imageUrls.forEach(url => {
+                const imageCard = document.createElement('div');
+                imageCard.className = 'image-card';
+                imageCard.innerHTML = `
+                    <img src="${url}" alt="Product image" class="gallery-image">
+                    <div class="image-card-overlay">
+                        <button class="select-image-btn">Select</button>
+                    </div>
+                `;
+                
+                // 添加选择图片的事件监听器
+                imageCard.querySelector('.select-image-btn').addEventListener('click', () => {
+                    selectExistingImage(url);
+                });
+                
+                galleryGrid.appendChild(imageCard);
+            });
+        }).catch(error => {
+            console.error('Error loading existing images:', error);
+            galleryGrid.innerHTML = '<div class="error-message">Failed to load images</div>';
+        }).finally(() => {
+            hideLoading();
+        });
+    }
+
+    // 添加选择已存在图片的函数
+    function selectExistingImage(imageUrl) {
+        const previewContainer = document.getElementById('image-preview-container');
+        previewContainer.innerHTML = `
+            <div style="position: relative;">
+                <img src="${imageUrl}" alt="Product image" style="max-width: 100%; height: auto;">
+                <button class="delete-image-button" onclick="deleteProductImage('${imageUrl}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        previewContainer.setAttribute('data-image-url', imageUrl);
+        
+        // 隐藏图片选择界面
+        document.getElementById('existing-images-gallery').style.display = 'none';
+    }
+
+    // Add New Stock Button Handler
+    document.getElementById('add-new-stock-button').addEventListener('click', () => {
+        const currentQuantity = parseInt(document.getElementById('edit-item-quantity').value) || 0;
+        const newQuantityStr = prompt('Enter quantity to add:');
+        
+        if (newQuantityStr === null) return; // User cancelled
+        
+        const newQuantity = parseInt(newQuantityStr);
+        if (isNaN(newQuantity) || newQuantity <= 0) {
+            alert('Please enter a valid positive number');
+            return;
+        }
+        
+        const user = auth.currentUser;
+        if (!user) {
+            alert('User not authenticated');
+            return;
+        }
+
+        showLoading();
+
+        const name = document.getElementById('edit-item-name').value.trim();
+        const category = document.getElementById('edit-item-category').value;
+        const unit = document.getElementById('edit-item-unit').value.trim();
+        const location = document.getElementById('edit-item-location').value;
+        
+        // 直接更新数据库中的数量
+        const inventoryPath = `inventory/${location}/${currentEditItemId}`;
+        db.ref(inventoryPath).update({
+            quantity: currentQuantity + newQuantity,
+            modifiedTime: new Date().toISOString(),
+            modifiedBy: user.displayName || 'Unknown'
+        }).then(() => {
+            // 更新输入框中的数量
+            document.getElementById('edit-item-quantity').value = currentQuantity + newQuantity;
+            
+            // 添加交易记录
+            return db.ref('transactions').push({
+                type: 'stock-in',
+                productName: name,
+                category: category || 'N/A',
+                quantity: newQuantity,
+                unit: unit,
+                location: location,
+                time: new Date().toISOString(),
+                user: user.displayName || 'Unknown',
+                comment: 'Added new stock'
+            });
+        }).then(() => {
+            alert('Stock added successfully');
+            // 刷新库存列表
+            loadInventoryForRole();
+        }).catch(error => {
+            console.error('Error adding new stock:', error);
+            alert('Failed to add new stock: ' + error.message);
+        }).finally(() => {
+            hideLoading();
         });
     });
   </script>
