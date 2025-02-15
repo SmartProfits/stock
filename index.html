@@ -818,6 +818,29 @@
         padding: 20px;
         color: #dc3545;
     }
+
+    /* 添加页脚样式 */
+    .footer-credit {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 40px;
+      border-top: 1px solid #eee;
+      background-color: #f8f9fa;
+    }
+
+    .footer-credit a {
+      color: #003974;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .footer-credit a:hover {
+      color: #002a63;
+      text-decoration: underline;
+    }
   </style>
 
   <!-- 在 <head> 标签内添加这些 meta 标签 -->
@@ -4593,5 +4616,10 @@
         });
     });
   </script>
+
+  <!-- 在body标签结束前添加页脚 -->
+  <footer class="footer-credit">
+    <p>If you have any questions or suggestions, feel free to contact me, Mark.</p>
+  </footer>
 </body>
 </html>
