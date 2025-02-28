@@ -1213,9 +1213,9 @@
               <tr>
                 <th><input type="checkbox" id="select-all-items"></th>
                 <th>Product Name</th>
+                <th style="width: 100px;">Image</th>
                 <th>Category</th>
                 <th>Available Quantity</th>
-                <th>Unit</th>
                 <th>Location</th>
                 <th>Stock Out Quantity</th>
               </tr>
@@ -3215,12 +3215,20 @@
             const item = childSnapshot.val();
             if (item.quantity > 0) {
               const tr = document.createElement('tr');
+              
+              // 创建数量显示
+              const quantityDisplay = `<span class="quantity-display">${item.quantity} ${item.unit}</span>`;
+              
               tr.innerHTML = `
                 <td><input type="checkbox" class="item-checkbox" data-id="${childSnapshot.key}" data-path="${path}"></td>
                 <td>${item.name}</td>
+                <td style="padding: 4px 8px; text-align: center;">
+                  ${item.imageUrl ? `
+                    <img src="${item.imageUrl}" alt="Product" class="inventory-image" onclick="showFullImage('${item.imageUrl}')">
+                  ` : ''}
+                </td>
                 <td>${item.category || 'N/A'}</td>
-                <td>${item.quantity}</td>
-                <td>${item.unit}</td>
+                <td>${quantityDisplay}</td>
                 <td>${item.location}</td>
                 <td><input type="number" class="stock-out-quantity" min="1" max="${item.quantity}" disabled></td>
               `;
@@ -3272,8 +3280,7 @@
       checkedItems.forEach(checkbox => {
         const tr = checkbox.closest('tr');
         const quantityInput = tr.querySelector('.stock-out-quantity');
-        // 使用 parseFloat 而不是 parseInt
-        const quantity = parseFloat(quantityInput.value);
+        const quantity = parseInt(quantityInput.value);
         const itemId = checkbox.getAttribute('data-id');
         const path = checkbox.getAttribute('data-path');
 
@@ -3288,12 +3295,12 @@
                   modifiedTime: new Date().toISOString(),
                   modifiedBy: user.displayName || 'Unknown'
                 }).then(() => {
-                  // 添加交易记录
+                  // Add transaction record
                   return db.ref('transactions').push({
                     type: 'stock-out',
                     productName: item.name,
                     category: item.category || 'N/A',
-                    quantity: -quantity, // 使用负数表示出库
+                    quantity: quantity,
                     unit: item.unit,
                     location: item.location,
                     time: new Date().toISOString(),
@@ -3334,11 +3341,11 @@
       const rows = stockOutTable.querySelectorAll('tbody tr');
       rows.forEach(row => {
         const productName = row.cells[1].textContent.toLowerCase();
-        const category = row.cells[2].textContent;
-        const location = row.cells[5].textContent;
+        const category = row.cells[3].textContent; // 因为添加了图片列，所以 category 现在在第4列
+        const location = row.cells[5].textContent; // location 现在在第6列
         
         const matchesSearch = productName.includes(searchTerm);
-        const matchesLocation = locationFilter === 'all' || location === locationFilter;
+        const matchesLocation = locationFilter === 'all' || location.toLowerCase() === locationFilter.toLowerCase();
         const matchesCategory = categoryFilter === 'all' || category === categoryFilter;
         
         row.style.display = matchesSearch && matchesLocation && matchesCategory ? '' : 'none';
@@ -4562,12 +4569,12 @@
 
     // Add New Stock Button Handler
     document.getElementById('add-new-stock-button').addEventListener('click', () => {
-        const currentQuantity = parseFloat(document.getElementById('edit-item-quantity').value) || 0;
+        const currentQuantity = parseInt(document.getElementById('edit-item-quantity').value) || 0;
         const newQuantityStr = prompt('Enter quantity to add:');
         
         if (newQuantityStr === null) return; // User cancelled
         
-        const newQuantity = parseFloat(newQuantityStr);
+        const newQuantity = parseInt(newQuantityStr);
         if (isNaN(newQuantity) || newQuantity <= 0) {
             alert('Please enter a valid positive number');
             return;
