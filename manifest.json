@@ -7,7 +7,7 @@
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "SmartProfits.png",
       "sizes": "512x512",
       "type": "image/png"
     }
