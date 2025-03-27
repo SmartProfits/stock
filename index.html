@@ -271,6 +271,7 @@
       position: relative;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       animation: fadeIn 0.5s ease;
+      z-index: 1100; /* 确保模态内容在较高的层级 */
     }
     
     @keyframes fadeIn {
@@ -840,6 +841,231 @@
       color: #002a63;
       text-decoration: underline;
     }
+
+    /* 新增交易记录页面样式 */
+    .view-tab {
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .view-tab.active {
+      background-color: #003974 !important;
+      color: white !important;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 15px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .stat-header h4 {
+      margin: 0;
+      color: #333;
+      font-size: 1.1em;
+    }
+
+    .stat-count {
+      background: #e9ecef;
+      color: #495057;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+
+    .stat-body {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2em;
+      font-weight: 700;
+      color: #003974;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9em;
+    }
+
+    .category-table-wrapper,
+    .comment-table-wrapper {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+
+    .category-table-wrapper h4,
+    .comment-table-wrapper h4 {
+      margin: 0;
+      padding: 15px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #eee;
+      color: #333;
+    }
+
+    .category-table,
+    .comment-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .category-table th,
+    .comment-table th {
+      background: #f8f9fa;
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+      font-weight: 600;
+    }
+
+    .category-table td,
+    .comment-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .quantity-in {
+      color: #28a745;
+      font-weight: 500;
+    }
+
+    .quantity-out {
+      color: #dc3545;
+      font-weight: 500;
+    }
+
+    .transaction-type {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: 600;
+      min-width: 40px;
+    }
+
+    .type-in {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .type-out {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .stock-in-row {
+      background-color: rgba(209, 231, 221, 0.15);
+    }
+
+    .stock-out-row {
+      background-color: rgba(248, 215, 218, 0.15);
+    }
+
+    /* 交易卡片样式 */
+    .transaction-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+      overflow: hidden;
+    }
+
+    .card-in {
+      border-left: 4px solid #28a745;
+    }
+
+    .card-out {
+      border-left: 4px solid #dc3545;
+    }
+
+    .card-header {
+      padding: 12px 15px;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-time {
+      font-size: 0.85em;
+      color: #6c757d;
+    }
+
+    .card-body {
+      padding: 15px;
+    }
+
+    .card-row {
+      margin-bottom: 8px;
+    }
+
+    .card-row strong {
+      color: #495057;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 30px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      color: #6c757d;
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+      }
+    }
+
+    /* 单位统计样式 */
+    .unit-stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .unit-stat {
+      background: #f8f9fa;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-weight: 600;
+      color: #003974;
+      font-size: 1.1em;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
   </style>
 
   <!-- 在 <head> 标签内添加这些 meta 标签 -->
@@ -1133,45 +1359,88 @@
       <section id="transaction-records-section" style="display: none;">
         <h3>Transaction Records</h3>
         
-        <!-- Add Date Filter -->
-        <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
-          <select id="transaction-date-filter" style="width: auto;">
-            <option value="today">Today</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="last7days">Last 7 Days</option>
-            <option value="last30days">Last 30 Days</option>
-            <option value="custom">Custom Date</option>
-            <option value="all">All Records</option>
-          </select>
+        <!-- 顶部过滤器和统计切换 -->
+        <div style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+          <!-- 日期过滤器 -->
+          <div style="margin-right: 15px;">
+            <select id="transaction-date-filter" style="width: auto;">
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="last7days">Last 7 Days</option>
+              <option value="last30days">Last 30 Days</option>
+              <option value="custom">Custom Date</option>
+              <option value="all">All Records</option>
+            </select>
+            
+            <input 
+              type="date" 
+              id="transaction-custom-date" 
+              style="width: auto; display: none;"
+            >
+          </div>
           
-          <input 
-            type="date" 
-            id="transaction-custom-date" 
-            style="width: auto; display: none;"
-          >
+          <!-- 视图切换选项卡 -->
+          <div style="display: flex; border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
+            <button id="view-all-transactions" class="view-tab active" style="padding: 8px 15px; background: #003974; color: white; border: none; cursor: pointer;">
+              All Transactions
+            </button>
+            <button id="view-stock-in-by-category" class="view-tab" style="padding: 8px 15px; background: #f8f9fa; color: #333; border: none; cursor: pointer;">
+              Stock In by Category
+            </button>
+            <button id="view-stock-out-by-comment" class="view-tab" style="padding: 8px 15px; background: #f8f9fa; color: #333; border: none; cursor: pointer;">
+              Stock Out by Comment
+            </button>
+          </div>
         </div>
         
-        <!-- Rest of the existing transaction records table -->
-        <div class="table-responsive">
-          <table id="transaction-records-table">
-            <thead>
-              <tr>
-                <th>Product Name</th>
-                <th class="hide-on-mobile">Category</th>
-                <th>Quantity</th>
-                <th class="hide-on-mobile">Unit</th>
-                <th>Transaction Time</th> <!-- Added Stock Out Time -->
-                <th>Modified By</th>
-                <th>Comment</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Transaction Records Will Be Dynamically Populated -->
-            </tbody>
-          </table>
+        <!-- 所有交易记录表格 -->
+        <div id="all-transactions-view">
+          <div class="table-responsive">
+            <table id="transaction-records-table">
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Type</th>
+                  <th class="hide-on-mobile">Category</th>
+                  <th>Quantity</th>
+                  <th class="hide-on-mobile">Unit</th>
+                  <th>Transaction Time</th>
+                  <th>Modified By</th>
+                  <th>Comment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Transaction Records Will Be Dynamically Populated -->
+              </tbody>
+            </table>
+          </div>
         </div>
         
-        <!-- Mobile Card Layout for Transaction Records (Displays All Data) -->
+        <!-- Stock In 按类别分组视图 -->
+        <div id="stock-in-by-category-view" style="display: none;">
+          <div class="category-stats">
+            <!-- 这里将动态生成类别统计卡片 -->
+          </div>
+          
+          <!-- 按类别分组的表格 -->
+          <div id="category-tables-container">
+            <!-- 各类别表格将动态生成 -->
+          </div>
+        </div>
+        
+        <!-- Stock Out 按评论分组视图 -->
+        <div id="stock-out-by-comment-view" style="display: none;">
+          <div class="comment-stats">
+            <!-- 这里将动态生成comment统计卡片 -->
+          </div>
+          
+          <!-- 按comment分组的表格 -->
+          <div id="comment-tables-container">
+            <!-- 各comment表格将动态生成 -->
+          </div>
+        </div>
+        
+        <!-- 移动卡片布局（显示所有数据） -->
         <div id="transaction-records-cards" class="cards-container" style="display: none;">
           <!-- Transaction Records Cards Will Be Dynamically Populated -->
         </div>
@@ -2385,10 +2654,15 @@
 
     window.onclick = function(event) {
       if (event.target == editModal) {
-        editModal.style.display = 'none';
+        // 注释掉这行代码，使点击模态框外部不会关闭模态框
+        // editModal.style.display = 'none';
       }
       if (event.target == stockOutModal) { // Added
-        stockOutModal.style.display = 'none';
+        // 注释掉这行代码，使点击模态框外部不会关闭模态框
+        // stockOutModal.style.display = 'none';
+      }
+      if (event.target == document.getElementById('image-view-modal')) {
+        document.getElementById('image-view-modal').style.display = 'none';
       }
     }
 
@@ -2783,16 +3057,16 @@
       const dateFilter = document.getElementById('transaction-date-filter').value;
       const customDate = document.getElementById('transaction-custom-date').value;
       
-      // Calculate date ranges
+      // 计算日期范围
       const now = new Date();
-      now.setHours(23, 59, 59, 999); // End of day
+      now.setHours(23, 59, 59, 999); // 一天结束
       
       let startDate = new Date();
-      startDate.setHours(0, 0, 0, 0); // Start of day
+      startDate.setHours(0, 0, 0, 0); // 一天开始
       
       switch(dateFilter) {
         case 'today':
-          // Already set correctly
+          // 已经正确设置
           break;
         case 'yesterday':
           startDate.setDate(startDate.getDate() - 1);
@@ -2808,256 +3082,418 @@
           if (customDate) {
             startDate = new Date(customDate);
             startDate.setHours(0, 0, 0, 0);
-            now.setTime(startDate.getTime());
+            now = new Date(customDate);
             now.setHours(23, 59, 59, 999);
           }
           break;
         case 'all':
-          startDate = new Date(0); // Beginning of time
+          // 使用一个很早的日期
+          startDate = new Date(2000, 0, 1);
           break;
       }
-
-      // 添加日期显示
-      const dateDisplay = document.createElement('div');
-      dateDisplay.style.marginBottom = '15px';
-      dateDisplay.style.fontWeight = 'bold';
-      dateDisplay.textContent = `Showing records for: ${formatDateDisplay(startDate, now, dateFilter)}`;
       
-      // 清除旧的日期显示（如果存在）
-      const oldDateDisplay = document.querySelector('.date-display');
-      if (oldDateDisplay) {
-        oldDateDisplay.remove();
-      }
+      // 获取所有交易记录
+      const transactionsRef = db.ref('transactions');
       
-      // 在表格前插入日期显示
-      document.querySelector('#transaction-records-section h3').insertAdjacentElement('afterend', dateDisplay);
-      dateDisplay.classList.add('date-display');
-
-      // 获取当前用户角色
-      const isSadmin = userRole === 'sadmin';
-      
-      db.ref('transactions')
-        .orderByChild('time')
-        .startAt(startDate.toISOString())
-        .endAt(now.toISOString())
-        .once('value')
+      transactionsRef.once('value')
         .then((snapshot) => {
-          const data = snapshot.val();
+          const transactions = [];
           
-          // 清空表格内容
-          const transactionTable = document.getElementById('transaction-records-table');
-          transactionTable.innerHTML = `
-            <thead>
-              <tr>
-                <th>Product Name</th>
-                <th>Category</th>
-                <th>Quantity</th>
-                <th>Transaction Time</th>
-                <th>Modified By</th>
-                <th>Comment</th>
-                ${userRole === 'sadmin' ? '<th>Action</th>' : ''}
-              </tr>
-            </thead>
-            <tbody></tbody>
-          `;
-          
-          const tbody = transactionTable.querySelector('tbody');
-          
-          // 清除之前的统计信息面板
-          const existingStats = document.querySelector('.transaction-stats');
-          if (existingStats) {
-            existingStats.remove();
-          }
-
-          if (data) {
-            // 过滤掉 edited 和 deleted 类型的记录，只保留 stock-in 和 stock-out
-            const records = Object.entries(data)
-              .filter(([, record]) => record.type === 'stock-in' || record.type === 'stock-out')
-              .sort(([,a], [,b]) => new Date(b.time) - new Date(a.time));
-            
-            // 修改统计对象的结构
-            const stockInStats = {
-              byCategory: {}, // 按 category 统计
-              byComment: {}   // 按 comment 统计
+          // 处理数据并筛选日期
+          snapshot.forEach((childSnapshot) => {
+            const transaction = {
+              id: childSnapshot.key,
+              ...childSnapshot.val()
             };
-            const stockOutStats = {}; // stock out 保持原样
             
-            records.forEach(([, record]) => {
-              if (record.type === 'stock-in') {
-                // 统计 category
-                const category = record.category || 'Uncategorized';
-                if (!stockInStats.byCategory[category]) {
-                  stockInStats.byCategory[category] = {
-                    ctn: 0,
-                    pkt: 0,
-                    pieces: 0
-                  };
-                }
-                const unit = record.unit.toLowerCase();
-                if (unit === 'ctn' || unit === 'pkt' || unit === 'pieces') {
-                  stockInStats.byCategory[category][unit] += record.quantity;
-                }
-              } else if (record.type === 'stock-out') {
-                // Stock Out 统计保持不变
-                const comment = record.comment || 'None';
-                if (!stockOutStats[comment]) {
-                  stockOutStats[comment] = {
-                    ctn: 0,
-                    pkt: 0,
-                    pieces: 0
-                  };
-                }
-                const unit = record.unit.toLowerCase();
-                if (unit === 'ctn' || unit === 'pkt' || unit === 'pieces') {
-                  stockOutStats[comment][unit] += record.quantity;
-                }
-              }
-            });
-
-            // 创建 Stock In 的 category 统计 HTML
-            function createCategoryStats(categoryStats) {
-              return Object.entries(categoryStats)
-                .map(([category, quantities]) => {
-                  const quantityStrings = [];
-                  if (quantities.ctn > 0) quantityStrings.push(`${quantities.ctn} ctn`);
-                  if (quantities.pkt > 0) quantityStrings.push(`${quantities.pkt} pkt`);
-                  if (quantities.pieces > 0) quantityStrings.push(`${quantities.pieces} pieces`);
-                  
-                  if (quantityStrings.length > 0) {
-                    return `
-                      <div class="comment-stat">
-                        <div class="comment-name">${category}</div>
-                        <div class="comment-quantity">${quantityStrings.join(', ')}</div>
-                      </div>
-                    `;
-                  }
-                  return '';
-                })
-                .filter(html => html !== '')
-                .join('');
+            const transactionTime = new Date(transaction.time);
+            if (transactionTime >= startDate && transactionTime <= now) {
+              transactions.push(transaction);
             }
-
-            // Stock Out 的统计 HTML 保持不变
-            function createCommentStats(stats) {
-              return Object.entries(stats)
-                .map(([comment, quantities]) => {
-                  const quantityStrings = [];
-                  if (quantities.ctn > 0) quantityStrings.push(`${quantities.ctn} ctn`);
-                  if (quantities.pkt > 0) quantityStrings.push(`${quantities.pkt} pkt`);
-                  if (quantities.pieces > 0) quantityStrings.push(`${quantities.pieces} pieces`);
-                  
-                  if (quantityStrings.length > 0) {
-                    return `
-                      <div class="comment-stat">
-                        <div class="comment-name">${comment}</div>
-                        <div class="comment-quantity">${quantityStrings.join(', ')}</div>
-                      </div>
-                    `;
-                  }
-                  return '';
-                })
-                .filter(html => html !== '')
-                .join('');
-            }
-
-            const statsHtml = `
-              <div class="transaction-stats">
-                <div class="stat-card">
-                  <div class="stat-title">Stock In by Category</div>
-                  <div class="stat-content">
-                    ${createCategoryStats(stockInStats.byCategory) || '<div class="no-data">No stock in today</div>'}
-                  </div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-title">Stock Out</div>
-                  <div class="stat-content">
-                    ${createCommentStats(stockOutStats) || '<div class="no-data">No stock out today</div>'}
-                  </div>
-                </div>
-              </div>
-            `;
-
-            // 插入新的统计信息面板
-            document.querySelector('#transaction-records-section h3').insertAdjacentHTML('afterend', statsHtml);
-            
-            records.forEach(([recordId, record]) => {
-              const tr = document.createElement('tr');
-              
-              // 确定交易类型的样式和图标
-              const typeClass = record.type === 'stock-in' ? 'type-in' : 'type-out';
-              const typeIcon = record.type === 'stock-in' ? 'fa-arrow-circle-up' : 'fa-arrow-circle-down';
-              
-              // 格式化数量显示
-              const quantityClass = record.type === 'stock-in' ? 'quantity-in' : 'quantity-out';
-              const quantitySign = record.type === 'stock-in' ? '+' : '-';
-              
-              tr.innerHTML = `
-                <td>
-                  <span class="transaction-type ${typeClass}">
-                    <i class="fas ${typeIcon} mr-1"></i>
-                    ${record.type === 'stock-in' ? 'IN' : 'OUT'}
-                  </span>
-                  ${record.productName}
-                </td>
-                <td>${record.category || 'N/A'}</td>
-                <td class="${quantityClass}">${quantitySign}${Math.abs(record.quantity)} ${record.unit}</td>
-                <td>${formatDateTime(record.time)}</td>
-                <td>${record.user}</td>
-                <td>
-                  <span class="badge ${record.comment === 'None' ? 'bg-secondary' : 'bg-primary'}" style="padding: 5px 10px;">
-                    ${record.comment}
-                  </span>
-                </td>
-                ${userRole === 'sadmin' ? `
-                <td>
-                  <button class="delete-transaction-button" data-id="${recordId}">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </td>
-                ` : ''}
-              `;
-              
-              tbody.appendChild(tr);
-            });
+          });
+          
+          // 按时间排序（最新的在前）
+          transactions.sort((a, b) => new Date(b.time) - new Date(a.time));
+          
+          // 更新所有交易视图
+          updateAllTransactionsView(transactions);
+          
+          // 更新按类别分组的Stock In视图
+          updateStockInByCategoryView(transactions);
+          
+          // 更新按Comment分组的Stock Out视图
+          updateStockOutByCommentView(transactions);
+          
+          // 如果没有数据
+          if (transactions.length === 0) {
+            document.getElementById('transaction-records-message').textContent = 'No transaction records found for the selected date range.';
           } else {
-            tbody.innerHTML = '<tr><td colspan="7">No transaction records found for the selected period.</td></tr>';
+            document.getElementById('transaction-records-message').textContent = '';
           }
         })
         .catch((error) => {
-          console.error('Failed to load transaction records:', error);
-          transactionRecordsMessage.textContent = 'Failed to load transaction records: ' + error.message;
+          console.error('Error loading transaction records:', error);
+          document.getElementById('transaction-records-message').textContent = 'Error loading transaction records: ' + error.message;
         })
         .finally(() => {
           hideLoading();
         });
     }
 
-    // 添加一个辅助函数来格式化日期显示
-    function formatDateDisplay(startDate, endDate, filterType) {
-      const formatDate = (date) => {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}-${month}-${year}`;
-      };
-
-      switch(filterType) {
-        case 'today':
-          return `Today (${formatDate(startDate)})`;
-        case 'yesterday':
-          return `Yesterday (${formatDate(startDate)})`;
-        case 'last7days':
-          return `Last 7 Days (${formatDate(startDate)} to ${formatDate(endDate)})`;
-        case 'last30days':
-          return `Last 30 Days (${formatDate(startDate)} to ${formatDate(endDate)})`;
-        case 'custom':
-          return `${formatDate(startDate)}`;
-        case 'all':
-          return 'All Records';
-        default:
-          return '';
-      }
+    // 更新所有交易视图
+    function updateAllTransactionsView(transactions) {
+      const tbody = document.querySelector('#transaction-records-table tbody');
+      tbody.innerHTML = '';
+      
+      transactions.forEach(transaction => {
+        const row = document.createElement('tr');
+        
+        // 为不同类型添加不同的样式
+        if (transaction.type === 'stock-in') {
+          row.classList.add('stock-in-row');
+        } else if (transaction.type === 'stock-out') {
+          row.classList.add('stock-out-row');
+        }
+        
+        row.innerHTML = `
+          <td>${transaction.productName}</td>
+          <td>
+            <span class="transaction-type ${transaction.type === 'stock-in' ? 'type-in' : 'type-out'}">
+              ${transaction.type === 'stock-in' ? 'IN' : 'OUT'}
+            </span>
+          </td>
+          <td class="hide-on-mobile">${transaction.category || 'N/A'}</td>
+          <td class="${transaction.type === 'stock-in' ? 'quantity-in' : 'quantity-out'}">
+            ${transaction.type === 'stock-in' ? '+' : '-'}${transaction.quantity} ${transaction.unit}
+          </td>
+          <td class="hide-on-mobile">${transaction.unit}</td>
+          <td>${formatDateTime(transaction.time)}</td>
+          <td>${transaction.user}</td>
+          <td>${transaction.comment || 'None'}</td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+      
+      // 更新移动设备上的卡片视图
+      updateTransactionCards(transactions);
     }
+
+    // 更新按类别分组的Stock In视图
+    function updateStockInByCategoryView(transactions) {
+      const container = document.querySelector('.category-stats');
+      const tablesContainer = document.getElementById('category-tables-container');
+      container.innerHTML = '';
+      tablesContainer.innerHTML = '';
+      
+      // 过滤Stock In交易
+      const stockInTransactions = transactions.filter(t => t.type === 'stock-in');
+      
+      if (stockInTransactions.length === 0) {
+        container.innerHTML = '<div class="no-data">No Stock In records found for the selected date range.</div>';
+        return;
+      }
+      
+      // 按类别分组数据
+      const categories = {};
+      stockInTransactions.forEach(transaction => {
+        const category = transaction.category || 'Uncategorized';
+        if (!categories[category]) {
+          categories[category] = {
+            transactions: [],
+            totalQuantity: 0,
+            units: {}
+          };
+        }
+        categories[category].transactions.push(transaction);
+        categories[category].totalQuantity += transaction.quantity;
+        
+        // 统计不同单位的数量
+        const unit = transaction.unit || 'item';
+        if (!categories[category].units[unit]) {
+          categories[category].units[unit] = 0;
+        }
+        categories[category].units[unit] += transaction.quantity;
+      });
+      
+      // 创建类别统计卡片
+      const statsWrapper = document.createElement('div');
+      statsWrapper.className = 'stats-grid';
+      
+      Object.keys(categories).sort().forEach(category => {
+        const categoryData = categories[category];
+        const card = document.createElement('div');
+        card.className = 'stat-card';
+        
+        // 创建单位统计文本
+        let unitsText = '';
+        Object.keys(categoryData.units).forEach(unit => {
+          unitsText += `<div class="unit-stat">${categoryData.units[unit]} ${unit}</div>`;
+        });
+        
+        card.innerHTML = `
+          <div class="stat-header">
+            <h4>${category}</h4>
+            <span class="stat-count">${categoryData.transactions.length} entries</span>
+          </div>
+          <div class="stat-body">
+            <div class="unit-stats">
+              ${unitsText}
+            </div>
+          </div>
+        `;
+        statsWrapper.appendChild(card);
+        
+        // 为每个类别创建一个表格
+        const tableWrapper = document.createElement('div');
+        tableWrapper.className = 'category-table-wrapper';
+        tableWrapper.innerHTML = `
+          <h4>${category}</h4>
+          <div class="table-responsive">
+            <table class="category-table">
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th>Transaction Time</th>
+                  <th>Added By</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${categoryData.transactions.map(t => `
+                  <tr>
+                    <td>${t.productName}</td>
+                    <td class="quantity-in">+${t.quantity} ${t.unit}</td>
+                    <td>${formatDateTime(t.time)}</td>
+                    <td>${t.user}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+        tablesContainer.appendChild(tableWrapper);
+      });
+      
+      container.appendChild(statsWrapper);
+    }
+
+    // 更新按Comment分组的Stock Out视图
+    function updateStockOutByCommentView(transactions) {
+      const container = document.querySelector('.comment-stats');
+      const tablesContainer = document.getElementById('comment-tables-container');
+      container.innerHTML = '';
+      tablesContainer.innerHTML = '';
+      
+      // 过滤Stock Out交易
+      const stockOutTransactions = transactions.filter(t => t.type === 'stock-out');
+      
+      if (stockOutTransactions.length === 0) {
+        container.innerHTML = '<div class="no-data">No Stock Out records found for the selected date range.</div>';
+        return;
+      }
+      
+      // 按Comment分组数据
+      const comments = {};
+      stockOutTransactions.forEach(transaction => {
+        const comment = transaction.comment || 'None';
+        if (!comments[comment]) {
+          comments[comment] = {
+            transactions: [],
+            totalQuantity: 0,
+            units: {}
+          };
+        }
+        comments[comment].transactions.push(transaction);
+        comments[comment].totalQuantity += transaction.quantity;
+        
+        // 统计不同单位的数量
+        const unit = transaction.unit || 'item';
+        if (!comments[comment].units[unit]) {
+          comments[comment].units[unit] = 0;
+        }
+        comments[comment].units[unit] += transaction.quantity;
+      });
+      
+      // 创建Comment统计卡片
+      const statsWrapper = document.createElement('div');
+      statsWrapper.className = 'stats-grid';
+      
+      Object.keys(comments).sort().forEach(comment => {
+        const commentData = comments[comment];
+        const card = document.createElement('div');
+        card.className = 'stat-card';
+        
+        // 创建单位统计文本
+        let unitsText = '';
+        Object.keys(commentData.units).forEach(unit => {
+          unitsText += `<div class="unit-stat">${commentData.units[unit]} ${unit}</div>`;
+        });
+        
+        card.innerHTML = `
+          <div class="stat-header">
+            <h4>${comment}</h4>
+            <span class="stat-count">${commentData.transactions.length} entries</span>
+          </div>
+          <div class="stat-body">
+            <div class="unit-stats">
+              ${unitsText}
+            </div>
+          </div>
+        `;
+        statsWrapper.appendChild(card);
+        
+        // 为每个Comment创建一个表格
+        const tableWrapper = document.createElement('div');
+        tableWrapper.className = 'comment-table-wrapper';
+        tableWrapper.innerHTML = `
+          <h4>${comment}</h4>
+          <div class="table-responsive">
+            <table class="comment-table">
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Category</th>
+                  <th>Quantity</th>
+                  <th>Transaction Time</th>
+                  <th>Added By</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${commentData.transactions.map(t => `
+                  <tr>
+                    <td>${t.productName}</td>
+                    <td>${t.category || 'N/A'}</td>
+                    <td class="quantity-out">-${t.quantity} ${t.unit}</td>
+                    <td>${formatDateTime(t.time)}</td>
+                    <td>${t.user}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+        tablesContainer.appendChild(tableWrapper);
+      });
+      
+      container.appendChild(statsWrapper);
+    }
+
+    // 更新交易卡片视图（移动设备）
+    function updateTransactionCards(transactions) {
+      const cardsContainer = document.getElementById('transaction-records-cards');
+      cardsContainer.innerHTML = '';
+      
+      transactions.forEach(transaction => {
+        const card = document.createElement('div');
+        card.className = `transaction-card ${transaction.type === 'stock-in' ? 'card-in' : 'card-out'}`;
+        
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="transaction-type ${transaction.type === 'stock-in' ? 'type-in' : 'type-out'}">
+              ${transaction.type === 'stock-in' ? 'STOCK IN' : 'STOCK OUT'}
+            </span>
+            <span class="card-time">${formatDateTime(transaction.time)}</span>
+          </div>
+          
+          <div class="card-body">
+            <div class="card-row">
+              <strong>Product:</strong> ${transaction.productName}
+            </div>
+            <div class="card-row">
+              <strong>Category:</strong> ${transaction.category || 'N/A'}
+            </div>
+            <div class="card-row">
+              <strong>Quantity:</strong> 
+              <span class="${transaction.type === 'stock-in' ? 'quantity-in' : 'quantity-out'}">
+                ${transaction.type === 'stock-in' ? '+' : '-'}${transaction.quantity} ${transaction.unit}
+              </span>
+            </div>
+            <div class="card-row">
+              <strong>User:</strong> ${transaction.user}
+            </div>
+            <div class="card-row">
+              <strong>Comment:</strong> ${transaction.comment || 'None'}
+            </div>
+          </div>
+        `;
+        
+        cardsContainer.appendChild(card);
+      });
+    }
+
+    // 添加视图切换选项卡事件处理
+    document.addEventListener('DOMContentLoaded', function() {
+      // 视图切换处理
+      document.getElementById('view-all-transactions').addEventListener('click', function() {
+        document.getElementById('all-transactions-view').style.display = 'block';
+        document.getElementById('stock-in-by-category-view').style.display = 'none';
+        document.getElementById('stock-out-by-comment-view').style.display = 'none';
+        
+        // 更新活动标签样式
+        document.querySelectorAll('.view-tab').forEach(tab => tab.classList.remove('active'));
+        this.classList.add('active');
+        
+        // 重置样式
+        this.style.background = '#003974';
+        this.style.color = 'white';
+        document.getElementById('view-stock-in-by-category').style.background = '#f8f9fa';
+        document.getElementById('view-stock-in-by-category').style.color = '#333';
+        document.getElementById('view-stock-out-by-comment').style.background = '#f8f9fa';
+        document.getElementById('view-stock-out-by-comment').style.color = '#333';
+      });
+      
+      document.getElementById('view-stock-in-by-category').addEventListener('click', function() {
+        document.getElementById('all-transactions-view').style.display = 'none';
+        document.getElementById('stock-in-by-category-view').style.display = 'block';
+        document.getElementById('stock-out-by-comment-view').style.display = 'none';
+        
+        // 更新活动标签样式
+        document.querySelectorAll('.view-tab').forEach(tab => tab.classList.remove('active'));
+        this.classList.add('active');
+        
+        // 重置样式
+        this.style.background = '#003974';
+        this.style.color = 'white';
+        document.getElementById('view-all-transactions').style.background = '#f8f9fa';
+        document.getElementById('view-all-transactions').style.color = '#333';
+        document.getElementById('view-stock-out-by-comment').style.background = '#f8f9fa';
+        document.getElementById('view-stock-out-by-comment').style.color = '#333';
+      });
+      
+      document.getElementById('view-stock-out-by-comment').addEventListener('click', function() {
+        document.getElementById('all-transactions-view').style.display = 'none';
+        document.getElementById('stock-in-by-category-view').style.display = 'none';
+        document.getElementById('stock-out-by-comment-view').style.display = 'block';
+        
+        // 更新活动标签样式
+        document.querySelectorAll('.view-tab').forEach(tab => tab.classList.remove('active'));
+        this.classList.add('active');
+        
+        // 重置样式
+        this.style.background = '#003974';
+        this.style.color = 'white';
+        document.getElementById('view-all-transactions').style.background = '#f8f9fa';
+        document.getElementById('view-all-transactions').style.color = '#333';
+        document.getElementById('view-stock-in-by-category').style.background = '#f8f9fa';
+        document.getElementById('view-stock-in-by-category').style.color = '#333';
+      });
+      
+      // 日期过滤器事件
+      document.getElementById('transaction-date-filter').addEventListener('change', function() {
+        const customDateInput = document.getElementById('transaction-custom-date');
+        if (this.value === 'custom') {
+          customDateInput.style.display = 'inline-block';
+        } else {
+          customDateInput.style.display = 'none';
+          loadTransactionRecords(); // 重新加载数据
+        }
+      });
+      
+      document.getElementById('transaction-custom-date').addEventListener('change', function() {
+        loadTransactionRecords(); // 日期改变时重新加载数据
+      });
+    });
 
     // 添加事件监听器
     document.getElementById('transaction-date-filter').addEventListener('change', (e) => {
@@ -4618,6 +5054,46 @@
         }).finally(() => {
             hideLoading();
         });
+    });
+
+    // 添加脚本阻止模态框点击外部关闭
+    // 在window.onclick函数后面加上这段代码
+    // 阻止模态框内容点击事件冒泡到模态框背景
+    document.querySelectorAll('.modal-content').forEach(content => {
+      content.addEventListener('click', function(event) {
+        event.stopPropagation();
+      });
+    });
+
+    // 确保模态框只在点击关闭按钮时关闭
+    document.querySelectorAll('.modal .close').forEach(closeBtn => {
+      closeBtn.addEventListener('click', function() {
+        this.closest('.modal').style.display = 'none';
+      });
+    });
+
+    // 完全禁用模态框背景点击关闭
+    editModal.addEventListener('click', function(event) {
+      if (event.target === this) {
+        // 这里什么都不做，就不会关闭模态框
+        event.stopPropagation();
+        return false;
+      }
+    });
+
+    stockOutModal.addEventListener('click', function(event) {
+      if (event.target === this) {
+        // 这里什么都不做，就不会关闭模态框
+        event.stopPropagation();
+        return false;
+      }
+    });
+
+    // 只有图片查看模态框允许点击背景关闭
+    document.getElementById('image-view-modal').addEventListener('click', function(event) {
+      if (event.target === this) {
+        this.style.display = 'none';
+      }
     });
   </script>
 
