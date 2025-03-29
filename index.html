@@ -1363,22 +1363,22 @@
         <div style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
           <!-- 日期过滤器 -->
           <div style="margin-right: 15px;">
-            <select id="transaction-date-filter" style="width: auto;">
-              <option value="today">Today</option>
-              <option value="yesterday">Yesterday</option>
-              <option value="last7days">Last 7 Days</option>
-              <option value="last30days">Last 30 Days</option>
-              <option value="custom">Custom Date</option>
-              <option value="all">All Records</option>
-            </select>
-            
-            <input 
-              type="date" 
-              id="transaction-custom-date" 
-              style="width: auto; display: none;"
-            >
-          </div>
+          <select id="transaction-date-filter" style="width: auto;">
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="last7days">Last 7 Days</option>
+            <option value="last30days">Last 30 Days</option>
+            <option value="custom">Custom Date</option>
+            <option value="all">All Records</option>
+          </select>
           
+          <input 
+            type="date" 
+            id="transaction-custom-date" 
+            style="width: auto; display: none;"
+          >
+        </div>
+        
           <!-- 视图切换选项卡 -->
           <div style="display: flex; border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
             <button id="view-all-transactions" class="view-tab active" style="padding: 8px 15px; background: #003974; color: white; border: none; cursor: pointer;">
@@ -1395,24 +1395,24 @@
         
         <!-- 所有交易记录表格 -->
         <div id="all-transactions-view">
-          <div class="table-responsive">
-            <table id="transaction-records-table">
-              <thead>
-                <tr>
-                  <th>Product Name</th>
+        <div class="table-responsive">
+          <table id="transaction-records-table">
+            <thead>
+              <tr>
+                <th>Product Name</th>
                   <th>Type</th>
-                  <th class="hide-on-mobile">Category</th>
-                  <th>Quantity</th>
-                  <th class="hide-on-mobile">Unit</th>
+                <th class="hide-on-mobile">Category</th>
+                <th>Quantity</th>
+                <th class="hide-on-mobile">Unit</th>
                   <th>Transaction Time</th>
-                  <th>Modified By</th>
-                  <th>Comment</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Transaction Records Will Be Dynamically Populated -->
-              </tbody>
-            </table>
+                <th>Modified By</th>
+                <th>Comment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Transaction Records Will Be Dynamically Populated -->
+            </tbody>
+          </table>
           </div>
         </div>
         
@@ -2360,7 +2360,7 @@
           if (!allItems[item.id]) {
             allItems[item.id] = item;
             addItemToDOM(item);
-            sortInventory();
+            sortInventoryByCategory('asc'); // 按照类别排序，而不是默认的时间排序
           }
         });
 
@@ -2369,7 +2369,7 @@
           const updatedItem = { id: snapshot.key, ...snapshot.val() };
           allItems[updatedItem.id] = updatedItem;
           updateItemInDOM(updatedItem);
-          sortInventory();
+          sortInventoryByCategory('asc'); // 按照类别排序，而不是默认的时间排序
         });
 
         // Listen for child removed
@@ -2377,7 +2377,7 @@
           const removedItemId = snapshot.key;
           delete allItems[removedItemId];
           removeItemFromDOM(removedItemId);
-          sortInventory();
+          sortInventoryByCategory('asc'); // 按照类别排序，而不是默认的时间排序
         });
       });
 
@@ -3091,7 +3091,7 @@
           startDate = new Date(2000, 0, 1);
           break;
       }
-      
+
       // 获取所有交易记录
       const transactionsRef = db.ref('transactions');
       
@@ -3251,14 +3251,14 @@
           <h4>${category}</h4>
           <div class="table-responsive">
             <table class="category-table">
-              <thead>
-                <tr>
-                  <th>Product Name</th>
-                  <th>Quantity</th>
-                  <th>Transaction Time</th>
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Transaction Time</th>
                   <th>Added By</th>
-                </tr>
-              </thead>
+              </tr>
+            </thead>
               <tbody>
                 ${categoryData.transactions.map(t => `
                   <tr>
@@ -3339,8 +3339,8 @@
             <div class="unit-stats">
               ${unitsText}
             </div>
-          </div>
-        `;
+                      </div>
+                    `;
         statsWrapper.appendChild(card);
         
         // 为每个Comment创建一个表格
@@ -3371,8 +3371,8 @@
                 `).join('')}
               </tbody>
             </table>
-          </div>
-        `;
+                      </div>
+                    `;
         tablesContainer.appendChild(tableWrapper);
       });
       
@@ -3394,15 +3394,15 @@
               ${transaction.type === 'stock-in' ? 'STOCK IN' : 'STOCK OUT'}
             </span>
             <span class="card-time">${formatDateTime(transaction.time)}</span>
-          </div>
+                  </div>
           
           <div class="card-body">
             <div class="card-row">
               <strong>Product:</strong> ${transaction.productName}
-            </div>
+                </div>
             <div class="card-row">
               <strong>Category:</strong> ${transaction.category || 'N/A'}
-            </div>
+                  </div>
             <div class="card-row">
               <strong>Quantity:</strong> 
               <span class="${transaction.type === 'stock-in' ? 'quantity-in' : 'quantity-out'}">
@@ -3414,10 +3414,10 @@
             </div>
             <div class="card-row">
               <strong>Comment:</strong> ${transaction.comment || 'None'}
-            </div>
-          </div>
-        `;
-        
+                </div>
+              </div>
+            `;
+
         cardsContainer.appendChild(card);
       });
     }
@@ -3484,7 +3484,7 @@
         const customDateInput = document.getElementById('transaction-custom-date');
         if (this.value === 'custom') {
           customDateInput.style.display = 'inline-block';
-        } else {
+          } else {
           customDateInput.style.display = 'none';
           loadTransactionRecords(); // 重新加载数据
         }
@@ -3516,22 +3516,51 @@
       loadTransactionRecords();
     });
 
-    // Sort Inventory List by Modified Time Descending
+    // Sort Inventory List by Category (Alphabetically)
     function sortInventory() {
       // Get all rows from table
       const rows = Array.from(inventoryTableBody.querySelectorAll('tr'));
-      // Sort rows based on the 'Last Modified Time' column (7th index, zero-based)
+      
+      // Sort rows based on the 'Category' column (3rd index, zero-based)
       rows.sort((a, b) => {
-        const aTime = new Date(a.children[6].textContent.replace('(', '').replace(')', ''));
-        const bTime = new Date(b.children[6].textContent.replace('(', '').replace(')', ''));
-        return bTime - aTime;
+        // 检查 a 和 b 是否有正确的子元素
+        if (!a.children || !b.children || a.children.length < 3 || b.children.length < 3) {
+          return 0;
+        }
+        
+        // 获取类别值，如果不存在则使用 'ZZZ' 确保空类别排在最后
+        const categoryA = (a.children[2].textContent || 'ZZZ').toLowerCase();
+        const categoryB = (b.children[2].textContent || 'ZZZ').toLowerCase();
+        
+        // 按类别名称字母顺序排序
+        return categoryA.localeCompare(categoryB);
       });
+      
       // Append sorted rows back to the table body
       inventoryTableBody.innerHTML = '';
       rows.forEach(row => inventoryTableBody.appendChild(row));
 
-      // Similarly sort cards based on 'modifiedTime' if needed
-      // Assuming we have a data structure to sort cards, otherwise skip
+      // 对卡片视图也进行类似排序
+      const cards = Array.from(inventoryCardsContainer.querySelectorAll('.inventory-card'));
+      
+      cards.sort((a, b) => {
+        const categoryElementA = a.querySelector('.category span');
+        const categoryElementB = b.querySelector('.category span');
+        
+        // 如果找不到元素，返回0（保持原顺序）
+        if (!categoryElementA || !categoryElementB) {
+          return 0;
+        }
+        
+        const categoryA = (categoryElementA.textContent || 'ZZZ').toLowerCase();
+        const categoryB = (categoryElementB.textContent || 'ZZZ').toLowerCase();
+        
+        return categoryA.localeCompare(categoryB);
+      });
+      
+      // 清空并重新添加排序后的卡片
+      inventoryCardsContainer.innerHTML = '';
+      cards.forEach(card => inventoryCardsContainer.appendChild(card));
     }
 
     // Show Loading Indicator
@@ -4020,8 +4049,9 @@
       const rows = Array.from(inventoryTableBody.querySelectorAll('tr'));
       
       rows.sort((a, b) => {
-        const categoryA = (a.children[1].textContent || 'ZZZ').toLowerCase(); // ZZZ ensures empty categories go to the end
-        const categoryB = (b.children[1].textContent || 'ZZZ').toLowerCase();
+        // 修正列索引：类别在第三列（索引为2），不是第二列（索引为1）
+        const categoryA = (a.children[2].textContent || 'ZZZ').toLowerCase(); 
+        const categoryB = (b.children[2].textContent || 'ZZZ').toLowerCase();
         
         if (direction === 'asc') {
           return categoryA.localeCompare(categoryB);
