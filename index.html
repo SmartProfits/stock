@@ -12,6 +12,19 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pICvZonb6pj+/U6h8S86YtDj2OmyH9DlK6tm+VQf+U4km/DomZ+ZSSMwL8vqbsOYb7jz0VJo4zQ9ejO9L6LQDw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   
+  <!-- jsPDF for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    // 确保jsPDF全局可用
+    window.onload = function() {
+      window.jspdf = window.jspdf || {};
+      if (typeof window.jsPDF !== 'undefined') {
+        window.jspdf.jsPDF = window.jsPDF;
+      }
+    };
+  </script>
+  
   <style>
     /* Basic Styles */
     body {
@@ -300,7 +313,7 @@
     /* Welcome Message */
     #welcome-message {
       margin-right: 15px;
-      font-size: 1em;
+      font-size: 1.5em;
     }
     
     /* Loading Indicator */
@@ -512,70 +525,119 @@
     /* Transaction Records Table Styles */
     #transaction-records-table {
       width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
+      border-collapse: collapse;
       margin-bottom: 20px;
-      background: white;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      border-radius: 8px;
     }
-
-    #transaction-records-table th {
-      background: #f8f9fa;
-      padding: 12px 15px;
-      font-weight: 600;
-      text-align: left;
-      border-bottom: 2px solid #dee2e6;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
+    
+    #transaction-records-table th, 
     #transaction-records-table td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #dee2e6;
-      vertical-align: middle;
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
     }
-
-    /* 交替行颜色 */
-    #transaction-records-table tbody tr:nth-child(even) {
-      background-color: #f8f9fa;
+    
+    #transaction-records-table th {
+      background-color: #003974;
+      color: white;
     }
-
-    #transaction-records-table tbody tr:hover {
-      background-color: #f2f4f6;
+    
+    .stock-in-row {
+      background-color: rgba(40, 167, 69, 0.1);
     }
-
-    /* 数量样式 */
+    
+    .stock-out-row {
+      background-color: rgba(220, 53, 69, 0.1);
+    }
+    
     .quantity-in {
       color: #28a745;
-      font-weight: 500;
+      font-weight: bold;
     }
 
     .quantity-out {
       color: #dc3545;
-      font-weight: 500;
+      font-weight: bold;
     }
 
-    /* 类型标签样式 */
     .transaction-type {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 8px;
+      display: inline-block;
+      padding: 2px 8px;
       border-radius: 4px;
-      font-size: 0.85em;
-      font-weight: 500;
-      margin-right: 8px;
+      font-size: 0.8em;
+      font-weight: bold;
     }
 
     .type-in {
-      background-color: #d4edda;
-      color: #155724;
+      background-color: #28a745;
+      color: white;
     }
 
     .type-out {
-      background-color: #f8d7da;
-      color: #721c24;
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    /* 删除按钮样式 */
+    .delete-transaction-button {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 0.85em;
+      transition: background-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .delete-transaction-button:hover {
+      background-color: #c82333;
+    }
+    
+    .delete-transaction-button i {
+      margin-right: 4px;
+    }
+    
+    /* 移动设备上的卡片样式 */
+    .transaction-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .card-in {
+      border-left: 5px solid #28a745;
+    }
+    
+    .card-out {
+      border-left: 5px solid #dc3545;
+    }
+    
+    .transaction-card .card-header {
+      background-color: #f8f9fa;
+      padding: 10px 15px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .transaction-card .card-body {
+      padding: 15px;
+    }
+    
+    .transaction-card .card-footer {
+      padding: 10px 15px;
+      background-color: #f8f9fa;
+      border-top: 1px solid #ddd;
+    }
+    
+    .transaction-card p {
+      margin: 5px 0;
     }
 
     /* 统计信息面板 */
@@ -1066,6 +1128,222 @@
       font-size: 1.1em;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
+
+    /* Stock Out卡片样式 */
+    .cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+    }
+    
+    .inventory-card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .inventory-card .card-header {
+      background-color: #f8f9fa;
+      padding: 10px 15px;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .inventory-card .card-header h4 {
+      margin: 0;
+      font-size: 1.1em;
+      color: #333;
+    }
+    
+    .inventory-card .card-badge {
+      background-color: #6c757d;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.8em;
+    }
+    
+    .inventory-card .card-body {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .inventory-card .card-image {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    
+    .inventory-card .card-image img {
+      max-width: 100%;
+      max-height: 150px;
+      border-radius: 4px;
+    }
+    
+    .inventory-card .card-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .inventory-card .card-details p {
+      margin: 0;
+    }
+    
+    .inventory-card .quantity-input-container {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    
+    .inventory-card .quantity-input-container input {
+      padding: 8px 12px;
+      margin-bottom: 0;
+    }
+    
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      color: #6c757d;
+      font-style: italic;
+    }
+    
+    /* 图片相关样式 */
+    .inventory-image {
+      max-width: 50px;
+      height: auto;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .inventory-image:hover {
+      transform: scale(1.1);
+    }
+    
+    .image-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+    }
+    
+    .image-modal-content {
+      margin: auto;
+      display: block;
+      max-width: 90%;
+      max-height: 90%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .image-modal .close {
+      position: absolute;
+      top: 15px;
+      right: 35px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+    
+    .image-modal .close:hover {
+      color: #bbb;
+    }
+
+    /* Inventory Table Styles - Added to match Transaction Records style */
+    #inventory-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    
+    #inventory-table th, 
+    #inventory-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    
+    #inventory-table th {
+      background-color: #003974;
+      color: white;
+    }
+    
+    #inventory-table tr:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .out-of-stock-badge {
+      background-color: #dc3545;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+    
+    .quantity-display {
+      font-weight: 500;
+    }
+    
+    /* 样式继续... */
+    .quantity-display {
+      font-weight: 500;
+    }
+    
+    /* 添加按钮样式 */
+    .edit-button, .delete-button {
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85em;
+      margin: 0 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+    }
+    
+    .edit-button {
+      background-color: #007bff;
+      color: white;
+    }
+    
+    .edit-button:hover {
+      background-color: #0069d9;
+    }
+    
+    .delete-button {
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    .delete-button:hover {
+      background-color: #c82333;
+    }
+    
+    .edit-button i, .delete-button i {
+      margin-right: 4px;
+    }
+    
+    /* 样式继续... */
   </style>
 
   <!-- 在 <head> 标签内添加这些 meta 标签 -->
@@ -1180,7 +1458,7 @@
   <!-- Main Application Container -->
   <div id="app-container" style="display: none;">
     <header>
-      <h1 style="color: ghostwhite; font-size: 3.5em;">SmartProfits Stock System</h1>
+      <h1 style="color: ghostwhite; font-size: 3.5em;">SmartProfits Stock System 2.0</h1>
       <div id="user-info">
         <span id="welcome-message"></span>
         <button id="logout-button"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -1237,9 +1515,9 @@
         
         <!-- Responsive Table -->
         <div class="table-responsive">
-          <table id="inventory-table" style="border-collapse: collapse;">
+          <table id="inventory-table">
             <thead>
-              <tr style="height: 40px;">
+              <tr>
                 <th>Product Name</th>
                 <th style="width: 100px;">Image</th>
                 <th class="hide-on-mobile sortable" data-sort="category">Category ↕</th>
@@ -1369,14 +1647,32 @@
             <option value="last7days">Last 7 Days</option>
             <option value="last30days">Last 30 Days</option>
             <option value="custom">Custom Date</option>
+            <option value="date-range">Date Range</option> <!-- 添加日期范围选项 -->
             <option value="all">All Records</option>
           </select>
           
+          <!-- 单日期选择器 -->
           <input 
             type="date" 
             id="transaction-custom-date" 
             style="width: auto; display: none;"
           >
+          
+          <!-- 日期范围选择器 -->
+          <div id="transaction-date-range" style="display: none; margin-top: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <label for="date-range-start">From:</label>
+              <input type="date" id="date-range-start" style="width: auto;">
+              <label for="date-range-end">To:</label>
+              <input type="date" id="date-range-end" style="width: auto;">
+              <button id="apply-date-range" style="width: auto; padding: 5px 10px;">Apply</button>
+        </div>
+        
+            <div style="margin-top: 10px; display: flex; align-items: center;">
+              <input type="checkbox" id="summarize-by-comments" style="margin-right: 5px;">
+              <label for="summarize-by-comments">Summarize same items by different comments</label>
+            </div>
+          </div>
         </div>
         
           <!-- 视图切换选项卡 -->
@@ -1414,6 +1710,11 @@
             </tbody>
           </table>
           </div>
+        </div>
+        
+        <!-- 物品汇总视图 -->
+        <div id="items-summary-view" style="display: none;">
+          <!-- 内容将通过JavaScript动态生成 -->
         </div>
         
         <!-- Stock In 按类别分组视图 -->
@@ -1480,9 +1781,9 @@
               <tr>
                 <th><input type="checkbox" id="select-all-items"></th>
                 <th>Product Name</th>
+                <th>Image</th>
                 <th>Category</th>
                 <th>Available Quantity</th>
-                <th>Unit</th>
                 <th>Location</th>
                 <th>Stock Out Quantity</th>
               </tr>
@@ -2469,7 +2770,6 @@
     // Create Table Row for Inventory Item
     function createTableRow(item) {
       const tr = document.createElement('tr');
-      tr.style.height = '32px';
       
       // Format the expiry date if it exists
       const formattedExpiryDate = item.expiredDate || 'N/A';
@@ -2480,24 +2780,24 @@
           : `<span class="quantity-display">${item.quantity} ${item.unit}</span>`;
       
       tr.innerHTML = `
-        <td style="padding: 4px 8px;">${item.name}</td>
-        <td style="padding: 4px 8px; text-align: center;">
+        <td>${item.name}</td>
+        <td style="text-align: center;">
             ${item.imageUrl ? `
                 <img src="${item.imageUrl}" alt="Product" class="inventory-image" onclick="showFullImage('${item.imageUrl}')">
             ` : ''}
         </td>
-        <td class="hide-on-mobile" style="padding: 4px 8px;">${item.category || 'N/A'}</td>
-        <td style="padding: 4px 8px;">${quantityDisplay}</td>
-        <td class="hide-on-mobile" style="padding: 4px 8px;">${formattedExpiryDate}</td>
-        <td class="hide-on-mobile" style="padding: 4px 8px;">${item.location}</td>
-        <td class="hide-on-mobile" style="padding: 4px 8px;">${formatDateTime(item.modifiedTime)}</td>
-        <td class="hide-on-mobile" style="padding: 4px 8px;">${item.modifiedBy}</td>
-        <td style="padding: 4px 8px;">
+        <td class="hide-on-mobile">${item.category || 'N/A'}</td>
+        <td>${quantityDisplay}</td>
+        <td class="hide-on-mobile">${formattedExpiryDate}</td>
+        <td class="hide-on-mobile">${item.location}</td>
+        <td class="hide-on-mobile">${formatDateTime(item.modifiedTime)}</td>
+        <td class="hide-on-mobile">${item.modifiedBy}</td>
+        <td>
             <div style="display: flex; gap: 4px; justify-content: flex-start;">
-                <button class="edit-button" data-item-id="${item.id}" style="padding: 2px 8px; margin: 0;">
+                <button class="edit-button" data-item-id="${item.id}">
                     <i class="fas fa-edit"></i> Edit
                 </button>
-                <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}" style="padding: 2px 8px; margin: 0;">
+                <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}">
                     <i class="fas fa-trash"></i> Delete
                 </button>
             </div>
@@ -2524,53 +2824,44 @@
       card.classList.add('inventory-card');
       card.setAttribute('data-item-id', item.id);
       
+      // 添加库存状态边框样式
+      if (item.quantity === 0) {
+        card.classList.add('out-of-stock-card');
+      } else {
+        card.classList.add('in-stock-card');
+      }
+      
+      // 创建数量显示，为零时显示缺货标记
+      const quantityDisplay = item.quantity === 0 
+          ? `<span class="out-of-stock-badge">OUT OF STOCK</span>`
+          : `<span class="quantity-display">${item.quantity} ${item.unit}</span>`;
+      
       card.innerHTML = `
-        <p class="product-name">
-          <strong>Product Name</strong>
-          <span>${item.name}</span>
-        </p>
-        
-        <p class="category">
-          <strong>Category</strong>
-          <span>${item.category || 'N/A'}</span>
-        </p>
-        
-        <p class="quantity">
-          <strong>Quantity</strong>
-          <span>${item.quantity} ${item.unit}</span>
-        </p>
-        
-        <p class="location">
-          <strong>Location</strong>
-          <span>${item.location}</span>
-        </p>
-        
-        ${item.expiredDate ? `
-        <p class="expiry">
-          <strong>Expiry Date</strong>
-          <span>${item.expiredDate}</span>
-        </p>
+        <div class="card-header">
+          <h4>${item.name}</h4>
+          <span class="card-badge">${item.category || 'N/A'}</span>
+        </div>
+        <div class="card-body">
+          ${item.imageUrl ? `
+            <div class="card-image">
+              <img src="${item.imageUrl}" alt="Product" class="inventory-image" onclick="showFullImage('${item.imageUrl}')">
+            </div>
         ` : ''}
-        
-        <p class="modified">
-          <strong>Last Modified</strong>
-          <span>${formatDateTime(item.modifiedTime)}</span>
-        </p>
-        
-        <p class="modified-by">
-          <strong>Modified By</strong>
-          <span>${item.modifiedBy}</span>
-        </p>
-        
+          <div class="card-details">
+            <p><strong>Quantity:</strong> ${quantityDisplay}</p>
+            <p><strong>Expiry Date:</strong> <span>${item.expiredDate || 'N/A'}</span></p>
+            <p><strong>Location:</strong> <span>${item.location}</span></p>
+            <p><strong>Last Modified:</strong> <span>${formatDateTime(item.modifiedTime)}</span></p>
+            <p><strong>Modified By:</strong> <span>${item.modifiedBy}</span></p>
+          </div>
+        </div>
         <div class="card-actions">
-          <div style="display: flex; gap: 4px; justify-content: flex-start;">
-            <button class="edit-button" data-item-id="${item.id}" style="padding: 2px 8px; margin: 0;">
+          <button class="edit-button" data-item-id="${item.id}">
               <i class="fas fa-edit"></i> Edit
             </button>
-            <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}" style="padding: 2px 8px; margin: 0;">
+          <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}">
               <i class="fas fa-trash"></i> Delete
             </button>
-          </div>
         </div>
       `;
       return card;
@@ -2866,8 +3157,8 @@
                   type: 'stock-out',
                   productName: item.name,
                   category: item.category || 'N/A',
-                  quantity: quantityNumber,
-                  unit: item.unit || 'N/A',
+                  quantity: -quantityNumber, // 使用负数表示出库
+                  unit: item.unit,
                   location: item.location,
                   time: new Date().toISOString(), // ISO 8601 format
                   user: user.displayName || 'Unknown',
@@ -3056,6 +3347,7 @@
       showLoading();
       const dateFilter = document.getElementById('transaction-date-filter').value;
       const customDate = document.getElementById('transaction-custom-date').value;
+      const summarizeByComments = document.getElementById('summarize-by-comments')?.checked || false;
       
       // 计算日期范围
       const now = new Date();
@@ -3063,6 +3355,9 @@
       
       let startDate = new Date();
       startDate.setHours(0, 0, 0, 0); // 一天开始
+      
+      // 记录当前选择的是否为日期范围
+      let isDateRange = false;
       
       switch(dateFilter) {
         case 'today':
@@ -3082,8 +3377,24 @@
           if (customDate) {
             startDate = new Date(customDate);
             startDate.setHours(0, 0, 0, 0);
-            now = new Date(customDate);
-            now.setHours(23, 59, 59, 999);
+            const endDate = new Date(customDate);
+            endDate.setHours(23, 59, 59, 999);
+            now.setTime(endDate.getTime());
+          }
+          break;
+        case 'date-range':
+          // 使用日期范围
+          isDateRange = true;
+          const rangeStart = document.getElementById('date-range-start').value;
+          const rangeEnd = document.getElementById('date-range-end').value;
+          
+          if (rangeStart && rangeEnd) {
+            startDate = new Date(rangeStart);
+            startDate.setHours(0, 0, 0, 0);
+            
+            const endDate = new Date(rangeEnd);
+            endDate.setHours(23, 59, 59, 999);
+            now.setTime(endDate.getTime());
           }
           break;
         case 'all':
@@ -3115,14 +3426,28 @@
           // 按时间排序（最新的在前）
           transactions.sort((a, b) => new Date(b.time) - new Date(a.time));
           
-          // 更新所有交易视图
-          updateAllTransactionsView(transactions);
-          
-          // 更新按类别分组的Stock In视图
-          updateStockInByCategoryView(transactions);
-          
-          // 更新按Comment分组的Stock Out视图
-          updateStockOutByCommentView(transactions);
+          // 显示或隐藏汇总视图
+          if (isDateRange && summarizeByComments) {
+            document.getElementById('all-transactions-view').style.display = 'none';
+            document.getElementById('stock-in-by-category-view').style.display = 'none';
+            document.getElementById('stock-out-by-comment-view').style.display = 'none';
+            document.getElementById('items-summary-view').style.display = 'block';
+            
+            // 汇总并显示数据
+            summarizeTransactionsByComments(transactions);
+          } else {
+            document.getElementById('all-transactions-view').style.display = 'block';
+            document.getElementById('items-summary-view').style.display = 'none';
+            
+            // 更新所有交易视图
+            updateAllTransactionsView(transactions);
+            
+            // 更新按类别分组的Stock In视图
+            updateStockInByCategoryView(transactions);
+            
+            // 更新按Comment分组的Stock Out视图
+            updateStockOutByCommentView(transactions);
+          }
           
           // 如果没有数据
           if (transactions.length === 0) {
@@ -3140,10 +3465,190 @@
         });
     }
 
+    // 汇总并显示按comments分组的交易记录
+    function summarizeTransactionsByComments(transactions) {
+      const summaryContainer = document.querySelector('#items-summary-view');
+      summaryContainer.innerHTML = '';
+      
+      // 只处理stock-out类型的交易
+      const stockOutTransactions = transactions.filter(t => t.type === 'stock-out');
+      
+      if (stockOutTransactions.length === 0) {
+        summaryContainer.innerHTML = '<div class="no-data">No stock out records found in the selected date range</div>';
+        return;
+      }
+      
+      // 添加标题
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'summary-header';
+      headerDiv.innerHTML = '<h4>Items Summary by Comments (within selected date range)</h4>';
+      summaryContainer.appendChild(headerDiv);
+      
+      // 按comment分组汇总数据
+      const commentGroups = {};
+      
+      stockOutTransactions.forEach(transaction => {
+        const comment = transaction.comment || 'None';
+        
+        if (!commentGroups[comment]) {
+          commentGroups[comment] = {
+            items: {},
+            totalQuantity: 0,
+            units: {}
+          };
+        }
+        
+        const group = commentGroups[comment];
+        group.totalQuantity += transaction.quantity;
+        
+        // 统计不同单位的数量
+        const unit = transaction.unit || 'item';
+        if (!group.units[unit]) {
+          group.units[unit] = 0;
+        }
+        group.units[unit] += transaction.quantity;
+        
+        // 按产品名称汇总数据
+        const productKey = transaction.productName;
+        if (!group.items[productKey]) {
+          group.items[productKey] = {
+            productName: transaction.productName,
+            category: transaction.category || 'N/A',
+            totalQuantity: 0,
+            unit: transaction.unit,
+            transactionCount: 0,
+            lastTransactionTime: null
+          };
+        }
+        
+        group.items[productKey].totalQuantity += transaction.quantity;
+        group.items[productKey].transactionCount++;
+        
+        // 更新最后交易时间
+        const transactionTime = new Date(transaction.time);
+        if (!group.items[productKey].lastTransactionTime || 
+            transactionTime > new Date(group.items[productKey].lastTransactionTime)) {
+          group.items[productKey].lastTransactionTime = transaction.time;
+        }
+      });
+      
+      // 创建评论统计卡片区域
+      const statsWrapper = document.createElement('div');
+      statsWrapper.className = 'stats-grid';
+      
+      // 创建表格容器
+      const tablesContainer = document.createElement('div');
+      tablesContainer.className = 'comment-tables-container';
+      
+      // 对评论进行排序并创建区域
+      Object.keys(commentGroups).sort().forEach(comment => {
+        const commentData = commentGroups[comment];
+        
+        // 创建统计卡片
+        const card = document.createElement('div');
+        card.className = 'stat-card';
+        
+        // 创建单位统计文本
+        let unitsText = '';
+        Object.keys(commentData.units).forEach(unit => {
+          unitsText += `<div class="unit-stat">${commentData.units[unit]} ${unit}</div>`;
+        });
+        
+        // 计算该评论下的商品数量
+        const itemCount = Object.keys(commentData.items).length;
+        
+        card.innerHTML = `
+          <div class="stat-header">
+            <h4>${comment}</h4>
+            <span class="stat-count">${itemCount} products</span>
+          </div>
+          <div class="stat-body">
+            <div class="unit-stats">
+              ${unitsText}
+            </div>
+          </div>
+        `;
+        statsWrapper.appendChild(card);
+        
+        // 为每个评论创建表格
+        const tableWrapper = document.createElement('div');
+        tableWrapper.className = 'comment-table-wrapper';
+        tableWrapper.innerHTML = `
+          <h4>${comment}</h4>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span>${itemCount} products, ${Object.keys(commentData.units).map(unit => `${commentData.units[unit]} ${unit}`).join(', ')}</span>
+            <button class="download-pdf-btn" data-comment="${comment}" style="width:auto; padding:5px 10px; background-color:#4CAF50; color:white;">
+              <i class="fas fa-file-pdf"></i> Download PDF Report
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="comment-table" id="comment-table-${comment.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}">
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                  <th>Transaction Count</th>
+                  <th>Last Transaction</th>
+              </tr>
+            </thead>
+              <tbody>
+                ${Object.values(commentData.items)
+                  .sort((a, b) => a.productName.localeCompare(b.productName))
+                  .map(item => `
+                    <tr>
+                      <td>${item.productName}</td>
+                      <td>${item.category}</td>
+                      <td class="quantity-out">-${item.totalQuantity} ${item.unit}</td>
+                      <td>${item.transactionCount}</td>
+                      <td>${formatDateTime(item.lastTransactionTime)}</td>
+                    </tr>
+                  `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+        tablesContainer.appendChild(tableWrapper);
+      });
+      
+      // 添加到主容器
+      summaryContainer.appendChild(statsWrapper);
+      summaryContainer.appendChild(tablesContainer);
+    }
+
+    // 添加勾选框事件监听器
+    document.getElementById('summarize-by-comments').addEventListener('change', function() {
+      if (document.getElementById('transaction-date-filter').value === 'date-range') {
+        // 仅当选择了日期范围时才重新加载数据
+        loadTransactionRecords();
+      }
+    });
+
     // 更新所有交易视图
     function updateAllTransactionsView(transactions) {
       const tbody = document.querySelector('#transaction-records-table tbody');
       tbody.innerHTML = '';
+      
+      // 检查当前用户是否为sadmin
+      const isSadmin = userRole === 'sadmin';
+      
+      // 如果是sadmin，添加操作列标题
+      const thead = document.querySelector('#transaction-records-table thead tr');
+      const actionColumnExists = Array.from(thead.querySelectorAll('th')).some(th => th.textContent === 'Actions');
+      
+      if (isSadmin && !actionColumnExists) {
+        // 添加操作列标题
+        const actionHeader = document.createElement('th');
+        actionHeader.textContent = 'Actions';
+        actionHeader.className = 'action-column';
+        thead.appendChild(actionHeader);
+      } else if (!isSadmin && actionColumnExists) {
+        // 如果不是sadmin但存在操作列，移除它
+        const actionHeader = Array.from(thead.querySelectorAll('th')).find(th => th.textContent === 'Actions');
+        if (actionHeader) {
+          actionHeader.remove();
+        }
+      }
       
       transactions.forEach(transaction => {
         const row = document.createElement('tr');
@@ -3155,7 +3660,7 @@
           row.classList.add('stock-out-row');
         }
         
-        row.innerHTML = `
+        let rowHTML = `
           <td>${transaction.productName}</td>
           <td>
             <span class="transaction-type ${transaction.type === 'stock-in' ? 'type-in' : 'type-out'}">
@@ -3172,6 +3677,19 @@
           <td>${transaction.comment || 'None'}</td>
         `;
         
+        // 如果是sadmin，添加删除按钮
+        if (isSadmin) {
+          rowHTML += `
+            <td class="action-column">
+              <button class="delete-transaction-button" data-id="${transaction.id}" 
+                      style="background-color: #dc3545; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </td>
+          `;
+        }
+        
+        row.innerHTML = rowHTML;
         tbody.appendChild(row);
       });
       
@@ -3240,8 +3758,8 @@
             <div class="unit-stats">
               ${unitsText}
             </div>
-          </div>
-        `;
+                      </div>
+                    `;
         statsWrapper.appendChild(card);
         
         // 为每个类别创建一个表格
@@ -3334,12 +3852,12 @@
           <div class="stat-header">
             <h4>${comment}</h4>
             <span class="stat-count">${commentData.transactions.length} entries</span>
-          </div>
+                  </div>
           <div class="stat-body">
             <div class="unit-stats">
               ${unitsText}
-            </div>
-                      </div>
+                </div>
+                  </div>
                     `;
         statsWrapper.appendChild(card);
         
@@ -3371,8 +3889,8 @@
                 `).join('')}
               </tbody>
             </table>
-                      </div>
-                    `;
+              </div>
+            `;
         tablesContainer.appendChild(tableWrapper);
       });
       
@@ -3384,40 +3902,46 @@
       const cardsContainer = document.getElementById('transaction-records-cards');
       cardsContainer.innerHTML = '';
       
+      // 检查当前用户是否为sadmin
+      const isSadmin = userRole === 'sadmin';
+      
       transactions.forEach(transaction => {
         const card = document.createElement('div');
         card.className = `transaction-card ${transaction.type === 'stock-in' ? 'card-in' : 'card-out'}`;
         
-        card.innerHTML = `
+        let cardHTML = `
           <div class="card-header">
+            <h4>${transaction.productName}</h4>
             <span class="transaction-type ${transaction.type === 'stock-in' ? 'type-in' : 'type-out'}">
-              ${transaction.type === 'stock-in' ? 'STOCK IN' : 'STOCK OUT'}
-            </span>
-            <span class="card-time">${formatDateTime(transaction.time)}</span>
-                  </div>
-          
+              ${transaction.type === 'stock-in' ? 'IN' : 'OUT'}
+                  </span>
+          </div>
           <div class="card-body">
-            <div class="card-row">
-              <strong>Product:</strong> ${transaction.productName}
-                </div>
-            <div class="card-row">
-              <strong>Category:</strong> ${transaction.category || 'N/A'}
-                  </div>
-            <div class="card-row">
-              <strong>Quantity:</strong> 
+            <p><strong>Category:</strong> ${transaction.category || 'N/A'}</p>
+            <p><strong>Quantity:</strong> 
               <span class="${transaction.type === 'stock-in' ? 'quantity-in' : 'quantity-out'}">
                 ${transaction.type === 'stock-in' ? '+' : '-'}${transaction.quantity} ${transaction.unit}
-              </span>
+                  </span>
+            </p>
+            <p><strong>Time:</strong> ${formatDateTime(transaction.time)}</p>
+            <p><strong>User:</strong> ${transaction.user}</p>
+            <p><strong>Comment:</strong> ${transaction.comment || 'None'}</p>
+          </div>
+        `;
+        
+        // 如果是sadmin，添加删除按钮
+        if (isSadmin) {
+          cardHTML += `
+            <div class="card-footer">
+              <button class="delete-transaction-button" data-id="${transaction.id}" 
+                      style="background-color: #dc3545; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; width: 100%;">
+                <i class="fas fa-trash"></i> Delete Record
+                  </button>
             </div>
-            <div class="card-row">
-              <strong>User:</strong> ${transaction.user}
-            </div>
-            <div class="card-row">
-              <strong>Comment:</strong> ${transaction.comment || 'None'}
-                </div>
-              </div>
-            `;
-
+          `;
+        }
+        
+        card.innerHTML = cardHTML;
         cardsContainer.appendChild(card);
       });
     }
@@ -3498,7 +4022,14 @@
     // 添加事件监听器
     document.getElementById('transaction-date-filter').addEventListener('change', (e) => {
       const customDateInput = document.getElementById('transaction-custom-date');
+      const dateRangeContainer = document.getElementById('transaction-date-range');
+      
+      // 隐藏所有日期输入
+      customDateInput.style.display = 'none';
+      dateRangeContainer.style.display = 'none';
+      
       if (e.target.value === 'custom') {
+        // 显示单日期选择器
         customDateInput.style.display = 'inline-block';
         // 设置日期选择器的默认值为今天
         const today = new Date();
@@ -3506,14 +4037,63 @@
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
         customDateInput.value = `${year}-${month}-${day}`;
+      } else if (e.target.value === 'date-range') {
+        // 显示日期范围选择器
+        dateRangeContainer.style.display = 'block';
+        
+        // 设置默认值：开始日期为今天减7天，结束日期为今天
+        const today = new Date();
+        const lastWeek = new Date();
+        lastWeek.setDate(today.getDate() - 7);
+        
+        const todayStr = formatDateForInput(today);
+        const lastWeekStr = formatDateForInput(lastWeek);
+        
+        document.getElementById('date-range-start').value = lastWeekStr;
+        document.getElementById('date-range-end').value = todayStr;
       } else {
-        customDateInput.style.display = 'none';
+        // 对于其他选项直接加载数据
         loadTransactionRecords();
       }
     });
 
+    // 添加单日期选择器的事件监听器
     document.getElementById('transaction-custom-date').addEventListener('change', () => {
       loadTransactionRecords();
+    });
+
+    // 添加日期范围应用按钮的事件监听器
+    document.getElementById('apply-date-range').addEventListener('click', () => {
+      loadTransactionRecords();
+    });
+
+    // 格式化日期为YYYY-MM-DD格式（用于输入框）
+    function formatDateForInput(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // 为日期范围的开始和结束日期添加事件监听器
+    document.getElementById('date-range-start').addEventListener('change', (e) => {
+      // 确保开始日期不晚于结束日期
+      const startDate = new Date(e.target.value);
+      const endDate = new Date(document.getElementById('date-range-end').value);
+      
+      if (startDate > endDate) {
+        document.getElementById('date-range-end').value = e.target.value;
+      }
+    });
+
+    document.getElementById('date-range-end').addEventListener('change', (e) => {
+      // 确保结束日期不早于开始日期
+      const endDate = new Date(e.target.value);
+      const startDate = new Date(document.getElementById('date-range-start').value);
+      
+      if (endDate < startDate) {
+        document.getElementById('date-range-start').value = e.target.value;
+      }
     });
 
     // Sort Inventory List by Category (Alphabetically)
@@ -3607,6 +4187,10 @@
       const cardsContainer = document.getElementById('inventory-cards');
       const transactionTable = document.getElementById('transaction-records-table');
       const transactionCards = document.getElementById('transaction-records-cards');
+      
+      // Stock Out视图
+      const stockOutTable = document.getElementById('stock-out-table');
+      const stockOutCards = document.getElementById('stock-out-cards');
 
       if (window.innerWidth <= 600) {
         // Mobile view
@@ -3614,12 +4198,16 @@
         if (cardsContainer) cardsContainer.style.display = 'flex';
         if (transactionTable) transactionTable.parentElement.style.display = 'none';
         if (transactionCards) transactionCards.style.display = 'flex';
+        if (stockOutTable) stockOutTable.parentElement.style.display = 'none';
+        if (stockOutCards) stockOutCards.style.display = 'flex';
       } else {
         // Desktop view
         if (tableResponsive) tableResponsive.style.display = 'block';
         if (cardsContainer) cardsContainer.style.display = 'none';
         if (transactionTable) transactionTable.parentElement.style.display = 'block';
         if (transactionCards) transactionCards.style.display = 'none';
+        if (stockOutTable) stockOutTable.parentElement.style.display = 'block';
+        if (stockOutCards) stockOutCards.style.display = 'none';
       }
     }
 
@@ -3669,41 +4257,117 @@
 
     // Load items for stock out
     function loadStockOutItems() {
+      showLoading();
+      
+      // 清空表格和卡片容器
       const tbody = stockOutTable.querySelector('tbody');
       tbody.innerHTML = '';
       
+      // 检查是否有移动卡片容器，如果没有就创建一个
+      let cardsContainer = document.getElementById('stock-out-cards');
+      if (!cardsContainer) {
+        cardsContainer = document.createElement('div');
+        cardsContainer.id = 'stock-out-cards';
+        cardsContainer.className = 'cards-container';
+        cardsContainer.style.display = 'none';
+        stockOutTable.parentElement.after(cardsContainer);
+      }
+      cardsContainer.innerHTML = '';
+      
+      // 获取库存项目
       const inventoryPaths = getInventoryPaths();
+      const promises = [];
+      
       inventoryPaths.forEach(path => {
-        const inventoryRef = db.ref(path);
-        inventoryRef.once('value', (snapshot) => {
+        const promise = db.ref(path).once('value').then((snapshot) => {
           snapshot.forEach((childSnapshot) => {
             const item = childSnapshot.val();
+            item.id = childSnapshot.key;
+            
             if (item.quantity > 0) {
+              // 添加到表格
               const tr = document.createElement('tr');
               tr.innerHTML = `
                 <td><input type="checkbox" class="item-checkbox" data-id="${childSnapshot.key}" data-path="${path}"></td>
                 <td>${item.name}</td>
+                <td style="text-align:center;">
+                  ${item.imageUrl ? `
+                    <img src="${item.imageUrl}" alt="Product" class="inventory-image" onclick="showFullImage('${item.imageUrl}')">
+                  ` : ''}
+                </td>
                 <td>${item.category || 'N/A'}</td>
-                <td>${item.quantity}</td>
-                <td>${item.unit}</td>
+                <td>${item.quantity} ${item.unit}</td>
                 <td>${item.location}</td>
                 <td><input type="number" class="stock-out-quantity" min="1" max="${item.quantity}" disabled></td>
               `;
               tbody.appendChild(tr);
+              
+              // 添加到卡片视图
+              const card = createStockOutCard(item);
+              cardsContainer.appendChild(card);
             }
           });
         });
+        promises.push(promise);
       });
+      
+      Promise.all(promises)
+        .then(() => {
+          // 检查是否有数据
+          if (tbody.children.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No items available for stock out.</td></tr>';
+            cardsContainer.innerHTML = '<div class="no-data">No items available for stock out.</div>';
+          }
+          
+          // 确保响应式视图正确显示
+          handleResponsiveStockOutView();
+        })
+        .catch(error => {
+          console.error('Error loading stock out items:', error);
+          alert('Failed to load inventory items: ' + error.message);
+        })
+        .finally(() => {
+          hideLoading();
+        });
     }
+    
+    // 处理Stock Out响应式视图
+    function handleResponsiveStockOutView() {
+      const tableContainer = stockOutTable.parentElement;
+      const cardsContainer = document.getElementById('stock-out-cards');
+      
+      if (window.innerWidth <= 600) {
+        // 移动视图
+        tableContainer.style.display = 'none';
+        cardsContainer.style.display = 'flex';
+      } else {
+        // 桌面视图
+        tableContainer.style.display = 'block';
+        cardsContainer.style.display = 'none';
+      }
+    }
+    
+    // 初始化视图并添加窗口大小变化监听
+    window.addEventListener('resize', handleResponsiveStockOutView);
 
     // Handle select all checkbox
     selectAllItems.addEventListener('change', (e) => {
-      const checkboxes = document.querySelectorAll('.item-checkbox');
-      checkboxes.forEach(checkbox => {
+      // 处理表格中的复选框
+      const tableCheckboxes = document.querySelectorAll('#stock-out-table .item-checkbox');
+      tableCheckboxes.forEach(checkbox => {
         checkbox.checked = e.target.checked;
         const quantityInput = checkbox.closest('tr').querySelector('.stock-out-quantity');
         quantityInput.disabled = !e.target.checked;
       });
+      
+      // 处理移动卡片视图中的复选框
+      const cardCheckboxes = document.querySelectorAll('#stock-out-cards .item-checkbox');
+      cardCheckboxes.forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+        const quantityInput = checkbox.closest('.card-details').querySelector('.stock-out-quantity');
+        quantityInput.disabled = !e.target.checked;
+      });
+      
       updateBatchStockOutButton();
     });
 
@@ -3713,13 +4377,47 @@
         const quantityInput = e.target.closest('tr').querySelector('.stock-out-quantity');
         quantityInput.disabled = !e.target.checked;
         updateBatchStockOutButton();
+        
+        // 同步移动卡片视图中的复选框状态
+        const itemId = e.target.getAttribute('data-id');
+        const cardCheckbox = document.querySelector(`#stock-out-cards .item-checkbox[data-id="${itemId}"]`);
+        if (cardCheckbox) {
+          cardCheckbox.checked = e.target.checked;
+          const cardQuantityInput = cardCheckbox.closest('.card-details').querySelector('.stock-out-quantity');
+          cardQuantityInput.disabled = !e.target.checked;
+        }
+      }
+    });
+    
+    // 监听表格数量输入变化，同步到卡片视图
+    stockOutTable.addEventListener('input', (e) => {
+      if (e.target.classList.contains('stock-out-quantity')) {
+        const row = e.target.closest('tr');
+        const checkbox = row.querySelector('.item-checkbox');
+        const itemId = checkbox.getAttribute('data-id');
+        
+        // 同步到卡片视图
+        const cardQuantityInput = document.querySelector(`#stock-out-cards #mobile-quantity-${itemId}`);
+        if (cardQuantityInput) {
+          cardQuantityInput.value = e.target.value;
+        }
       }
     });
 
     // Update batch stock out button state
     function updateBatchStockOutButton() {
-      const checkedItems = document.querySelectorAll('.item-checkbox:checked');
-      batchStockOutButton.disabled = checkedItems.length === 0;
+      // 检查所有的复选框（包括表格和卡片视图中的）
+      const checkedTableItems = document.querySelectorAll('#stock-out-table .item-checkbox:checked');
+      const checkedCardItems = document.querySelectorAll('#stock-out-cards .item-checkbox:checked');
+      const totalCheckedItems = checkedTableItems.length + checkedCardItems.length;
+      
+      // 在移动视图中，卡片视图是主要视图；在桌面视图中，表格视图是主要视图
+      // 因此我们可以根据当前视图模式只考虑其中一个
+      const isAnyChecked = window.innerWidth <= 600 ? 
+        checkedCardItems.length > 0 : 
+        checkedTableItems.length > 0;
+      
+      batchStockOutButton.disabled = !isAnyChecked;
     }
 
     // Handle batch stock out
@@ -3730,15 +4428,35 @@
         return;
       }
 
-      const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+      // 获取所有选中的项（表格和卡片视图）
+      const checkedTableItems = document.querySelectorAll('#stock-out-table .item-checkbox:checked');
+      const checkedCardItems = document.querySelectorAll('#stock-out-cards .item-checkbox:checked');
+      
+      // 在移动视图中使用卡片视图数据，在桌面视图中使用表格视图数据
+      const checkedItems = window.innerWidth <= 600 ? checkedCardItems : checkedTableItems;
+      
+      if (checkedItems.length === 0) {
+        alert('Please select at least one item for stock out.');
+        return;
+      }
+
       const stockOutPromises = [];
       const user = auth.currentUser;
 
       checkedItems.forEach(checkbox => {
+        let quantityInput, quantity;
+        
+        if (window.innerWidth <= 600) {
+          // 移动视图中从卡片获取数据
+          quantityInput = checkbox.closest('.card-details').querySelector('.stock-out-quantity');
+          quantity = parseFloat(quantityInput.value);
+        } else {
+          // 桌面视图中从表格获取数据
         const tr = checkbox.closest('tr');
-        const quantityInput = tr.querySelector('.stock-out-quantity');
-        // 使用 parseFloat 而不是 parseInt
-        const quantity = parseFloat(quantityInput.value);
+          quantityInput = tr.querySelector('.stock-out-quantity');
+          quantity = parseFloat(quantityInput.value);
+        }
+        
         const itemId = checkbox.getAttribute('data-id');
         const path = checkbox.getAttribute('data-path');
 
@@ -3796,17 +4514,36 @@
       const locationFilter = stockOutLocationFilter.value;
       const categoryFilter = document.getElementById('stock-out-category-filter').value;
       
+      // 过滤表格行
       const rows = stockOutTable.querySelectorAll('tbody tr');
       rows.forEach(row => {
+        // 跳过空行或无效行
+        if (row.cells.length < 6) return;
+        
         const productName = row.cells[1].textContent.toLowerCase();
-        const category = row.cells[2].textContent;
-        const location = row.cells[5].textContent;
+        const category = row.cells[3].textContent; // 索引从2调整到3（因为添加了图像列）
+        const location = row.cells[5].textContent; // 索引从5调整到5（合并了数量和单位，位置也变了）
         
         const matchesSearch = productName.includes(searchTerm);
         const matchesLocation = locationFilter === 'all' || location === locationFilter;
         const matchesCategory = categoryFilter === 'all' || category === categoryFilter;
         
         row.style.display = matchesSearch && matchesLocation && matchesCategory ? '' : 'none';
+      });
+      
+      // 过滤移动卡片视图
+      const cards = document.querySelectorAll('#stock-out-cards .inventory-card');
+      cards.forEach(card => {
+        const productName = card.querySelector('.card-header h4').textContent.toLowerCase();
+        const category = card.querySelector('.card-badge').textContent;
+        const locationElem = card.querySelector('.card-details p:nth-child(2)');
+        const location = locationElem ? locationElem.textContent.replace('Location:', '').trim() : '';
+        
+        const matchesSearch = productName.includes(searchTerm);
+        const matchesLocation = locationFilter === 'all' || location === locationFilter;
+        const matchesCategory = categoryFilter === 'all' || category === categoryFilter;
+        
+        card.style.display = matchesSearch && matchesLocation && matchesCategory ? '' : 'none';
       });
     }
 
@@ -4873,24 +5610,24 @@
             : `<span class="quantity-display">${item.quantity} ${item.unit}</span>`;
         
         tr.innerHTML = `
-            <td style="padding: 4px 8px;">${item.name}</td>
-            <td style="padding: 4px 8px; text-align: center;">
+            <td>${item.name}</td>
+            <td style="text-align: center;">
                 ${item.imageUrl ? `
                     <img src="${item.imageUrl}" alt="Product" class="inventory-image" onclick="showFullImage('${item.imageUrl}')">
                 ` : ''}
             </td>
-            <td class="hide-on-mobile" style="padding: 4px 8px;">${item.category || 'N/A'}</td>
-            <td style="padding: 4px 8px;">${quantityDisplay}</td>
-            <td class="hide-on-mobile" style="padding: 4px 8px;">${formattedExpiryDate}</td>
-            <td class="hide-on-mobile" style="padding: 4px 8px;">${item.location}</td>
-            <td class="hide-on-mobile" style="padding: 4px 8px;">${formatDateTime(item.modifiedTime)}</td>
-            <td class="hide-on-mobile" style="padding: 4px 8px;">${item.modifiedBy}</td>
-            <td style="padding: 4px 8px;">
+            <td class="hide-on-mobile">${item.category || 'N/A'}</td>
+            <td>${quantityDisplay}</td>
+            <td class="hide-on-mobile">${formattedExpiryDate}</td>
+            <td class="hide-on-mobile">${item.location}</td>
+            <td class="hide-on-mobile">${formatDateTime(item.modifiedTime)}</td>
+            <td class="hide-on-mobile">${item.modifiedBy}</td>
+            <td>
                 <div style="display: flex; gap: 4px; justify-content: flex-start;">
-                    <button class="edit-button" data-item-id="${item.id}" style="padding: 2px 8px; margin: 0;">
+                    <button class="edit-button" data-item-id="${item.id}">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}" style="padding: 2px 8px; margin: 0;">
+                    <button class="delete-button" data-item-id="${item.id}" data-item-name="${item.name}">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
@@ -5125,11 +5862,279 @@
         this.style.display = 'none';
       }
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // 初始化Firebase
+      // ...existing code...
+      
+      // Load initial inventory data
+      loadInventory();
+      
+      // Load initial transaction records for today
+      loadTransactionRecords();
+      
+      // 添加勾选框事件监听器
+      document.getElementById('summarize-by-comments').addEventListener('change', function() {
+        if (document.getElementById('transaction-date-filter').value === 'date-range') {
+          // 仅当选择了日期范围时才重新加载数据
+          loadTransactionRecords();
+        }
+      });
+    });
+
+    // 添加事件监听器，处理下载PDF按钮的点击事件
+    document.addEventListener('click', function(e) {
+      const button = e.target.closest('.download-pdf-btn');
+      if (!button) return;
+      
+      try {
+        console.log('PDF button clicked');
+        const comment = button.getAttribute('data-comment');
+        if (!comment) {
+          console.error('Missing comment attribute on button');
+          return;
+        }
+        
+        console.log('Generating PDF for comment:', comment);
+        button.textContent = 'Generating...';
+        button.disabled = true;
+        
+        // 延迟执行以确保UI更新
+        setTimeout(() => {
+          generateCommentPDF(comment).finally(() => {
+            button.innerHTML = '<i class="fas fa-file-pdf"></i> Download PDF Report';
+            button.disabled = false;
+          });
+        }, 100);
+      } catch (error) {
+        console.error('Error handling PDF button click:', error);
+        alert('Error preparing PDF: ' + error.message);
+      }
+    });
+    
+    // 生成PDF报告的函数
+    async function generateCommentPDF(comment) {
+      try {
+        // 确保jsPDF已正确加载
+        if (typeof window.jspdf === 'undefined') {
+          window.jspdf = window.jspdf || {};
+        }
+        
+        if (typeof window.jsPDF !== 'undefined') {
+          window.jspdf.jsPDF = window.jsPDF;
+        }
+        
+        // 检查是否已加载
+        if (typeof window.jspdf.jsPDF !== 'function') {
+          console.error('jsPDF constructor not found');
+          alert('PDF library not properly loaded. Please try refreshing the page.');
+          return;
+        }
+        
+        // 创建PDF文档
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // 设置标题
+        doc.setFontSize(18);
+        doc.text(`Stock Out Report - ${comment}`, 14, 22);
+        
+        // 添加报告信息
+        doc.setFontSize(10);
+        doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+        
+        // 获取日期范围
+        const startDate = document.getElementById('date-range-start').value;
+        const endDate = document.getElementById('date-range-end').value;
+        doc.text(`Date Range: ${startDate} to ${endDate}`, 14, 36);
+        
+        // 安全处理特殊字符，防止ID选择器出错
+        const safeComment = comment.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
+        const tableId = `comment-table-${safeComment}`;
+        
+        // 获取表格元素
+        const table = document.getElementById(tableId);
+        if (!table) {
+          throw new Error(`Table with ID "${tableId}" not found`);
+        }
+        
+        // 手动提取表格数据
+        const headerRow = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+        
+        const bodyRows = Array.from(table.querySelectorAll('tbody tr')).map(tr => {
+          return Array.from(tr.querySelectorAll('td')).map(td => td.textContent.trim());
+        });
+        
+        // 生成表格
+        doc.autoTable({
+          head: [headerRow],
+          body: bodyRows,
+          startY: 42,
+          theme: 'grid',
+          styles: {
+            fontSize: 9,
+            cellPadding: 3
+          },
+          headStyles: {
+            fillColor: [0, 57, 116],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold'
+          },
+          alternateRowStyles: {
+            fillColor: [240, 240, 240]
+          }
+        });
+        
+        // 添加页脚
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.setTextColor(100, 100, 100);
+          doc.text('SmartProfits Management System - Stock-Out Report', 14, doc.internal.pageSize.height - 10);
+          doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 10);
+        }
+        
+        // 保存文件
+        const filename = `StockOut_${comment.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(filename);
+        
+        return Promise.resolve();
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert(`Error generating PDF: ${error.message}`);
+        return Promise.reject(error);
+      }
+    }
+
+    // 处理删除交易记录按钮的点击事件
+    document.addEventListener('click', function(e) {
+      const deleteButton = e.target.closest('.delete-transaction-button');
+      if (!deleteButton) return;
+      
+      // 检查用户是否为sadmin
+      if (userRole !== 'sadmin') {
+        alert('Only Super Admin can delete transaction records.');
+        return;
+      }
+      
+      const transactionId = deleteButton.getAttribute('data-id');
+      if (!transactionId) {
+        console.error('Missing transaction ID');
+        return;
+      }
+      
+      // 确认删除
+      if (confirm('Are you sure you want to delete this transaction record? This action cannot be undone.')) {
+        showLoading();
+        
+        // 获取transaction记录，以便后续可能需要恢复库存
+        db.ref(`transactions/${transactionId}`).once('value')
+          .then(snapshot => {
+            const transaction = snapshot.val();
+            
+            if (!transaction) {
+              throw new Error('Transaction record not found');
+            }
+            
+            // 删除交易记录
+            return db.ref(`transactions/${transactionId}`).remove()
+              .then(() => {
+                // 删除成功后重新加载交易记录
+                alert('Transaction record deleted successfully');
+                loadTransactionRecords();
+                
+                // 返回transaction数据，以便可能的库存恢复处理
+                return transaction;
+              });
+          })
+          .catch(error => {
+            console.error('Error deleting transaction record:', error);
+            alert(`Failed to delete transaction record: ${error.message}`);
+          })
+          .finally(() => {
+            hideLoading();
+          });
+      }
+    });
+
+    // Create Stock Out Card for Mobile View
+    function createStockOutCard(item) {
+      const card = document.createElement('div');
+      card.className = 'inventory-card';
+      card.innerHTML = `
+        <div class="card-header">
+          <h4>${item.name}</h4>
+          <span class="card-badge">${item.category || 'N/A'}</span>
+        </div>
+        <div class="card-body">
+          ${item.imageUrl ? `
+            <div class="card-image">
+              <img src="${item.imageUrl}" alt="Product" class="inventory-image" onclick="showFullImage('${item.imageUrl}')">
+            </div>
+          ` : ''}
+          <div class="card-details">
+            <p><strong>Available:</strong> ${item.quantity} ${item.unit}</p>
+            <p><strong>Location:</strong> ${item.location}</p>
+            <div class="checkbox-container">
+              <input type="checkbox" class="item-checkbox" data-id="${item.id}" data-path="inventory/${item.location}">
+              <label>Select for stock out</label>
+            </div>
+            <div class="quantity-input-container">
+              <label for="mobile-quantity-${item.id}">Quantity to out:</label>
+              <input type="number" id="mobile-quantity-${item.id}" class="stock-out-quantity" min="1" max="${item.quantity}" disabled>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // 添加事件监听器，与表格同步勾选状态和数量
+      const checkbox = card.querySelector('.item-checkbox');
+      const quantityInput = card.querySelector('.stock-out-quantity');
+      
+      checkbox.addEventListener('change', (e) => {
+        quantityInput.disabled = !e.target.checked;
+        updateBatchStockOutButton();
+        
+        // 在表格中找到对应项并同步勾选状态
+        const tableCheckbox = document.querySelector(`#stock-out-table .item-checkbox[data-id="${item.id}"]`);
+        if (tableCheckbox) {
+          tableCheckbox.checked = e.target.checked;
+          const tableQuantityInput = tableCheckbox.closest('tr').querySelector('.stock-out-quantity');
+          tableQuantityInput.disabled = !e.target.checked;
+        }
+      });
+      
+      quantityInput.addEventListener('input', (e) => {
+        // 在表格中找到对应项并同步数量
+        const tableCheckbox = document.querySelector(`#stock-out-table .item-checkbox[data-id="${item.id}"]`);
+        if (tableCheckbox) {
+          const tableQuantityInput = tableCheckbox.closest('tr').querySelector('.stock-out-quantity');
+          tableQuantityInput.value = e.target.value;
+        }
+      });
+      
+      return card;
+    }
   </script>
 
   <!-- 在body标签结束前添加页脚 -->
   <footer class="footer-credit">
     <p>If you have any questions or suggestions, feel free to contact me, Mark.</p>
   </footer>
+
+  <!-- Loading Indicator -->
+  <div id="loading-indicator" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 9999;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
+      <div class="loader"></div>
+      <p style="text-align: center; margin-top: 10px;">Loading...</p>
+    </div>
+  </div>
+  
+  <!-- 图片查看模态框 -->
+  <div id="image-view-modal" class="image-modal">
+    <span class="close">&times;</span>
+    <img class="image-modal-content" id="full-size-image">
+  </div>
 </body>
 </html>
