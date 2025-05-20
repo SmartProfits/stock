@@ -3265,7 +3265,7 @@
     navStockOut.addEventListener('click', (e) => {
       e.preventDefault();
       showSection('stock-out');
-      loadStockOutItems();
+      // 不需要再次调用loadStockOutItems，因为showSection中已经调用了
     });
 
     document.getElementById('nav-online-records').addEventListener('click', (e) => {
@@ -4278,57 +4278,79 @@
       const inventoryPaths = getInventoryPaths();
       const promises = [];
       
+      // 用于收集所有商品的数组
+      const allItems = [];
+      
+      // 首先收集所有商品，不立即渲染
       inventoryPaths.forEach(path => {
         const promise = db.ref(path).once('value').then((snapshot) => {
           snapshot.forEach((childSnapshot) => {
             const item = childSnapshot.val();
-            item.id = childSnapshot.key;
-            
             if (item.quantity > 0) {
-              // 添加到表格
-              const tr = document.createElement('tr');
-              tr.innerHTML = `
-                <td><input type="checkbox" class="item-checkbox" data-id="${childSnapshot.key}" data-path="${path}"></td>
-                <td>${item.name}</td>
-                <td style="text-align:center;">
-                  ${item.imageUrl ? `
-                    <img src="${item.imageUrl}" alt="Product" class="inventory-image" onclick="showFullImage('${item.imageUrl}')">
-                  ` : ''}
-                </td>
-                <td>${item.category || 'N/A'}</td>
-                <td>${item.quantity} ${item.unit}</td>
-                <td>${item.location}</td>
-                <td><input type="number" class="stock-out-quantity" min="1" max="${item.quantity}" disabled></td>
-              `;
-              tbody.appendChild(tr);
-              
-              // 添加到卡片视图
-              const card = createStockOutCard(item);
-              cardsContainer.appendChild(card);
+              item.id = childSnapshot.key;
+              item.path = path;
+              allItems.push(item);
             }
           });
         });
         promises.push(promise);
       });
       
-      Promise.all(promises)
-        .then(() => {
-          // 检查是否有数据
-          if (tbody.children.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No items available for stock out.</td></tr>';
-            cardsContainer.innerHTML = '<div class="no-data">No items available for stock out.</div>';
+      // 等待所有数据加载完成后处理
+      Promise.all(promises).then(() => {
+        // 按商品名称分组
+        const groupedItems = {};
+        
+        // 分组收集商品
+        allItems.forEach(item => {
+          if (!groupedItems[item.name]) {
+            groupedItems[item.name] = [];
           }
-          
-          // 确保响应式视图正确显示
-          handleResponsiveStockOutView();
-        })
-        .catch(error => {
-          console.error('Error loading stock out items:', error);
-          alert('Failed to load inventory items: ' + error.message);
-        })
-        .finally(() => {
-          hideLoading();
+          groupedItems[item.name].push(item);
         });
+        
+        // 遍历分组后的商品，每个商品名称只显示一次
+        Object.keys(groupedItems).forEach(productName => {
+          // 每个商品名称只取第一个记录，确保每个商品只显示一次
+          const item = groupedItems[productName][0];
+          
+          // 添加到表格
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><input type="checkbox" class="item-checkbox" data-id="${item.id}" data-path="${item.path}"></td>
+            <td>${item.name}</td>
+            <td style="text-align:center;">
+              ${item.imageUrl ? `
+                <img src="${item.imageUrl}" alt="Product" class="inventory-image" onclick="showFullImage('${item.imageUrl}')">
+              ` : ''}
+            </td>
+            <td>${item.category || 'N/A'}</td>
+            <td>${item.quantity} ${item.unit}</td>
+            <td>${item.location}</td>
+            <td><input type="number" class="stock-out-quantity" min="1" max="${item.quantity}" disabled></td>
+          `;
+          tbody.appendChild(tr);
+          
+          // 添加到卡片视图
+          const card = createStockOutCard(item);
+          cardsContainer.appendChild(card);
+        });
+        
+        // 检查是否有数据
+        if (tbody.children.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No items available for stock out.</td></tr>';
+          cardsContainer.innerHTML = '<div class="no-data">No items available for stock out.</div>';
+        }
+        
+        // 确保响应式视图正确显示
+        handleResponsiveStockOutView();
+        
+        hideLoading();
+      }).catch(error => {
+        console.error('Error loading stock out items:', error);
+        alert('Failed to load inventory items: ' + error.message);
+        hideLoading();
+      });
     }
     
     // 处理Stock Out响应式视图
@@ -4514,6 +4536,9 @@
       const locationFilter = stockOutLocationFilter.value;
       const categoryFilter = document.getElementById('stock-out-category-filter').value;
       
+      // 记录过滤后是否有可见行
+      let hasVisibleItems = false;
+      
       // 过滤表格行
       const rows = stockOutTable.querySelectorAll('tbody tr');
       rows.forEach(row => {
@@ -4528,7 +4553,10 @@
         const matchesLocation = locationFilter === 'all' || location === locationFilter;
         const matchesCategory = categoryFilter === 'all' || category === categoryFilter;
         
-        row.style.display = matchesSearch && matchesLocation && matchesCategory ? '' : 'none';
+        const isVisible = matchesSearch && matchesLocation && matchesCategory;
+        row.style.display = isVisible ? '' : 'none';
+        
+        if (isVisible) hasVisibleItems = true;
       });
       
       // 过滤移动卡片视图
@@ -4543,8 +4571,47 @@
         const matchesLocation = locationFilter === 'all' || location === locationFilter;
         const matchesCategory = categoryFilter === 'all' || category === categoryFilter;
         
-        card.style.display = matchesSearch && matchesLocation && matchesCategory ? '' : 'none';
+        const isVisible = matchesSearch && matchesLocation && matchesCategory;
+        card.style.display = isVisible ? '' : 'none';
+        
+        if (isVisible) hasVisibleItems = true;
       });
+      
+      // 如果没有符合条件的商品，显示"无数据"消息
+      const tbody = stockOutTable.querySelector('tbody');
+      const cardsContainer = document.getElementById('stock-out-cards');
+      
+      // 仅当至少有一行数据时才检查
+      if (rows.length > 0 && !hasVisibleItems) {
+        // 创建或显示"无匹配数据"的消息
+        let noResultsRow = tbody.querySelector('.no-results-row');
+        if (!noResultsRow) {
+          noResultsRow = document.createElement('tr');
+          noResultsRow.className = 'no-results-row';
+          noResultsRow.innerHTML = '<td colspan="7" style="text-align: center;">No matching products found</td>';
+          tbody.appendChild(noResultsRow);
+        } else {
+          noResultsRow.style.display = '';
+        }
+        
+        // 为移动视图添加相同的消息
+        let noResultsCard = cardsContainer.querySelector('.no-results-card');
+        if (!noResultsCard) {
+          noResultsCard = document.createElement('div');
+          noResultsCard.className = 'no-results-card no-data';
+          noResultsCard.textContent = 'No matching products found';
+          cardsContainer.appendChild(noResultsCard);
+        } else {
+          noResultsCard.style.display = '';
+        }
+      } else {
+        // 隐藏"无匹配数据"的消息
+        const noResultsRow = tbody.querySelector('.no-results-row');
+        if (noResultsRow) noResultsRow.style.display = 'none';
+        
+        const noResultsCard = cardsContainer.querySelector('.no-results-card');
+        if (noResultsCard) noResultsCard.style.display = 'none';
+      }
     }
 
     // Handle edit button clicks
@@ -5093,7 +5160,8 @@
             userName: userName,
             email: userEmail,
             loginTime: new Date().toISOString(),
-            isOnline: true
+            isOnline: true,
+            lastActive: new Date().toISOString()
           });
 
           // 其他登录成功后的逻辑
@@ -5789,22 +5857,25 @@
         const unit = document.getElementById('edit-item-unit').value.trim();
         const location = document.getElementById('edit-item-location').value;
         
+        // 计算总数量并四舍五入到2位小数，避免浮点数精度问题
+        const totalQuantity = parseFloat((currentQuantity + newQuantity).toFixed(2));
+        
         // 直接更新数据库中的数量
         const inventoryPath = `inventory/${location}/${currentEditItemId}`;
         db.ref(inventoryPath).update({
-            quantity: currentQuantity + newQuantity,
+            quantity: totalQuantity,
             modifiedTime: new Date().toISOString(),
             modifiedBy: user.displayName || 'Unknown'
         }).then(() => {
-            // 更新输入框中的数量
-            document.getElementById('edit-item-quantity').value = currentQuantity + newQuantity;
+            // 更新输入框中的数量，并格式化显示
+            document.getElementById('edit-item-quantity').value = totalQuantity;
             
-            // 添加交易记录
+            // 添加交易记录，确保数量也使用格式化的值
             return db.ref('transactions').push({
                 type: 'stock-in',
                 productName: name,
                 category: category || 'N/A',
-                quantity: newQuantity,
+                quantity: parseFloat(newQuantity.toFixed(2)),
                 unit: unit,
                 location: location,
                 time: new Date().toISOString(),
@@ -6062,6 +6133,7 @@
     function createStockOutCard(item) {
       const card = document.createElement('div');
       card.className = 'inventory-card';
+      // 使用item.path，确保使用正确的路径
       card.innerHTML = `
         <div class="card-header">
           <h4>${item.name}</h4>
@@ -6077,7 +6149,7 @@
             <p><strong>Available:</strong> ${item.quantity} ${item.unit}</p>
             <p><strong>Location:</strong> ${item.location}</p>
             <div class="checkbox-container">
-              <input type="checkbox" class="item-checkbox" data-id="${item.id}" data-path="inventory/${item.location}">
+              <input type="checkbox" class="item-checkbox" data-id="${item.id}" data-path="${item.path}">
               <label>Select for stock out</label>
             </div>
             <div class="quantity-input-container">
