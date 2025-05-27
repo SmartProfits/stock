@@ -2,7 +2,7 @@
   "name": "SmartProfits Stock Management",
   "short_name": "Stock",
   "description": "库存管理系统",
-  "start_url": "/",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#003974",
