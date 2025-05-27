@@ -7,6 +7,8 @@
   "background_color": "#f5f7fa",
   "theme_color": "#003974",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "zh-CN",
   "icons": [
     {
       "src": "stock.png",
@@ -46,6 +48,12 @@
     }
   ],
   "categories": ["business", "finance", "productivity"],
-  "lang": "zh-CN",
-  "dir": "ltr"
+  "screenshots": [
+    {
+      "src": "stock.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
 } 
