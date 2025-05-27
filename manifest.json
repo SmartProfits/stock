@@ -1,0 +1,51 @@
+{
+  "name": "SmartProfits Management System",
+  "short_name": "SmartProfits",
+  "description": "智能利润管理系统",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#003974",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "stock.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "stock.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "stock.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "stock.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "stock.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "stock.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "finance", "productivity"],
+  "lang": "zh-CN",
+  "dir": "ltr"
+} 

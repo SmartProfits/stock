@@ -4,6 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SmartProfits Management System</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="description" content="智能利润管理系统 - 专业的股票和投资管理工具">
+  <meta name="theme-color" content="#003974">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="SmartProfits">
+  <meta name="msapplication-TileImage" content="stock.png">
+  <meta name="msapplication-TileColor" content="#003974">
+  
+  <!-- PWA Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="stock.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="stock.png">
+  <link rel="apple-touch-icon" href="stock.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="stock.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="stock.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="stock.png">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -6208,5 +6228,138 @@
     <span class="close">&times;</span>
     <img class="image-modal-content" id="full-size-image">
   </div>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    // 注册Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('SW registered: ', registration);
+            
+            // 检查是否有更新
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // 新的Service Worker已安装，提示用户刷新
+                  if (confirm('应用有新版本可用，是否立即更新？')) {
+                    window.location.reload();
+                  }
+                }
+              });
+            });
+          })
+          .catch(error => {
+            console.log('SW registration failed: ', error);
+          });
+      });
+    }
+
+    // PWA安装提示
+    let deferredPrompt;
+    const installButton = document.createElement('button');
+    installButton.textContent = '安装应用';
+    installButton.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #003974;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: none;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    `;
+    
+    installButton.addEventListener('mouseenter', () => {
+      installButton.style.transform = 'translateY(-2px)';
+      installButton.style.boxShadow = '0 6px 12px rgba(0,0,0,0.3)';
+    });
+    
+    installButton.addEventListener('mouseleave', () => {
+      installButton.style.transform = 'translateY(0)';
+      installButton.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+    });
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // 阻止默认的安装提示
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // 显示自定义安装按钮
+      document.body.appendChild(installButton);
+      installButton.style.display = 'block';
+    });
+
+    installButton.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        
+        if (outcome === 'accepted') {
+          console.log('用户接受了安装提示');
+        } else {
+          console.log('用户拒绝了安装提示');
+        }
+        
+        deferredPrompt = null;
+        installButton.style.display = 'none';
+      }
+    });
+
+    // 检测应用是否已安装
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA已安装');
+      installButton.style.display = 'none';
+      
+      // 显示欢迎消息
+      setTimeout(() => {
+        alert('SmartProfits已成功安装到您的设备！');
+      }, 1000);
+    });
+
+    // 添加离线状态检测
+    function updateOnlineStatus() {
+      const statusElement = document.createElement('div');
+      statusElement.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 10px;
+        text-align: center;
+        z-index: 10000;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      `;
+      
+      if (navigator.onLine) {
+        statusElement.textContent = '已连接到网络';
+        statusElement.style.backgroundColor = '#4CAF50';
+        statusElement.style.color = 'white';
+        document.body.appendChild(statusElement);
+        setTimeout(() => {
+          if (statusElement.parentNode) {
+            statusElement.parentNode.removeChild(statusElement);
+          }
+        }, 2000);
+      } else {
+        statusElement.textContent = '离线模式 - 某些功能可能受限';
+        statusElement.style.backgroundColor = '#f44336';
+        statusElement.style.color = 'white';
+        document.body.appendChild(statusElement);
+      }
+    }
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+  </script>
 </body>
 </html>
