@@ -1540,7 +1540,7 @@
           <table id="inventory-table">
             <thead>
               <tr>
-                <th>Product Name</th>
+                <th class="sortable" data-sort="name">Product Name ↕</th>
                 <th style="width: 100px;">Image</th>
                 <th class="hide-on-mobile sortable" data-sort="category">Category ↕</th>
                 <th>Quantity</th>
@@ -1585,6 +1585,10 @@
         <select id="stock-in-office-location" required>
             <option value="office">Office</option>
         </select>
+        
+        <label for="stock-in-office-date-time">Date & Time (Optional)</label>
+        <input type="datetime-local" id="stock-in-office-date-time" placeholder="Select date and time">
+        <small style="color: #666; font-size: 0.9em;">Leave empty to use current date and time</small>
         
         <button id="stock-in-office-button"><i class="fas fa-download"></i> Add Stock In - Office</button>
         <p id="stock-in-office-error" class="error-message"></p>
@@ -2030,6 +2034,7 @@
     const stockInOfficeUnitInput = document.getElementById('stock-in-office-unit');
     const stockInOfficeExpiredDateInput = document.getElementById('stock-in-office-expired-date');
     const stockInOfficeLocationSelect = document.getElementById('stock-in-office-location');
+    const stockInOfficeDateTimeInput = document.getElementById('stock-in-office-date-time');
     const stockInOfficeError = document.getElementById('stock-in-office-error');
 
     const stockInKepayanSeafoodNameInput = document.getElementById('stock-in-kepayan-seafood-name');
@@ -2388,6 +2393,7 @@
       const unit = stockInOfficeUnitInput.value.trim();
       const expiredDate = stockInOfficeExpiredDateInput.value; // Optional
       const location = stockInOfficeLocationSelect.value;
+      const selectedDateTime = stockInOfficeDateTimeInput.value; // Optional custom date time
 
       // Permission Check
       if (!canPerformAction('stock-in', location)) {
@@ -2430,6 +2436,16 @@
       const inventoryRef = db.ref(targetPath);
       const newItemRef = inventoryRef.push();
 
+      // Determine the date and time to use
+      let dateTimeToUse;
+      if (selectedDateTime && selectedDateTime.trim() !== '') {
+        // Use user selected date time
+        dateTimeToUse = new Date(selectedDateTime).toISOString();
+      } else {
+        // Use current date time
+        dateTimeToUse = new Date().toISOString();
+      }
+
       // Prepare Data Object
       const itemData = {
         type: 'stock-in',
@@ -2438,8 +2454,8 @@
         quantity: Number(quantity),
         unit,
         location,
-        createdTime: new Date().toISOString(), // ISO 8601 format
-        modifiedTime: new Date().toISOString(), // ISO 8601 format
+        createdTime: dateTimeToUse, // ISO 8601 format
+        modifiedTime: dateTimeToUse, // ISO 8601 format
         modifiedBy: user.displayName || 'Unknown'
       };
 
@@ -2460,7 +2476,7 @@
             quantity: Number(quantity),
             unit: unit,
             location: location,
-            time: new Date().toISOString(),
+            time: dateTimeToUse, // Use the same date time as inventory item
             user: user.displayName || 'Unknown',
             comment: 'None'
           };
@@ -2472,6 +2488,7 @@
           stockInOfficeQuantityInput.value = '';
           stockInOfficeUnitInput.value = '';
           stockInOfficeExpiredDateInput.value = '';
+          stockInOfficeDateTimeInput.value = '';
           stockInOfficeLocationSelect.value = 'office';
         }
         hideLoading();
@@ -4763,7 +4780,7 @@
     function updateInventoryTableHeader() {
       const thead = document.querySelector('#inventory-table thead tr');
       thead.innerHTML = `
-        <th>Product Name</th>
+        <th class="sortable" data-sort="name">Product Name ↕</th>
         <th style="width: 100px;">Image</th>
         <th class="hide-on-mobile sortable" data-sort="category">Category ↕</th>
         <th>Quantity</th>
@@ -4790,7 +4807,9 @@
           header.setAttribute('data-direction', newDirection);
           
           // Call appropriate sort function
-          if (sortType === 'category') {
+          if (sortType === 'name') {
+            sortInventoryByName(newDirection);
+          } else if (sortType === 'category') {
             sortInventoryByCategory(newDirection);
           } else if (sortType === 'expiry') {
             sortInventoryByExpiry(newDirection);
@@ -4872,6 +4891,30 @@
       cards.forEach(card => inventoryCardsContainer.appendChild(card));
     }
 
+    // Sort inventory by product name
+    function sortInventoryByName(direction = 'asc') {
+      const rows = Array.from(inventoryTableBody.querySelectorAll('tr'));
+      
+      rows.sort((a, b) => {
+        // Product name is in the first column (index 0)
+        const nameA = (a.children[0].textContent || 'ZZZ').toLowerCase(); 
+        const nameB = (b.children[0].textContent || 'ZZZ').toLowerCase();
+        
+        if (direction === 'asc') {
+          return nameA.localeCompare(nameB);
+        } else {
+          return nameB.localeCompare(nameA);
+        }
+      });
+
+      // Clear and re-append sorted rows
+      inventoryTableBody.innerHTML = '';
+      rows.forEach(row => inventoryTableBody.appendChild(row));
+
+      // Sort cards for mobile view
+      sortInventoryCardsByName(direction);
+    }
+
     // Sort inventory by category
     function sortInventoryByCategory(direction = 'asc') {
       const rows = Array.from(inventoryTableBody.querySelectorAll('tr'));
@@ -4896,7 +4939,27 @@
       sortInventoryCards(direction);
     }
 
-    // Sort inventory cards
+    // Sort inventory cards by name
+    function sortInventoryCardsByName(direction = 'asc') {
+      const cards = Array.from(inventoryCardsContainer.querySelectorAll('.inventory-card'));
+      
+      cards.sort((a, b) => {
+        const nameA = (a.querySelector('.product-name span').textContent || 'ZZZ').toLowerCase();
+        const nameB = (b.querySelector('.product-name span').textContent || 'ZZZ').toLowerCase();
+        
+        if (direction === 'asc') {
+          return nameA.localeCompare(nameB);
+        } else {
+          return nameB.localeCompare(nameA);
+        }
+      });
+
+      // Clear and re-append sorted cards
+      inventoryCardsContainer.innerHTML = '';
+      cards.forEach(card => inventoryCardsContainer.appendChild(card));
+    }
+
+    // Sort inventory cards by category
     function sortInventoryCards(direction = 'asc') {
       const cards = Array.from(inventoryCardsContainer.querySelectorAll('.inventory-card'));
       
