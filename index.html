@@ -1366,6 +1366,232 @@
     }
     
     /* 样式继续... */
+
+    /* 登录和登出按钮美化样式 */
+    
+    /* 登录按钮样式 - 立体3D效果 */
+    #login-button {
+      background: linear-gradient(145deg, #003974 0%, #003974 50%, #003974 100%);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px auto;
+      width: 100%;
+      max-width: 300px;
+      box-shadow: 
+        0 12px 25px rgba(79, 172, 254, 0.4),
+        0 6px 12px rgba(0, 0, 0, 0.2),
+        inset 0 3px 6px rgba(255, 255, 255, 0.2),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.1);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+    }
+
+    #login-button:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 
+        0 18px 35px rgba(79, 172, 254, 0.5),
+        0 8px 16px rgba(0, 0, 0, 0.3),
+        inset 0 4px 8px rgba(255, 255, 255, 0.3),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.15);
+      background: linear-gradient(145deg, #00f2fe 0%, #4facfe 50%, #00f2fe 100%);
+    }
+
+    #login-button:active {
+      transform: translateY(-2px) scale(0.98);
+      transition: all 0.1s ease;
+      box-shadow: 
+        0 6px 12px rgba(79, 172, 254, 0.3),
+        0 3px 6px rgba(0, 0, 0, 0.2),
+        inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 注册按钮样式 - 立体3D效果 */
+    #register-button {
+      background: linear-gradient(145deg, #fa709a 0%, #fee140 50%, #fa709a 100%);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px auto;
+      width: 100%;
+      max-width: 300px;
+      box-shadow: 
+        0 12px 25px rgba(250, 112, 154, 0.4),
+        0 6px 12px rgba(0, 0, 0, 0.2),
+        inset 0 3px 6px rgba(255, 255, 255, 0.2),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.1);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+    }
+
+    #register-button:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 
+        0 18px 35px rgba(250, 112, 154, 0.5),
+        0 8px 16px rgba(0, 0, 0, 0.3),
+        inset 0 4px 8px rgba(255, 255, 255, 0.3),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.15);
+      background: linear-gradient(145deg, #fee140 0%, #fa709a 50%, #fee140 100%);
+    }
+
+    #register-button:active {
+      transform: translateY(-2px) scale(0.98);
+      transition: all 0.1s ease;
+      box-shadow: 
+        0 6px 12px rgba(250, 112, 154, 0.3),
+        0 3px 6px rgba(0, 0, 0, 0.2),
+        inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 登出按钮样式 - 立体3D效果，较小尺寸 */
+    #logout-button {
+      background: linear-gradient(145deg, #ff6b6b 0%, #ee5a52 50%, #dc3545 100%);
+      color: white;
+      border: none;
+      padding: 6px 12px;  /* 比登录按钮小一些 */
+      border-radius: 15px;  /* 较小的圆角 */
+      font-size: 11px;     /* 较小的字体 */
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 
+        0 6px 12px rgba(255, 107, 107, 0.4),
+        0 3px 6px rgba(0, 0, 0, 0.2),
+        inset 0 2px 4px rgba(255, 255, 255, 0.2),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      min-width: auto;
+      width: auto;
+    }
+
+    #logout-button:hover {
+      transform: translateY(-3px) scale(1.08);
+      box-shadow: 
+        0 10px 20px rgba(255, 107, 107, 0.5),
+        0 5px 10px rgba(0, 0, 0, 0.3),
+        inset 0 3px 6px rgba(255, 255, 255, 0.3),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.15);
+      background: linear-gradient(145deg, #ee5a52 0%, #ff6b6b 50%, #ee5a52 100%);
+    }
+
+    #logout-button:active {
+      transform: translateY(-1px) scale(0.98);
+      transition: all 0.1s ease;
+      box-shadow: 
+        0 4px 8px rgba(255, 107, 107, 0.3),
+        0 2px 4px rgba(0, 0, 0, 0.2),
+        inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 按钮图标样式 */
+    #login-button i, #register-button i, #logout-button i {
+      font-size: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    #logout-button i {
+      font-size: 12px;  /* 登出按钮图标更小 */
+    }
+
+    #login-button:hover i, #register-button:hover i, #logout-button:hover i {
+      transform: scale(1.2);
+    }
+
+    /* 按钮波纹效果 */
+    #login-button::before, #register-button::before, #logout-button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transition: width 0.6s, height 0.6s;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+    }
+
+    #login-button:active::before, #register-button:active::before, #logout-button:active::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    /* 按钮文字样式 */
+    #login-button span, #register-button span, #logout-button span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      #login-button, #register-button {
+        padding: 12px 30px;
+        font-size: 14px;
+        max-width: 250px;
+      }
+
+      #logout-button {
+        padding: 5px 10px;  /* 移动端登出按钮更小 */
+        font-size: 10px;
+      }
+    }
+
+    /* 按钮加载状态 */
+    .button-loading {
+      position: relative;
+      pointer-events: none;
+    }
+
+    .button-loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid transparent;
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 
   <!-- 在 <head> 标签内添加这些 meta 标签 -->
@@ -1414,10 +1640,11 @@
         </div>
       </div>
 
-      <!-- Login Button -->
-      <button id="login-button" style="background: linear-gradient(135deg, #003974, #002a63); margin-bottom: 20px; height: 50px; font-size: 1.1em; letter-spacing: 1px;">
-        <i class="fas fa-sign-in-alt"></i> Login
-      </button>
+        <!-- Login Button -->
+        <button id="login-button">
+          <i class="fas fa-sign-in-alt"></i> 
+          <span>Login</span>
+        </button>
 
       <!-- Links -->
       <div style="text-align: center; margin-top: 20px;">
@@ -1462,9 +1689,10 @@
         <input type="password" id="register-password" placeholder="Enter Password" style="background: #f8f9fa; border: 2px solid #e9ecef;" required>
       </div>
 
-      <button id="register-button" style="background: linear-gradient(135deg, #003974, #002a63); margin-bottom: 20px; height: 50px; font-size: 1.1em; letter-spacing: 1px;">
-        <i class="fas fa-user-plus"></i> Register
-      </button>
+        <button id="register-button">
+          <i class="fas fa-user-plus"></i> 
+          <span>Register</span>
+        </button>
 
       <div style="text-align: center;">
         <p style="color: #666;">
@@ -1483,7 +1711,10 @@
       <h1 style="color: ghostwhite; font-size: 3.5em;">SmartProfits Stock System 2.0</h1>
       <div id="user-info">
         <span id="welcome-message"></span>
-        <button id="logout-button"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button id="logout-button">
+          <i class="fas fa-sign-out-alt"></i> 
+          <span>Logout</span>
+        </button>
       </div>
     </header>
     
@@ -1840,6 +2071,10 @@
             <option value="Datuk">Datuk</option>
             <option value="Kepayan">Kepayan</option>
           </select>
+          
+          <label for="batch-stock-out-date-time">Date & Time (Optional)</label>
+          <input type="datetime-local" id="batch-stock-out-date-time" placeholder="Select date and time">
+          <small style="color: #666; font-size: 0.9em; display: block; margin-bottom: 15px;">Leave empty to use current date and time</small>
 
           <button id="batch-stock-out-button" disabled>
             <i class="fas fa-box-open"></i> Process Stock Out
@@ -1962,6 +2197,10 @@
         <option value="Kepayan">Kepayan</option>
       </select>
       
+      <label for="stock-out-date-time">Date & Time (Optional)</label>
+      <input type="datetime-local" id="stock-out-date-time" placeholder="Select date and time">
+      <small style="color: #666; font-size: 0.9em; display: block; margin-bottom: 15px;">Leave empty to use current date and time</small>
+      
       <button id="confirm-stock-out-button"><i class="fas fa-check"></i> Confirm Stock Out</button>
       <p id="stock-out-error" class="error-message"></p>
     </div>
@@ -2077,6 +2316,7 @@
     const confirmStockOutButton = document.getElementById('confirm-stock-out-button'); // Added
     const stockOutQuantityInput = document.getElementById('stock-out-quantity'); // Added
     const stockOutCommentInput = document.getElementById('stock-out-comment'); // Changed to select
+    const stockOutDateTimeInput = document.getElementById('stock-out-date-time'); // Added for date time selection
     const stockOutError = document.getElementById('stock-out-error'); // Added
 
     const loadingIndicator = document.getElementById('loading-indicator');
@@ -2488,7 +2728,6 @@
           stockInOfficeQuantityInput.value = '';
           stockInOfficeUnitInput.value = '';
           stockInOfficeExpiredDateInput.value = '';
-          stockInOfficeDateTimeInput.value = '';
           stockInOfficeLocationSelect.value = 'office';
         }
         hideLoading();
@@ -3109,6 +3348,7 @@
         currentStockOutItemId = e.target.getAttribute('data-item-id');
         stockOutQuantityInput.value = '';
         stockOutCommentInput.value = ''; // Reset to default
+        stockOutDateTimeInput.value = ''; // Clear date time field
         stockOutError.textContent = '';
         stockOutModal.style.display = 'block';
       }
@@ -3143,6 +3383,7 @@
       const quantityToOut = stockOutQuantityInput.value.trim();
       const comment = stockOutCommentInput.value;
       const commentSelect = document.getElementById('stock-out-comment');
+      const selectedDateTime = stockOutDateTimeInput.value; // New: Get selected date time
 
       // Basic Validation
       if (quantityToOut === '' || isNaN(quantityToOut) || Number(quantityToOut) <= 0) {
@@ -3169,6 +3410,16 @@
 
       showLoading();
 
+      // Determine the date and time to use
+      let dateTimeToUse;
+      if (selectedDateTime && selectedDateTime.trim() !== '') {
+        // Use user selected date time
+        dateTimeToUse = new Date(selectedDateTime).toISOString();
+      } else {
+        // Use current date time
+        dateTimeToUse = new Date().toISOString();
+      }
+
       // Find the inventory item path
       const inventoryPaths = getInventoryPaths();
       let itemFound = false;
@@ -3186,7 +3437,7 @@
             // Update inventory quantity
             itemRef.update({
               quantity: newQuantity,
-              modifiedTime: new Date().toISOString(), // ISO 8601 format
+              modifiedTime: dateTimeToUse, // Use selected or current datetime
               modifiedBy: user.displayName || 'Unknown'
             }, (error) => {
               if (error) {
@@ -3201,13 +3452,17 @@
                   quantity: -quantityNumber, // 使用负数表示出库
                   unit: item.unit,
                   location: item.location,
-                  time: new Date().toISOString(), // ISO 8601 format
+                  time: dateTimeToUse, // Use selected or current datetime
                   user: user.displayName || 'Unknown',
                   comment: comment // Selected comment
                 };
                 db.ref('transactions').push(transactionData)
                   .then(() => {
                     stockOutError.textContent = '';
+                    // Clear form fields for next use
+                    stockOutQuantityInput.value = '';
+                    stockOutCommentInput.value = '';
+                    stockOutDateTimeInput.value = '';
                     stockOutModal.style.display = 'none';
                   })
                   .catch((error) => {
@@ -4486,9 +4741,21 @@
     // Handle batch stock out
     batchStockOutButton.addEventListener('click', async () => {
       const comment = document.getElementById('stock-out-comment').value;
+      const selectedDateTime = document.getElementById('batch-stock-out-date-time').value;
+      
       if (!comment) {
         alert('Please select a comment for the stock out operation.');
         return;
+      }
+
+      // Determine the date and time to use
+      let dateTimeToUse;
+      if (selectedDateTime && selectedDateTime.trim() !== '') {
+        // Use user selected date time
+        dateTimeToUse = new Date(selectedDateTime).toISOString();
+      } else {
+        // Use current date time
+        dateTimeToUse = new Date().toISOString();
       }
 
       // 获取所有选中的项（表格和卡片视图）
@@ -4531,7 +4798,7 @@
               if (item.quantity >= quantity) {
                 return itemRef.update({
                   quantity: item.quantity - quantity,
-                  modifiedTime: new Date().toISOString(),
+                  modifiedTime: dateTimeToUse, // Use selected or current datetime
                   modifiedBy: user.displayName || 'Unknown'
                 }).then(() => {
                   // 添加交易记录
@@ -4542,7 +4809,7 @@
                     quantity: -quantity, // 使用负数表示出库
                     unit: item.unit,
                     location: item.location,
-                    time: new Date().toISOString(),
+                    time: dateTimeToUse, // Use selected or current datetime
                     user: user.displayName || 'Unknown',
                     comment: comment
                   });
