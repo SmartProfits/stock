@@ -2208,6 +2208,44 @@
     </div>
   </div>
 
+  <!-- Stock Out Confirmation Modal -->
+  <div id="stock-out-confirmation-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="close-confirmation-modal">&times;</span>
+      <h3>Confirm Stock Out</h3>
+      <div id="confirmation-content">
+        <p><strong>Comment:</strong> <span id="confirmation-comment"></span></p>
+        <p><strong>Date & Time:</strong> <span id="confirmation-datetime"></span></p>
+        
+        <!-- Unit Statistics -->
+        <div id="confirmation-unit-stats" style="margin: 15px 0; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+          <h4 style="margin-top: 0; margin-bottom: 10px;">Unit Summary</h4>
+          <div id="confirmation-unit-stats-content" class="unit-stats"></div>
+        </div>
+        
+        <h4>Product List:</h4>
+        <div style="max-height: 400px; overflow-y: auto;">
+          <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+            <thead>
+              <tr style="background-color: #f0f0f0;">
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Product Name</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Quantity</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Unit</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Location</th>
+              </tr>
+            </thead>
+            <tbody id="confirmation-items-list">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top: 20px; text-align: right;">
+        <button id="cancel-confirmation-button" style="margin-right: 10px; padding: 10px 20px; background-color: #ccc; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+        <button id="confirm-ok-button" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;"><i class="fas fa-check"></i> OK</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 添加图片查看模态框 -->
   <div id="image-view-modal" class="image-modal">
     <span class="close" style="position: absolute; right: 20px; top: 20px; color: white; font-size: 30px; cursor: pointer;">&times;</span>
@@ -2320,6 +2358,17 @@
     const stockOutCommentInput = document.getElementById('stock-out-comment'); // Changed to select
     const stockOutDateTimeInput = document.getElementById('stock-out-date-time'); // Added for date time selection
     const stockOutError = document.getElementById('stock-out-error'); // Added
+
+    // Stock Out Confirmation Modal elements
+    const stockOutConfirmationModal = document.getElementById('stock-out-confirmation-modal');
+    const closeConfirmationModalSpan = document.getElementById('close-confirmation-modal');
+    const cancelConfirmationButton = document.getElementById('cancel-confirmation-button');
+    const confirmOkButton = document.getElementById('confirm-ok-button');
+    const confirmationCommentSpan = document.getElementById('confirmation-comment');
+    const confirmationDateTimeSpan = document.getElementById('confirmation-datetime');
+    const confirmationItemsList = document.getElementById('confirmation-items-list');
+    const confirmationUnitStatsContent = document.getElementById('confirmation-unit-stats-content');
+    let pendingStockOutData = null; // 存储待确认的出货数据
 
     const loadingIndicator = document.getElementById('loading-indicator');
 
@@ -4740,7 +4789,7 @@
       batchStockOutButton.disabled = !isAnyChecked;
     }
 
-    // Handle batch stock out
+    // Handle batch stock out - 先显示确认模态框
     batchStockOutButton.addEventListener('click', async () => {
       const comment = document.getElementById('stock-out-comment').value;
       const selectedDateTime = document.getElementById('batch-stock-out-date-time').value;
@@ -4752,12 +4801,29 @@
 
       // Determine the date and time to use
       let dateTimeToUse;
+      let dateTimeDisplay;
       if (selectedDateTime && selectedDateTime.trim() !== '') {
         // Use user selected date time
         dateTimeToUse = new Date(selectedDateTime).toISOString();
+        dateTimeDisplay = new Date(selectedDateTime).toLocaleString('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
       } else {
         // Use current date time
         dateTimeToUse = new Date().toISOString();
+        dateTimeDisplay = new Date().toLocaleString('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
       }
 
       // 获取所有选中的项（表格和卡片视图）
@@ -4772,10 +4838,11 @@
         return;
       }
 
-      const stockOutPromises = [];
+      // 收集所有选中的商品信息
+      const itemsToStockOut = [];
       const user = auth.currentUser;
 
-      checkedItems.forEach(checkbox => {
+      for (const checkbox of checkedItems) {
         let quantityInput, quantity;
         
         if (window.innerWidth <= 600) {
@@ -4784,7 +4851,7 @@
           quantity = parseFloat(quantityInput.value);
         } else {
           // 桌面视图中从表格获取数据
-        const tr = checkbox.closest('tr');
+          const tr = checkbox.closest('tr');
           quantityInput = tr.querySelector('.stock-out-quantity');
           quantity = parseFloat(quantityInput.value);
         }
@@ -4793,35 +4860,123 @@
         const path = checkbox.getAttribute('data-path');
 
         if (quantity > 0) {
-          const itemRef = db.ref(`${path}/${itemId}`);
-          stockOutPromises.push(
-            itemRef.once('value').then(snapshot => {
-              const item = snapshot.val();
-              if (item.quantity >= quantity) {
-                return itemRef.update({
-                  quantity: item.quantity - quantity,
-                  modifiedTime: dateTimeToUse, // Use selected or current datetime
-                  modifiedBy: user.displayName || 'Unknown'
-                }).then(() => {
-                  // 添加交易记录
-                  return db.ref('transactions').push({
-                    type: 'stock-out',
-                    productName: item.name,
-                    category: item.category || 'N/A',
-                    quantity: -quantity, // 使用负数表示出库
-                    unit: item.unit,
-                    location: item.location,
-                    time: dateTimeToUse, // Use selected or current datetime
-                    user: user.displayName || 'Unknown',
-                    comment: comment
-                  });
-                });
-              } else {
-                throw new Error(`Insufficient quantity for ${item.name}`);
-              }
-            })
-          );
+          // 从数据库获取完整商品信息
+          try {
+            const itemRef = db.ref(`${path}/${itemId}`);
+            const snapshot = await itemRef.once('value');
+            const item = snapshot.val();
+            
+            if (!item) {
+              alert(`商品信息不存在 (ID: ${itemId})`);
+              return;
+            }
+            
+            if (item.quantity >= quantity) {
+              itemsToStockOut.push({
+                itemId: itemId,
+                path: path,
+                name: item.name,
+                category: item.category || 'N/A',
+                quantity: quantity,
+                unit: item.unit,
+                location: item.location,
+                currentQuantity: item.quantity
+              });
+            } else {
+              alert(`Insufficient stock: ${item.name} (Available: ${item.quantity}, Required: ${quantity})`);
+              return;
+            }
+          } catch (error) {
+            alert(`Failed to get product information (ID: ${itemId}) - ${error.message}`);
+            return;
+          }
         }
+      }
+
+      if (itemsToStockOut.length === 0) {
+        alert('No valid items to stock out.');
+        return;
+      }
+
+      // 存储待确认的数据
+      pendingStockOutData = {
+        comment: comment,
+        dateTimeToUse: dateTimeToUse,
+        items: itemsToStockOut,
+        user: user
+      };
+
+      // 计算单位统计
+      const unitStats = {};
+      itemsToStockOut.forEach(item => {
+        const unit = item.unit || 'N/A';
+        if (!unitStats[unit]) {
+          unitStats[unit] = 0;
+        }
+        unitStats[unit] += item.quantity;
+      });
+
+      // 显示确认模态框
+      confirmationCommentSpan.textContent = comment;
+      confirmationDateTimeSpan.textContent = dateTimeDisplay;
+      
+      // 显示单位统计
+      confirmationUnitStatsContent.innerHTML = '';
+      Object.keys(unitStats).sort().forEach(unit => {
+        const statDiv = document.createElement('div');
+        statDiv.className = 'unit-stat';
+        statDiv.textContent = `${unitStats[unit]} ${unit}`;
+        confirmationUnitStatsContent.appendChild(statDiv);
+      });
+      
+      // 清空并填充商品列表
+      confirmationItemsList.innerHTML = '';
+      itemsToStockOut.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="padding: 10px; border: 1px solid #ddd;">${item.name}</td>
+          <td style="padding: 10px; border: 1px solid #ddd;">${item.quantity}</td>
+          <td style="padding: 10px; border: 1px solid #ddd;">${item.unit}</td>
+          <td style="padding: 10px; border: 1px solid #ddd;">${item.location}</td>
+        `;
+        confirmationItemsList.appendChild(tr);
+      });
+
+      // 显示确认模态框
+      stockOutConfirmationModal.style.display = 'block';
+    });
+
+    // 执行实际的stock out操作
+    async function executeStockOut() {
+      if (!pendingStockOutData) {
+        return;
+      }
+
+      const { comment, dateTimeToUse, items, user } = pendingStockOutData;
+      const stockOutPromises = [];
+
+      items.forEach(item => {
+        const itemRef = db.ref(`${item.path}/${item.itemId}`);
+        stockOutPromises.push(
+          itemRef.update({
+            quantity: item.currentQuantity - item.quantity,
+            modifiedTime: dateTimeToUse,
+            modifiedBy: user.displayName || 'Unknown'
+          }).then(() => {
+            // 添加交易记录
+            return db.ref('transactions').push({
+              type: 'stock-out',
+              productName: item.name,
+              category: item.category,
+              quantity: -item.quantity,
+              unit: item.unit,
+              location: item.location,
+              time: dateTimeToUse,
+              user: user.displayName || 'Unknown',
+              comment: comment
+            });
+          })
+        );
       });
 
       try {
@@ -4829,10 +4984,37 @@
         await Promise.all(stockOutPromises);
         alert('Batch stock out completed successfully');
         loadStockOutItems(); // Reload the table
+        stockOutConfirmationModal.style.display = 'none';
+        pendingStockOutData = null;
       } catch (error) {
         alert('Error processing batch stock out: ' + error.message);
       } finally {
         hideLoading();
+      }
+    }
+
+    // 确认按钮点击事件
+    confirmOkButton.addEventListener('click', () => {
+      executeStockOut();
+    });
+
+    // 取消按钮点击事件
+    cancelConfirmationButton.addEventListener('click', () => {
+      stockOutConfirmationModal.style.display = 'none';
+      pendingStockOutData = null;
+    });
+
+    // 关闭确认模态框
+    closeConfirmationModalSpan.onclick = function() {
+      stockOutConfirmationModal.style.display = 'none';
+      pendingStockOutData = null;
+    };
+
+    // 点击模态框外部关闭
+    window.addEventListener('click', function(event) {
+      if (event.target == stockOutConfirmationModal) {
+        stockOutConfirmationModal.style.display = 'none';
+        pendingStockOutData = null;
       }
     });
 
