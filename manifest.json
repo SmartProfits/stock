@@ -4,8 +4,8 @@
   "description": "库存管理系统",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#003974",
+  "background_color": "#f1f4f9",
+  "theme_color": "#0b3a63",
   "icons": [
     {
       "src": "stock.png",
@@ -20,4 +20,4 @@
       "purpose": "any maskable"
     }
   ]
-} 
+}
