@@ -1262,8 +1262,13 @@
         stockOutModal.style.display = 'block';
       }
 
-      // Click on Inventory Card to Open Edit Modal (Ensure it's not the Stock Out Button)
-      if (e.target && e.target.closest('.inventory-card') && !e.target.classList.contains('stock-out-button')) {
+      // Click on Inventory Card to Open Edit Modal
+      // 排除卡片内的操作按钮（+Stock / Edit / Delete / Stock Out），避免点这些按钮时误触发编辑弹窗
+      if (
+        e.target &&
+        e.target.closest('.inventory-card') &&
+        !e.target.closest('.inventory-card .ic-actions button, .inventory-card .stock-out-button, .inventory-card .stock-in-button, .inventory-card .edit-button, .inventory-card .delete-button')
+      ) {
         const card = e.target.closest('.inventory-card');
         const itemId = card.getAttribute('data-item-id');
         const user = auth.currentUser;

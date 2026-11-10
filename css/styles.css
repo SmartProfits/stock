@@ -862,28 +862,6 @@
         color: #dc3545;
     }
 
-    /* 添加页脚样式 */
-    .footer-credit {
-      text-align: center;
-      padding: 20px;
-      color: #666;
-      font-size: 0.9em;
-      margin-top: 40px;
-      border-top: 1px solid #eee;
-      background-color: #f8f9fa;
-    }
-
-    .footer-credit a {
-      color: #003974;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-    .footer-credit a:hover {
-      color: #002a63;
-      text-decoration: underline;
-    }
 
     /* 新增交易记录页面样式 */
     .view-tab {
@@ -2374,7 +2352,8 @@
 
     /* ---------- 登录 / 注册 (暗色玻璃居中 UI) ---------- */
     body:has(#auth-container:not(.hidden)) {
-      background-color: #070b13;
+      background: #070b13 !important;
+      background-image: none !important;
     }
 
     #auth-container {
@@ -2688,6 +2667,15 @@
       letter-spacing: .5px;
     }
 
+    .auth-foot-note {
+      text-align: center;
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85) !important;
+      letter-spacing: .3px;
+      line-height: 1.5;
+    }
+
     /* 错误信息展示 (微光红玻璃) */
     #login-error, #register-error {
       font-size: 12px;
@@ -2808,18 +2796,6 @@
     .toast.hide { animation: toastOut .2s forwards; }
     @keyframes toastIn { to { opacity: 1; transform: translateY(0); } }
     @keyframes toastOut { to { opacity: 0; transform: translateY(8px); } }
-
-    /* ---------- 页脚 ---------- */
-    .footer-credit {
-      background: transparent !important;
-      border-top: 1px solid var(--line) !important;
-      color: var(--muted) !important;
-      font-size: 11.5px !important;
-      padding: 18px 10px 24px !important;
-      margin-top: 10px !important;
-      text-align: center;
-    }
-    .footer-credit a { color: var(--accent) !important; font-weight: 600; }
 
     /* ---------- 桌面微调 ---------- */
     @media (min-width: 861px) {
@@ -3029,7 +3005,6 @@
       .modal-content { margin: 4vh auto !important; padding: 18px !important; border-radius: 16px !important; max-height: 92vh; }
       #toast-host { bottom: calc(78px + env(safe-area-inset-bottom)); }
       .auth-card { padding: 24px 20px !important; border-radius: 20px !important; }
-      .footer-credit { padding-bottom: 86px !important; }
 
       /* --- Stock Out 手机版：chips 显示、表格隐藏、紧凑卡片 + sticky 提交栏 --- */
       .category-chips { display: flex !important; }
